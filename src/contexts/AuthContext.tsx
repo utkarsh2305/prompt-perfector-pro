@@ -109,21 +109,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    let initialCheckDone = false;
+
     // IMPORTANT: set up listener BEFORE getSession to avoid missing auth events.
     const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
-      setIsLoading(true);
-      await hydrateForSession(nextSession);
-      setIsLoading(false);
+      // Only handle auth changes after initial check is done
+      if (initialCheckDone) {
+        setIsLoading(true);
+        await hydrateForSession(nextSession);
+        setIsLoading(false);
+      }
     });
 
+    // Initial session check
     supabase.auth.getSession().then(async ({ data, error }) => {
       if (error) {
         setIsLoading(false);
+        initialCheckDone = true;
         return;
       }
-      setIsLoading(true);
       await hydrateForSession(data.session);
       setIsLoading(false);
+      initialCheckDone = true;
     });
 
     return () => {
