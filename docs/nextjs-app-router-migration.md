@@ -44,9 +44,11 @@ Map React Router routes to App Router segments.
 
 | Current (Vite) | File today | Next.js App Router | Notes |
 |---|---|---|---|
-| `/` | `src/pages/Index.tsx` | `app/page.tsx` | Landing page |
+| `/` | `src/pages/Landing.tsx` | `app/page.tsx` | Landing page |
 | `/login` | `src/pages/Login.tsx` | `app/(auth)/login/page.tsx` | Auth group |
+| `/signup` | `src/pages/Signup.tsx` | `app/(auth)/signup/page.tsx` | Auth group |
 | `/dashboard` | `src/pages/Dashboard.tsx` | `app/dashboard/page.tsx` | Protected route |
+| `/admin` | `src/pages/Admin.tsx` | `app/admin/page.tsx` | Protected route (admin) |
 | `*` | `src/pages/NotFound.tsx` | `app/not-found.tsx` | Next.js built-in |
 
 If we add new routes in Vite, extend this table.
