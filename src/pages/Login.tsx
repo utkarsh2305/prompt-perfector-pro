@@ -6,11 +6,13 @@ import { Label } from "@/components/ui/label";
 import { NavLink } from "@/components/NavLink";
 import { Alert } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { signIn } = useAuth();
+  const { trackAuth, trackError } = useAnalytics();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState("");
@@ -19,6 +21,29 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const from = (location.state as { from?: string } | null)?.from ?? "/dashboard";
+
+  const handleLogin = async () => {
+    setError(null);
+    if (!email.trim()) return setError("Email is required.");
+    if (!password) return setError("Password is required.");
+
+    setIsSubmitting(true);
+    const { error: signInError } = await signIn({ email, password });
+    setIsSubmitting(false);
+
+    if (signInError) {
+      const errorMessage = (signInError as { message?: string })?.message ?? "Sign in failed";
+      trackError("error_encountered", {
+        error_code: "auth_error",
+        error_message: errorMessage,
+        location: "login",
+      });
+      return setError(errorMessage);
+    }
+
+    trackAuth("user_logged_in", { method: "email" });
+    navigate(from, { replace: true });
+  };
 
   return (
     <div className="min-h-screen">
@@ -63,23 +88,7 @@ const Login = () => {
                   className="w-full"
                   type="button"
                   disabled={isSubmitting}
-                  onClick={async () => {
-                    setError(null);
-                    if (!email.trim()) return setError("Email is required.");
-                    if (!password) return setError("Password is required.");
-
-                    setIsSubmitting(true);
-                    const { error: signInError } = await signIn({ email, password });
-                    setIsSubmitting(false);
-
-                    if (signInError) {
-                      return setError(
-                        (signInError as { message?: string })?.message ?? "Sign in failed",
-                      );
-                    }
-
-                    navigate(from, { replace: true });
-                  }}
+                  onClick={handleLogin}
                 >
                   {isSubmitting ? "Signing in…" : "Sign in"}
                 </Button>
@@ -97,7 +106,7 @@ const Login = () => {
                 </div>
 
                 <div className="text-center text-sm text-muted-foreground">
-                  Don’t have an account?{" "}
+                  Don't have an account?{" "}
                   <NavLink to="/signup" className="text-primary underline underline-offset-4">
                     Create one
                   </NavLink>
