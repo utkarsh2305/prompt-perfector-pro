@@ -6,11 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { Alert } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const { signUp } = useAuth();
+  const { trackAuth, trackError } = useAnalytics();
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,6 +20,31 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignup = async () => {
+    setError(null);
+    if (!fullName.trim()) return setError("Full name is required.");
+    if (!email.trim()) return setError("Email is required.");
+    if (password.length < 8) return setError("Password must be at least 8 characters.");
+    if (password !== confirmPassword) return setError("Passwords do not match.");
+
+    setIsSubmitting(true);
+    const { error: signUpError } = await signUp({ email, password, fullName });
+    setIsSubmitting(false);
+
+    if (signUpError) {
+      const errorMessage = (signUpError as { message?: string })?.message ?? "Sign up failed";
+      trackError("error_encountered", {
+        error_code: "signup_error",
+        error_message: errorMessage,
+        location: "signup",
+      });
+      return setError(errorMessage);
+    }
+
+    trackAuth("user_signed_up", { method: "email", tier: "free" });
+    navigate("/dashboard");
+  };
 
   return (
     <div className="min-h-screen">
@@ -90,20 +117,7 @@ const Signup = () => {
                   className="w-full"
                   type="button"
                   disabled={isSubmitting}
-                  onClick={async () => {
-                    setError(null);
-                    if (!fullName.trim()) return setError("Full name is required.");
-                    if (!email.trim()) return setError("Email is required.");
-                    if (password.length < 8) return setError("Password must be at least 8 characters.");
-                    if (password !== confirmPassword) return setError("Passwords do not match.");
-
-                    setIsSubmitting(true);
-                    const { error: signUpError } = await signUp({ email, password, fullName });
-                    setIsSubmitting(false);
-                    if (signUpError) return setError((signUpError as { message?: string })?.message ?? "Sign up failed");
-
-                    navigate("/dashboard");
-                  }}
+                  onClick={handleSignup}
                 >
                   {isSubmitting ? "Creating account…" : "Create account"}
                 </Button>
