@@ -1,45 +1,175 @@
-import React, { createContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import type { Session, User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import type { Profile } from "@/types/database";
 
-export type AppRole = "admin" | "user";
-
-export interface AuthUser {
-  id: string;
-  email: string;
-  roles: AppRole[];
-}
+export type AppRole = "admin" | "moderator" | "user";
 
 interface AuthContextValue {
-  user: AuthUser | null;
+  user: User | null;
+  session: Session | null;
+  profile: Profile | null;
+  roles: AppRole[];
+  isAdmin: boolean;
   isLoading: boolean;
-  signIn: (params: { email: string; password: string }) => Promise<void>;
-  signUp: (params: { email: string; password: string }) => Promise<void>;
-  signOut: () => Promise<void>;
+
+  signUp: (params: { email: string; password: string; fullName: string }) => Promise<{ error: unknown }>;
+  signIn: (params: { email: string; password: string }) => Promise<{ error: unknown }>;
+  signOut: () => Promise<{ error: unknown }>;
+
+  resetPassword: (params: { email: string }) => Promise<{ error: unknown }>;
+  updatePassword: (params: { newPassword: string }) => Promise<{ error: unknown }>;
+
+  refreshProfile: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading] = useState(false);
+async function upsertProfileForUser(user: User): Promise<void> {
+  // We intentionally create the profile from the client (instead of triggers on auth.users)
+  // to avoid modifying Supabase reserved schemas.
+  const email = user.email ?? null;
+  const fullName = (user.user_metadata?.full_name as string | undefined) ?? null;
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
+  await supabase
+    .from("profiles")
+    .upsert({
+      id: user.id,
+      email,
+      full_name: fullName,
+      last_login_at: new Date().toISOString(),
+    } as unknown as Profile);
+}
+
+async function fetchProfileForUser(userId: string): Promise<Profile | null> {
+  const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+  if (error) return null;
+  return (data as unknown as Profile) ?? null;
+}
+
+async function fetchRolesForUser(userId: string): Promise<AppRole[]> {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  if (error || !data) return [];
+  return data.map((r) => r.role as AppRole);
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [roles, setRoles] = useState<AppRole[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const hydrateForSession = useCallback(async (nextSession: Session | null) => {
+    setSession(nextSession);
+    const nextUser = nextSession?.user ?? null;
+    setUser(nextUser);
+
+    if (!nextUser) {
+      setProfile(null);
+      setRoles([]);
+      return;
+    }
+
+    await upsertProfileForUser(nextUser);
+    const [nextProfile, nextRoles] = await Promise.all([
+      fetchProfileForUser(nextUser.id),
+      fetchRolesForUser(nextUser.id),
+    ]);
+    setProfile(nextProfile);
+    setRoles(nextRoles);
+  }, []);
+
+  useEffect(() => {
+    // IMPORTANT: set up listener BEFORE getSession to avoid missing auth events.
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
+      setIsLoading(true);
+      await hydrateForSession(nextSession);
+      setIsLoading(false);
+    });
+
+    supabase.auth.getSession().then(async ({ data, error }) => {
+      if (error) {
+        setIsLoading(false);
+        return;
+      }
+      setIsLoading(true);
+      await hydrateForSession(data.session);
+      setIsLoading(false);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [hydrateForSession]);
+
+  const refreshProfile = useCallback(async () => {
+    if (!user) return;
+    const [nextProfile, nextRoles] = await Promise.all([
+      fetchProfileForUser(user.id),
+      fetchRolesForUser(user.id),
+    ]);
+    setProfile(nextProfile);
+    setRoles(nextRoles);
+  }, [user]);
+
+  const value = useMemo<AuthContextValue>(() => {
+    const isAdmin = roles.includes("admin");
+
+    return {
       user,
+      session,
+      profile,
+      roles,
+      isAdmin,
       isLoading,
-      signIn: async ({ email }) => {
-        // Placeholder auth only. Supabase will replace this.
-        setUser({ id: "local", email, roles: ["user"] });
+
+      signUp: async ({ email, password, fullName }) => {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: fullName },
+            emailRedirectTo: window.location.origin,
+          },
+        });
+        return { error };
       },
-      signUp: async ({ email }) => {
-        // Placeholder auth only. Supabase will replace this.
-        setUser({ id: "local", email, roles: ["user"] });
+
+      signIn: async ({ email, password }) => {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        return { error };
       },
+
       signOut: async () => {
-        setUser(null);
+        const { error } = await supabase.auth.signOut();
+        return { error };
       },
-    }),
-    [isLoading, user],
-  );
+
+      resetPassword: async ({ email }) => {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        return { error };
+      },
+
+      updatePassword: async ({ newPassword }) => {
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        return { error };
+      },
+
+      refreshProfile,
+    };
+  }, [isLoading, profile, refreshProfile, roles, session, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
