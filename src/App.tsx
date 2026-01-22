@@ -11,7 +11,7 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import DashboardLayout from "./pages/dashboard/DashboardLayout";
-import Admin from "./pages/Admin";
+import AdminLayout from "./pages/admin/AdminLayout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,10 +38,10 @@ const App = () => (
               }
             />
             <Route
-              path="/admin"
+              path="/admin/*"
               element={
                 <ProtectedRoute requireAdmin>
-                  <Admin />
+                  <AdminLayout />
                 </ProtectedRoute>
               }
             />

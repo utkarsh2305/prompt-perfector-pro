@@ -1,5 +1,21 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
+
+function AdminDeniedRedirect() {
+  const location = useLocation();
+
+  useEffect(() => {
+    toast({
+      title: "Access denied",
+      description: "Admin privileges required.",
+      variant: "destructive",
+    });
+  }, []);
+
+  return <Navigate to="/dashboard" replace state={{ from: location.pathname }} />;
+}
 
 export default function ProtectedRoute({
   children,
@@ -18,7 +34,7 @@ export default function ProtectedRoute({
   }
 
   if (requireAdmin && !isAdmin) {
-    return <Navigate to="/dashboard" replace />;
+    return <AdminDeniedRedirect />;
   }
 
   return <>{children}</>;

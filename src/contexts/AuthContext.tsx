@@ -17,6 +17,7 @@ interface AuthContextValue {
   profile: Profile | null;
   roles: AppRole[];
   isAdmin: boolean;
+  isAdminAllowlisted: boolean;
   isLoading: boolean;
 
   signUp: (params: { email: string; password: string; fullName: string }) => Promise<{ error: unknown }>;
@@ -62,11 +63,20 @@ async function fetchRolesForUser(userId: string): Promise<AppRole[]> {
   return data.map((r) => r.role as AppRole);
 }
 
+async function fetchAdminAllowlistStatus(): Promise<boolean> {
+  // Server-side enforcement: Edge Function checks BOTH (role + allowlist).
+  // Client never trusts itself; it only asks the server.
+  const { data, error } = await supabase.functions.invoke("admin-check");
+  if (error) return false;
+  return Boolean((data as { is_admin?: boolean } | null)?.is_admin);
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
+  const [isAdminAllowlisted, setIsAdminAllowlisted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const hydrateForSession = useCallback(async (nextSession: Session | null) => {
@@ -77,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!nextUser) {
       setProfile(null);
       setRoles([]);
+      setIsAdminAllowlisted(false);
       return;
     }
 
@@ -87,6 +98,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ]);
     setProfile(nextProfile);
     setRoles(nextRoles);
+
+    // Only check allowlist if they *might* be admin.
+    if (nextRoles.includes("admin")) {
+      const allowlisted = await fetchAdminAllowlistStatus();
+      setIsAdminAllowlisted(allowlisted);
+    } else {
+      setIsAdminAllowlisted(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -120,10 +139,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ]);
     setProfile(nextProfile);
     setRoles(nextRoles);
+
+    if (nextRoles.includes("admin")) {
+      const allowlisted = await fetchAdminAllowlistStatus();
+      setIsAdminAllowlisted(allowlisted);
+    } else {
+      setIsAdminAllowlisted(false);
+    }
   }, [user]);
 
   const value = useMemo<AuthContextValue>(() => {
-    const isAdmin = roles.includes("admin");
+    const isAdmin = roles.includes("admin") && isAdminAllowlisted;
 
     return {
       user,
@@ -131,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       roles,
       isAdmin,
+      isAdminAllowlisted,
       isLoading,
 
       signUp: async ({ email, password, fullName }) => {
@@ -169,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       refreshProfile,
     };
-  }, [isLoading, profile, refreshProfile, roles, session, user]);
+  }, [isAdminAllowlisted, isLoading, profile, refreshProfile, roles, session, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
