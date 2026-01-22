@@ -125,7 +125,16 @@ export default function DashboardOverview() {
                 <NavLink to="/admin">Admin</NavLink>
               </Button>
             ) : null}
-            <Button variant="outline" size="xl" type="button" className="w-full sm:w-auto" onClick={() => signOut()}>
+            <Button 
+              variant="outline" 
+              size="xl" 
+              type="button" 
+              className="w-full sm:w-auto" 
+              onClick={async () => {
+                await signOut();
+                navigate("/login");
+              }}
+            >
               Sign out
             </Button>
           </div>
@@ -201,20 +210,24 @@ export default function DashboardOverview() {
 
               {/* Card 4: Upgrade (free only) */}
               {tier === "free" ? (
-                <Card className="pp-surface rounded-xl border p-5 sm:col-span-2 lg:col-span-1">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold">Go Pro</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Unlock unlimited + AI features</p>
+                <Card className="pp-surface rounded-xl border p-5 sm:col-span-2 lg:col-span-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-[image:var(--gradient-cta)] text-primary-foreground shadow-[var(--shadow-soft)]">
+                        <Wand2 className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-base font-semibold">Go Pro — Unlock the full power</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Unlimited analyses, AI-powered improvements, saved history & templates, and priority support.
+                        </p>
+                      </div>
                     </div>
-                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[image:var(--gradient-cta)] text-primary-foreground shadow-[var(--shadow-soft)]">
-                      <Wand2 className="h-5 w-5" />
+                    <div className="flex-shrink-0">
+                      <Button asChild variant="hero" size="xl" className="w-full sm:w-auto">
+                        <NavLink to="/pricing">Upgrade now</NavLink>
+                      </Button>
                     </div>
-                  </div>
-                  <div className="mt-4">
-                    <Button asChild variant="hero" size="xl" className="w-full">
-                      <NavLink to="/pricing">Upgrade now</NavLink>
-                    </Button>
                   </div>
                 </Card>
               ) : null}

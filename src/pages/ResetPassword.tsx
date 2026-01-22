@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/marketing/SiteHeader";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -50,9 +50,8 @@ const ResetPassword = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="newPassword">New password</Label>
-                  <Input
+                  <PasswordInput
                     id="newPassword"
-                    type="password"
                     placeholder="••••••••"
                     autoComplete="new-password"
                     value={newPassword}
@@ -62,9 +61,8 @@ const ResetPassword = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirm new password</Label>
-                  <Input
+                  <PasswordInput
                     id="confirmPassword"
-                    type="password"
                     placeholder="••••••••"
                     autoComplete="new-password"
                     value={confirmPassword}
