@@ -1,3 +1,4 @@
+# https://www.robotstxt.org/robotstxt.html
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +13,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Private sections
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /reset-password
+
+# Sitemap
+Sitemap: https://promptperfector.com/sitemap.xml
