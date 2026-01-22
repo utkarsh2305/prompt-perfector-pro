@@ -32,11 +32,14 @@ export default function DashboardHistory() {
   const query = useQuery({
     queryKey: ["history", userId, q, page],
     enabled: Boolean(userId),
+    staleTime: 30_000,
     queryFn: async (): Promise<{ rows: Row[]; total: number }> => {
+      if (!userId) return { rows: [], total: 0 };
+      
       let base = supabase
         .from("prompt_analysis_log")
         .select("id,created_at,original_prompt,score,grade,ai_platform,analysis_method", { count: "exact" })
-        .eq("user_id", userId as string)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
       if (q.trim()) {

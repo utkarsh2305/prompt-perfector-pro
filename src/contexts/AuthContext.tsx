@@ -179,6 +179,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       signOut: async () => {
         const { error } = await supabase.auth.signOut();
+        if (!error) {
+          // Immediately reset local state for faster UI response
+          setUser(null);
+          setSession(null);
+          setProfile(null);
+          setRoles([]);
+          setIsAdminAllowlisted(false);
+        }
         return { error };
       },
 
