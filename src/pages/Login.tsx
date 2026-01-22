@@ -7,11 +7,18 @@ import { NavLink } from "@/components/NavLink";
 import { Alert } from "@/components/ui/alert";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const from = (location.state as { from?: string } | null)?.from ?? "/dashboard";
 
   return (
     <div className="min-h-screen">
@@ -22,7 +29,7 @@ const Login = () => {
             <Card className="pp-surface rounded-xl border p-6">
               <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Coming soon: Supabase-powered authentication.
+                Sign in to your Prompt Perfector account.
               </p>
 
               <div className="mt-5 space-y-4">
@@ -55,16 +62,39 @@ const Login = () => {
                   size="xl"
                   className="w-full"
                   type="button"
-                  onClick={() => signIn({ email, password })}
+                  disabled={isSubmitting}
+                  onClick={async () => {
+                    setError(null);
+                    if (!email.trim()) return setError("Email is required.");
+                    if (!password) return setError("Password is required.");
+
+                    setIsSubmitting(true);
+                    const { error: signInError } = await signIn({ email, password });
+                    setIsSubmitting(false);
+
+                    if (signInError) {
+                      return setError(
+                        (signInError as { message?: string })?.message ?? "Sign in failed",
+                      );
+                    }
+
+                    navigate(from, { replace: true });
+                  }}
                 >
-                  Sign in
+                  {isSubmitting ? "Signing in…" : "Sign in"}
                 </Button>
 
-                <Alert className="border-border bg-background">
-                  <div className="text-sm text-muted-foreground">
-                    Placeholder only. Next step is wiring Supabase auth + RLS-protected data.
-                  </div>
-                </Alert>
+                {error ? (
+                  <Alert className="border-border bg-background">
+                    <div className="text-sm">{error}</div>
+                  </Alert>
+                ) : null}
+
+                <div className="text-center text-sm text-muted-foreground">
+                  <NavLink to="/forgot-password" className="text-primary underline underline-offset-4">
+                    Forgot password?
+                  </NavLink>
+                </div>
 
                 <div className="text-center text-sm text-muted-foreground">
                   Don’t have an account?{" "}

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -9,10 +8,8 @@ export default function ProtectedRoute({
   children: React.ReactNode;
   requireAdmin?: boolean;
 }) {
-  const { user, isLoading } = useAuth();
+  const { user, isAdmin, isLoading } = useAuth();
   const location = useLocation();
-
-  const isAdmin = useMemo(() => user?.roles.includes("admin") ?? false, [user]);
 
   if (isLoading) return null;
 
