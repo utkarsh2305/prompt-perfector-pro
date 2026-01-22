@@ -1,15 +1,15 @@
+import { useState } from "react";
 import { SiteHeader } from "@/components/marketing/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NavLink } from "@/components/NavLink";
 import { Alert } from "@/components/ui/alert";
+import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
 
-const Login = () => {
-  const { signIn } = useAuth();
+const Signup = () => {
+  const { signUp } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,10 +20,8 @@ const Login = () => {
         <section className="container py-10 sm:py-14">
           <div className="mx-auto max-w-md">
             <Card className="pp-surface rounded-xl border p-6">
-              <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Coming soon: Supabase-powered authentication.
-              </p>
+              <h1 className="text-2xl font-semibold tracking-tight">Create account</h1>
+              <p className="mt-2 text-sm text-muted-foreground">Coming soon: Supabase-powered signup.</p>
 
               <div className="mt-5 space-y-4">
                 <div className="space-y-2">
@@ -44,7 +42,7 @@ const Login = () => {
                     id="password"
                     type="password"
                     placeholder="••••••••"
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -55,21 +53,21 @@ const Login = () => {
                   size="xl"
                   className="w-full"
                   type="button"
-                  onClick={() => signIn({ email, password })}
+                  onClick={() => signUp({ email, password })}
                 >
-                  Sign in
+                  Create account
                 </Button>
 
                 <Alert className="border-border bg-background">
                   <div className="text-sm text-muted-foreground">
-                    Placeholder only. Next step is wiring Supabase auth + RLS-protected data.
+                    This is placeholder UI. Next step is wiring up Supabase auth and profiles.
                   </div>
                 </Alert>
 
                 <div className="text-center text-sm text-muted-foreground">
-                  Don’t have an account?{" "}
-                  <NavLink to="/signup" className="text-primary underline underline-offset-4">
-                    Create one
+                  Already have an account?{" "}
+                  <NavLink to="/login" className="text-primary underline underline-offset-4">
+                    Sign in
                   </NavLink>
                 </div>
               </div>
@@ -81,4 +79,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

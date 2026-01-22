@@ -4,8 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Alert } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/useAuth";
 
 const Dashboard = () => {
+  const { user, signOut } = useAuth();
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -19,6 +22,13 @@ const Dashboard = () => {
             <p className="mt-3 text-muted-foreground">
               Paste a prompt below. We’ll score it 1–10 and rewrite it using the 55-principle framework.
             </p>
+
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">Signed in as {user?.email}</p>
+              <Button variant="outline" size="xl" type="button" onClick={() => signOut()}>
+                Sign out
+              </Button>
+            </div>
 
             <Card className="pp-surface mt-6 rounded-xl border p-5">
               <div className="space-y-3">
@@ -42,8 +52,7 @@ const Dashboard = () => {
             <div className="mt-4">
               <Alert className="border-border bg-background">
                 <div className="text-sm text-muted-foreground">
-                  Backend not connected yet. Next we’ll add Lovable Cloud auth, store analyses, enforce rate limits, and
-                  call an AI function to score + rewrite.
+                  Coming soon: Supabase-backed analyses, rate limits (10/day for Free), and Pro-tier AI scoring + rewrite.
                 </div>
               </Alert>
             </div>
