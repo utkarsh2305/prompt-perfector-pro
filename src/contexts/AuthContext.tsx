@@ -109,31 +109,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     let initialCheckDone = false;
 
     // IMPORTANT: set up listener BEFORE getSession to avoid missing auth events.
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
-      // Only handle auth changes after initial check is done
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
+      if (!isMounted) return;
+      
+      // Handle signout event immediately
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        setRoles([]);
+        setIsAdminAllowlisted(false);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Only handle other auth changes after initial check is done
       if (initialCheckDone) {
         setIsLoading(true);
         await hydrateForSession(nextSession);
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     });
 
     // Initial session check
     supabase.auth.getSession().then(async ({ data, error }) => {
+      if (!isMounted) return;
       if (error) {
         setIsLoading(false);
         initialCheckDone = true;
         return;
       }
       await hydrateForSession(data.session);
-      setIsLoading(false);
-      initialCheckDone = true;
+      if (isMounted) {
+        setIsLoading(false);
+        initialCheckDone = true;
+      }
     });
 
     return () => {
+      isMounted = false;
       authListener.subscription.unsubscribe();
     };
   }, [hydrateForSession]);
