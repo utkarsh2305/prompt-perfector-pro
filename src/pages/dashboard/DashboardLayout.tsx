@@ -8,7 +8,7 @@ import DashboardAnalysisDetail from "@/pages/dashboard/DashboardAnalysisDetail";
 
 export default function DashboardLayout() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="pp-reduce-motion">
         <Routes>
