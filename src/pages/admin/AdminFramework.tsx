@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,7 @@ import {
   useFrameworkRules,
   useCreateRule,
   useUpdateRule,
+  useSplitRule,
   useRuleSuggestions,
   useUpdateSuggestion,
   useConvertSuggestionToRule,
@@ -278,14 +279,33 @@ function RulesTab() {
 
   const { data: rules = [], isLoading, refetch } = useFrameworkRules(filters);
   const updateRule = useUpdateRule();
+  const splitRule = useSplitRule();
 
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  
+  // Edit modal state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingRule, setEditingRule] = useState<(FrameworkRule & { effectiveness_rate: number | null }) | null>(null);
+  
+  // Split modal state
+  const [splitDialogOpen, setSplitDialogOpen] = useState(false);
+  const [splittingRule, setSplittingRule] = useState<(FrameworkRule & { effectiveness_rate: number | null }) | null>(null);
 
   const handleOpenHistory = (ruleId: string) => {
     setSelectedRuleId(ruleId);
     setHistoryDialogOpen(true);
+  };
+
+  const handleOpenEdit = (rule: FrameworkRule & { effectiveness_rate: number | null }) => {
+    setEditingRule(rule);
+    setEditDialogOpen(true);
+  };
+
+  const handleOpenSplit = (rule: FrameworkRule & { effectiveness_rate: number | null }) => {
+    setSplittingRule(rule);
+    setSplitDialogOpen(true);
   };
 
   const handleToggleActive = async (rule: FrameworkRule & { effectiveness_rate: number | null }) => {
@@ -498,7 +518,12 @@ function RulesTab() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
-                    <Button variant="ghost" size="sm" title="Edit">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      title="Edit"
+                      onClick={() => handleOpenEdit(rule)}
+                    >
                       <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button 
@@ -509,7 +534,12 @@ function RulesTab() {
                     >
                       <History className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" title="Split Rule">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      title="Split Rule"
+                      onClick={() => handleOpenSplit(rule)}
+                    >
                       <GitBranch className="h-4 w-4" />
                     </Button>
                   </div>
@@ -540,6 +570,45 @@ function RulesTab() {
         onOpenChange={setImportModalOpen}
         categories={categories}
         onImportComplete={handleImportComplete}
+      />
+
+      {/* Edit Rule Modal */}
+      <EditRuleDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        rule={editingRule}
+        categories={categories}
+        onSave={async (updates) => {
+          if (!editingRule) return;
+          try {
+            await updateRule.mutateAsync({ id: editingRule.id, ...updates });
+            toast.success("Rule updated successfully");
+            setEditDialogOpen(false);
+            refetch();
+          } catch (err) {
+            toast.error("Failed to update rule");
+          }
+        }}
+        isSaving={updateRule.isPending}
+      />
+
+      {/* Split Rule Modal */}
+      <SplitRuleDialog
+        open={splitDialogOpen}
+        onOpenChange={setSplitDialogOpen}
+        rule={splittingRule}
+        onSplit={async (childRules) => {
+          if (!splittingRule) return;
+          try {
+            await splitRule.mutateAsync({ parentRule: splittingRule, childRules });
+            toast.success(`Rule split into ${childRules.length} new rules`);
+            setSplitDialogOpen(false);
+            refetch();
+          } catch (err) {
+            toast.error("Failed to split rule");
+          }
+        }}
+        isSaving={splitRule.isPending}
       />
     </div>
   );
@@ -595,6 +664,358 @@ function RuleHistoryDialog({
             ))}
           </div>
         )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Edit Rule Dialog                                  */
+/* -------------------------------------------------------------------------- */
+
+function EditRuleDialog({
+  open,
+  onOpenChange,
+  rule,
+  categories,
+  onSave,
+  isSaving,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  rule: (FrameworkRule & { effectiveness_rate: number | null }) | null;
+  categories: RuleCategory[];
+  onSave: (updates: Partial<FrameworkRule>) => Promise<void>;
+  isSaving: boolean;
+}) {
+  const [formData, setFormData] = useState({
+    rule_name: "",
+    rule_description: "",
+    category_id: "",
+    weight: 3,
+    tier_required: "free",
+    detection_keywords: "",
+    detection_patterns: "",
+    positive_examples: "",
+    negative_examples: "",
+    improvement_template: "",
+    source: "original",
+  });
+
+  // Populate form when rule changes
+  useEffect(() => {
+    if (rule) {
+      setFormData({
+        rule_name: rule.rule_name || "",
+        rule_description: rule.rule_description || "",
+        category_id: rule.category_id || "",
+        weight: rule.weight || 3,
+        tier_required: rule.tier_required || "free",
+        detection_keywords: (rule.detection_keywords || []).join(", "),
+        detection_patterns: (rule.detection_patterns || []).join("\n"),
+        positive_examples: (rule.positive_examples || []).join("\n"),
+        negative_examples: (rule.negative_examples || []).join("\n"),
+        improvement_template: rule.improvement_template || "",
+        source: rule.source || "original",
+      });
+    }
+  }, [rule]);
+
+  const handleSubmit = async () => {
+    await onSave({
+      rule_name: formData.rule_name,
+      rule_description: formData.rule_description || null,
+      category_id: formData.category_id || null,
+      weight: formData.weight,
+      tier_required: formData.tier_required,
+      detection_keywords: formData.detection_keywords.split(",").map((k) => k.trim()).filter(Boolean),
+      detection_patterns: formData.detection_patterns.split("\n").map((p) => p.trim()).filter(Boolean),
+      positive_examples: formData.positive_examples.split("\n").filter(Boolean),
+      negative_examples: formData.negative_examples.split("\n").filter(Boolean),
+      improvement_template: formData.improvement_template || null,
+      source: formData.source,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Rule</DialogTitle>
+          <DialogDescription>
+            Modify rule settings. Changes will be logged to the changelog.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 col-span-2">
+              <Label>Rule Name *</Label>
+              <Input
+                value={formData.rule_name}
+                onChange={(e) => setFormData({ ...formData, rule_name: e.target.value })}
+                placeholder="e.g., Specify Output Format"
+              />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Description</Label>
+              <Textarea
+                value={formData.rule_description}
+                onChange={(e) => setFormData({ ...formData, rule_description: e.target.value })}
+                placeholder="What this rule checks for..."
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={formData.category_id} onValueChange={(v) => setFormData({ ...formData, category_id: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Weight (1-5)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={5}
+                value={formData.weight}
+                onChange={(e) => setFormData({ ...formData, weight: Number(e.target.value) || 3 })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tier Required</Label>
+              <Select value={formData.tier_required} onValueChange={(v) => setFormData({ ...formData, tier_required: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free">Free</SelectItem>
+                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="enterprise">Enterprise</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Source</Label>
+              <Select value={formData.source} onValueChange={(v) => setFormData({ ...formData, source: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="original">Original</SelectItem>
+                  <SelectItem value="user_feedback">User Feedback</SelectItem>
+                  <SelectItem value="ai_discovered">AI Discovered</SelectItem>
+                  <SelectItem value="community">Community</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Detection Keywords (comma-separated)</Label>
+              <Input
+                value={formData.detection_keywords}
+                onChange={(e) => setFormData({ ...formData, detection_keywords: e.target.value })}
+                placeholder="vague, unclear, ambiguous"
+              />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Detection Patterns (one regex per line)</Label>
+              <Textarea
+                value={formData.detection_patterns}
+                onChange={(e) => setFormData({ ...formData, detection_patterns: e.target.value })}
+                placeholder="/^.{1,20}$/&#10;/[?]+$/"
+                rows={2}
+                className="font-mono text-sm"
+              />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Improvement Template</Label>
+              <Textarea
+                value={formData.improvement_template}
+                onChange={(e) => setFormData({ ...formData, improvement_template: e.target.value })}
+                placeholder="Consider adding {{suggestion}} to improve clarity..."
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Positive Examples (one per line)</Label>
+              <Textarea
+                value={formData.positive_examples}
+                onChange={(e) => setFormData({ ...formData, positive_examples: e.target.value })}
+                placeholder="Good example 1&#10;Good example 2"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Negative Examples (one per line)</Label>
+              <Textarea
+                value={formData.negative_examples}
+                onChange={(e) => setFormData({ ...formData, negative_examples: e.target.value })}
+                placeholder="Bad example 1&#10;Bad example 2"
+                rows={3}
+              />
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={!formData.rule_name || isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save Changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Split Rule Dialog                                 */
+/* -------------------------------------------------------------------------- */
+
+function SplitRuleDialog({
+  open,
+  onOpenChange,
+  rule,
+  onSplit,
+  isSaving,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  rule: (FrameworkRule & { effectiveness_rate: number | null }) | null;
+  onSplit: (childRules: Array<{ rule_name: string; rule_description: string }>) => Promise<void>;
+  isSaving: boolean;
+}) {
+  const [childRules, setChildRules] = useState<Array<{ rule_name: string; rule_description: string }>>([
+    { rule_name: "", rule_description: "" },
+    { rule_name: "", rule_description: "" },
+  ]);
+
+  // Reset when dialog opens with a new rule
+  useEffect(() => {
+    if (rule && open) {
+      setChildRules([
+        { rule_name: `${rule.rule_name} - Part 1`, rule_description: "" },
+        { rule_name: `${rule.rule_name} - Part 2`, rule_description: "" },
+      ]);
+    }
+  }, [rule, open]);
+
+  const addChildRule = () => {
+    setChildRules([...childRules, { rule_name: "", rule_description: "" }]);
+  };
+
+  const removeChildRule = (index: number) => {
+    if (childRules.length > 2) {
+      setChildRules(childRules.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateChildRule = (index: number, field: "rule_name" | "rule_description", value: string) => {
+    const updated = [...childRules];
+    updated[index][field] = value;
+    setChildRules(updated);
+  };
+
+  const handleSubmit = async () => {
+    const validRules = childRules.filter((r) => r.rule_name.trim());
+    if (validRules.length < 2) {
+      toast.error("Please provide at least 2 child rules with names");
+      return;
+    }
+    await onSplit(validRules);
+  };
+
+  const isValid = childRules.filter((r) => r.rule_name.trim()).length >= 2;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
+        <DialogHeader>
+          <DialogTitle>Split Rule</DialogTitle>
+          <DialogDescription>
+            Split "{rule?.rule_name}" into multiple more specific rules. The original rule will be deactivated.
+          </DialogDescription>
+        </DialogHeader>
+
+        <Alert className="my-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>What happens when you split</AlertTitle>
+          <AlertDescription>
+            <ul className="list-disc ml-4 mt-1 text-sm">
+              <li>New rules inherit category, weight, tier, and keywords from parent</li>
+              <li>Parent rule is deactivated (not deleted)</li>
+              <li>Child rules reference the parent via <code>parent_rule_id</code></li>
+            </ul>
+          </AlertDescription>
+        </Alert>
+
+        <div className="space-y-4 py-2">
+          {childRules.map((child, index) => (
+            <div key={index} className="rounded-lg border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Child Rule {index + 1}</span>
+                {childRules.length > 2 && (
+                  <Button variant="ghost" size="sm" onClick={() => removeChildRule(index)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label>Rule Name *</Label>
+                <Input
+                  value={child.rule_name}
+                  onChange={(e) => updateChildRule(index, "rule_name", e.target.value)}
+                  placeholder="New rule name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={child.rule_description}
+                  onChange={(e) => updateChildRule(index, "rule_description", e.target.value)}
+                  placeholder="What this specific rule checks for..."
+                  rows={2}
+                />
+              </div>
+            </div>
+          ))}
+
+          <Button variant="outline" className="w-full" onClick={addChildRule}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Another Child Rule
+          </Button>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={!isValid || isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Split into {childRules.filter((r) => r.rule_name.trim()).length} Rules
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
