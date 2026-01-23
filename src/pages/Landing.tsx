@@ -4,6 +4,7 @@ import { LandingHeader } from "@/components/marketing/LandingHeader";
 import { LandingFooter } from "@/components/marketing/LandingFooter";
 import { SpotlightHero } from "@/components/marketing/SpotlightHero";
 import { PromptComparisonMock } from "@/components/marketing/PromptComparisonMock";
+import { PricingSection } from "@/components/marketing/PricingSection";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -330,89 +331,8 @@ const Landing = () => {
 
         <Separator />
 
-        {/* PRICING */}
-        <section id="pricing" className="container py-12 sm:py-16" aria-label="Pricing">
-          <div className="max-w-2xl">
-            <h2 className="pp-text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Choose your plan</h2>
-            <p className="mt-3 text-muted-foreground">Upgrade or downgrade anytime.</p>
-          </div>
-
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
-            <Card className="pp-surface rounded-xl border p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold">Free</h3>
-                <span className="rounded-full bg-surface-accent px-2.5 py-1 text-xs font-medium text-surface-accent-foreground">
-                  Free forever
-                </span>
-              </div>
-              <div className="mt-3 text-3xl font-semibold tracking-tight">$0/mo</div>
-              <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
-                <li>✓ 10 analyses per day</li>
-                <li>✓ Basic scoring (10 rules)</li>
-                <li>✓ Template improvements</li>
-                <li>✓ Works on all platforms</li>
-                <li>✗ AI-powered analysis</li>
-                <li>✗ Real-time mode</li>
-              </ul>
-              <div className="mt-6">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="xl"
-                  className="w-full"
-                  onClick={() => track("cta_click", { cta: "pricing_free" })}
-                >
-                  <NavLink to="/signup">Get started</NavLink>
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="pp-surface relative overflow-hidden rounded-xl border p-6">
-              <div aria-hidden className="pointer-events-none absolute inset-0 opacity-80" style={{ backgroundImage: "var(--gradient-brand)" }} />
-              <div className="relative">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold">Pro</h3>
-                  <span className="rounded-full bg-[image:var(--gradient-cta)] px-3 py-1 text-xs font-semibold text-primary-foreground">
-                    Most popular
-                  </span>
-                </div>
-                <div className="mt-3 text-3xl font-semibold tracking-tight">$9/mo</div>
-                <p className="mt-1 text-sm text-muted-foreground">or $90/year (save $18)</p>
-                <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
-                  <li>✓ Unlimited analyses</li>
-                  <li>✓ All 55 rules</li>
-                  <li>✓ AI-powered improvements</li>
-                  <li>✓ Real-time analysis</li>
-                  <li>✓ Advanced analytics</li>
-                  <li>✓ Priority support</li>
-                </ul>
-                <div className="mt-6">
-                  <Button
-                    asChild
-                    variant="hero"
-                    size="xl"
-                    className="w-full"
-                    onClick={() => track("cta_click", { cta: "pricing_pro_trial" })}
-                  >
-                    <NavLink to="/signup">Start 7-day free trial</NavLink>
-                  </Button>
-                  <p className="mt-2 text-center text-xs text-muted-foreground">No credit card required</p>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          <div className="mt-6 text-sm text-muted-foreground">
-            Questions about pricing?{" "}
-            <a
-              href="#faq"
-              className="story-link text-primary"
-              onClick={() => track("pricing_faq_link")}
-            >
-              Read the FAQ
-            </a>
-          </div>
-        </section>
+        {/* PRICING - Use the shared component with 3 tiers */}
+        <PricingSection />
 
         {/* FAQ */}
         <section id="faq" className="container py-12 sm:py-16" aria-label="Frequently asked questions">
