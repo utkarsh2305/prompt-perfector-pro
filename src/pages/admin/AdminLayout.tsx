@@ -11,6 +11,7 @@ import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { LayoutDashboard, Shield } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 export default function AdminLayout() {
   const [open, setOpen] = useState(false);
@@ -28,11 +29,17 @@ export default function AdminLayout() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-72">
-                <div className="text-sm font-semibold">Admin</div>
+                <div className="flex items-center gap-2">
+                  <img src={logo} alt="Prompt Perfector logo" className="h-6 w-6 rounded" />
+                  <span className="text-sm font-semibold">Admin</span>
+                </div>
                 <AdminNav className="mt-4" onNavigate={() => setOpen(false)} />
               </SheetContent>
             </Sheet>
 
+            <Link to="/" className="flex items-center gap-2">
+              <img src={logo} alt="Prompt Perfector logo" className="h-8 w-8 rounded-md" />
+            </Link>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary" />
               <span className="text-sm font-semibold">Admin Panel</span>
