@@ -42,8 +42,11 @@ import {
   GripVertical,
   Loader2,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Upload,
+  Download,
 } from "lucide-react";
+import { RulesImportModal } from "@/components/admin/RulesImportModal";
 import { toast } from "sonner";
 import {
   useRuleCategories,
@@ -264,7 +267,7 @@ function CategoriesTab() {
 /* -------------------------------------------------------------------------- */
 
 function RulesTab() {
-  const { data: categories = [] } = useRuleCategories();
+  const { data: categories = [], refetch: refetchCategories } = useRuleCategories();
   const [filters, setFilters] = useState({
     category: "all",
     tier: "all",
@@ -278,6 +281,7 @@ function RulesTab() {
 
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   const handleOpenHistory = (ruleId: string) => {
     setSelectedRuleId(ruleId);
@@ -293,6 +297,56 @@ function RulesTab() {
     }
   };
 
+  const handleExport = () => {
+    // Build CSV from current rules
+    const headers = [
+      "rule_number",
+      "rule_name",
+      "rule_description",
+      "category",
+      "weight",
+      "detection_keywords",
+      "detection_patterns",
+      "positive_examples",
+      "negative_examples",
+      "improvement_template",
+      "tier_required",
+    ];
+
+    const csvRows = [headers.join(",")];
+    
+    for (const rule of rules) {
+      const row = [
+        rule.rule_number,
+        `"${(rule.rule_name || "").replace(/"/g, '""')}"`,
+        `"${(rule.rule_description || "").replace(/"/g, '""')}"`,
+        `"${rule.category_name || ""}"`,
+        rule.weight,
+        `"${(rule.detection_keywords || []).join(",")}"`,
+        `"${(rule.detection_patterns || []).join(",")}"`,
+        `"${(rule.positive_examples || []).join("|")}"`,
+        `"${(rule.negative_examples || []).join("|")}"`,
+        `"${(rule.improvement_template || "").replace(/"/g, '""')}"`,
+        rule.tier_required,
+      ];
+      csvRows.push(row.join(","));
+    }
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `framework_rules_export_${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast.success(`Exported ${rules.length} rules`);
+  };
+
+  const handleImportComplete = () => {
+    refetch();
+    refetchCategories();
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -305,6 +359,22 @@ function RulesTab() {
 
   return (
     <div className="space-y-4">
+      {/* Header with count and actions */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Showing <span className="font-medium text-foreground">{rules.length}</span> rules
+        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button size="sm" onClick={() => setImportModalOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Import CSV
+          </Button>
+        </div>
+      </div>
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
@@ -462,6 +532,14 @@ function RulesTab() {
         open={historyDialogOpen}
         onOpenChange={setHistoryDialogOpen}
         ruleId={selectedRuleId}
+      />
+
+      {/* Import Modal */}
+      <RulesImportModal
+        open={importModalOpen}
+        onOpenChange={setImportModalOpen}
+        categories={categories}
+        onImportComplete={handleImportComplete}
       />
     </div>
   );
