@@ -1,17 +1,14 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  CreditCard,
   Database,
+  Layers,
   Plug,
   RefreshCw,
   Settings2,
@@ -29,25 +26,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { TierEditor } from "@/components/admin/TierEditor";
+import { CreditPackageEditor } from "@/components/admin/CreditPackageEditor";
+import { TierFeatureEditor } from "@/components/admin/TierFeatureEditor";
 
 export default function AdminSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Fetch tier features for the tier config section
-  const { data: tierFeatures, isLoading: loadingFeatures } = useQuery({
-    queryKey: ["admin", "tier-features"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tier_features")
-        .select("*")
-        .order("tier_name", { ascending: true })
-        .order("feature_slug", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 30_000,
-  });
 
   // Reset daily usage mutation
   const resetUsageMutation = useMutation({
@@ -77,58 +69,54 @@ export default function AdminSettings() {
         </p>
       </div>
 
-      {/* Section 1: Tier Configuration */}
+      {/* Section 1: Tier Configuration - Now with full UI */}
       <Card className="p-6">
         <div className="flex items-center gap-2 text-lg font-medium">
           <Settings2 className="h-5 w-5 text-primary" />
           Tier Configuration
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Manage feature flags and limits for each tier.
+          Manage subscription tiers, credit packages, and feature flags.
         </p>
         <Separator className="my-4" />
 
-        {loadingFeatures ? (
-          <p className="text-sm text-muted-foreground">Loading tier features…</p>
-        ) : (
-          <div className="space-y-4">
-            {["free", "pro", "enterprise"].map((tier) => {
-              const features = tierFeatures?.filter((f) => f.tier_name === tier) ?? [];
-              return (
-                <div key={tier} className="rounded-lg border p-4">
-                  <h4 className="font-medium capitalize">{tier} Tier</h4>
-                  {features.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      No features configured.
-                    </p>
-                  ) : (
-                    <ul className="mt-2 space-y-2">
-                      {features.map((f) => (
-                        <li
-                          key={f.id}
-                          className="flex items-center justify-between text-sm"
-                        >
-                          <span>
-                            {f.feature_name}{" "}
-                            <span className="text-muted-foreground">
-                              ({f.feature_slug})
-                            </span>
-                          </span>
-                          <Badge variant={f.is_enabled ? "default" : "secondary"}>
-                            {f.is_enabled ? "Enabled" : "Disabled"}
-                          </Badge>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
-            <p className="text-xs text-muted-foreground">
-              Edit tier features directly in the database for now. Full UI editor coming soon.
-            </p>
-          </div>
-        )}
+        <Accordion type="multiple" defaultValue={["tiers"]} className="w-full">
+          <AccordionItem value="tiers">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-muted-foreground" />
+                <span>Subscription Tiers</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4">
+              <TierEditor />
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="packages">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+                <span>Credit Packages (Pro Tier)</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4">
+              <CreditPackageEditor />
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="features">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-2">
+                <Settings2 className="h-4 w-4 text-muted-foreground" />
+                <span>Feature Flags</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4">
+              <TierFeatureEditor />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </Card>
 
       {/* Section 2: Admin Users (placeholder) */}
