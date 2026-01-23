@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export type AdminOverviewResponse = {
   total_users: number;
@@ -69,33 +70,45 @@ async function invoke<T>(functionName: string, params?: Record<string, unknown>)
 }
 
 export function useAdminOverview() {
+  const { session, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: ["admin", "overview"],
     queryFn: () => invoke<AdminOverviewResponse>("admin-overview"),
     staleTime: 30_000,
+    enabled: !authLoading && !!session,
   });
 }
 
 export function useAdminUsers(params: { q: string; tier: string; status: string; page: number; pageSize: number }) {
+  const { session, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: ["admin", "users", params],
     queryFn: () => invoke<AdminUsersResponse>("admin-users", params),
     staleTime: 10_000,
+    enabled: !authLoading && !!session,
   });
 }
 
 export function useAdminAnalyses(params: { q: string; platform: string; method: string; page: number; pageSize: number }) {
+  const { session, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: ["admin", "analyses", params],
     queryFn: () => invoke<AdminAnalysesResponse>("admin-analyses", params),
     staleTime: 10_000,
+    enabled: !authLoading && !!session,
   });
 }
 
 export function useAdminFramework(params: { q: string; tier: string; active: string; page: number; pageSize: number }) {
+  const { session, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: ["admin", "framework", params],
     queryFn: () => invoke<AdminFrameworkResponse>("admin-framework", params),
     staleTime: 10_000,
+    enabled: !authLoading && !!session,
   });
 }
