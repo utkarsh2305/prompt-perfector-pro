@@ -141,7 +141,13 @@ export function LandingHeader({ onCtaClick }: LandingHeaderProps) {
                   </>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive">
+                <DropdownMenuItem 
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    handleSignOut();
+                  }} 
+                  className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+                >
                   <LogOut className="h-4 w-4" />
                   Sign out
                 </DropdownMenuItem>
