@@ -52,9 +52,9 @@ export function useUserSubscription(userId: string | undefined) {
         .from("user_subscriptions")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== "PGRST116") throw error;
+      if (error) throw error;
       return data as UserSubscription | null;
     },
     enabled: !!userId,
@@ -71,9 +71,9 @@ export function useRewriteCredits(userId: string | undefined) {
         .from("rewrite_credits")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== "PGRST116") throw error;
+      if (error) throw error;
       return data as RewriteCredits | null;
     },
     enabled: !!userId,
