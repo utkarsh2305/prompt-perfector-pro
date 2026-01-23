@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export type UserAnalytics = {
   total_users: number;
@@ -54,33 +55,45 @@ async function fetchAnalytics<T>(tab: string, days: number): Promise<T> {
 }
 
 export function useUserAnalytics(days = 30) {
+  const { session, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: ["admin", "analytics", "users", days],
     queryFn: () => fetchAnalytics<UserAnalytics>("users", days),
     staleTime: 60_000,
+    enabled: !authLoading && !!session,
   });
 }
 
 export function useEngagementAnalytics(days = 30) {
+  const { session, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: ["admin", "analytics", "engagement", days],
     queryFn: () => fetchAnalytics<EngagementAnalytics>("engagement", days),
     staleTime: 60_000,
+    enabled: !authLoading && !!session,
   });
 }
 
 export function useQualityAnalytics(days = 30) {
+  const { session, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: ["admin", "analytics", "quality", days],
     queryFn: () => fetchAnalytics<QualityAnalytics>("quality", days),
     staleTime: 60_000,
+    enabled: !authLoading && !!session,
   });
 }
 
 export function useTechnicalAnalytics(days = 30) {
+  const { session, isLoading: authLoading } = useAuth();
+  
   return useQuery({
     queryKey: ["admin", "analytics", "technical", days],
     queryFn: () => fetchAnalytics<TechnicalAnalytics>("technical", days),
     staleTime: 60_000,
+    enabled: !authLoading && !!session,
   });
 }
