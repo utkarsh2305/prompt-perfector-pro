@@ -405,6 +405,98 @@ export type Database = {
           },
         ]
       }
+      rule_effectiveness: {
+        Row: {
+          avg_score_improvement: number
+          id: string
+          last_calculated_at: string
+          rule_id: string
+          times_followed: number
+          times_triggered: number
+          user_satisfaction_avg: number | null
+        }
+        Insert: {
+          avg_score_improvement?: number
+          id?: string
+          last_calculated_at?: string
+          rule_id: string
+          times_followed?: number
+          times_triggered?: number
+          user_satisfaction_avg?: number | null
+        }
+        Update: {
+          avg_score_improvement?: number
+          id?: string
+          last_calculated_at?: string
+          rule_id?: string
+          times_followed?: number
+          times_triggered?: number
+          user_satisfaction_avg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rule_effectiveness_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: true
+            referencedRelation: "framework_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rule_suggestions: {
+        Row: {
+          admin_notes: string | null
+          category_id: string | null
+          converted_to_rule_id: string | null
+          created_at: string
+          example_prompt: string | null
+          id: string
+          rule_description: string
+          rule_name: string
+          status: string
+          suggested_by: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          category_id?: string | null
+          converted_to_rule_id?: string | null
+          created_at?: string
+          example_prompt?: string | null
+          id?: string
+          rule_description: string
+          rule_name: string
+          status?: string
+          suggested_by?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          category_id?: string | null
+          converted_to_rule_id?: string | null
+          created_at?: string
+          example_prompt?: string | null
+          id?: string
+          rule_description?: string
+          rule_name?: string
+          status?: string
+          suggested_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rule_suggestions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "rule_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rule_suggestions_converted_to_rule_id_fkey"
+            columns: ["converted_to_rule_id"]
+            isOneToOne: false
+            referencedRelation: "framework_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_tiers: {
         Row: {
           base_monthly_price: number
@@ -661,6 +753,19 @@ export type Database = {
         }[]
       }
       get_next_rule_number: { Args: never; Returns: number }
+      get_top_effective_rules: {
+        Args: { limit_count?: number }
+        Returns: {
+          avg_score_improvement: number
+          category_name: string
+          follow_rate: number
+          rule_id: string
+          rule_name: string
+          times_followed: number
+          times_triggered: number
+          user_satisfaction_avg: number
+        }[]
+      }
       get_user_subscription_info: {
         Args: { user_uuid: string }
         Returns: {
@@ -697,6 +802,16 @@ export type Database = {
       }
       increment_usage: { Args: { user_uuid: string }; Returns: undefined }
       reset_daily_usage: { Args: never; Returns: undefined }
+      update_rule_effectiveness: {
+        Args: {
+          p_rule_id: string
+          p_score_improvement?: number
+          p_user_satisfaction?: number
+          p_was_followed?: boolean
+          p_was_triggered?: boolean
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       ai_platform: "chatgpt" | "claude" | "gemini" | "perplexity" | "other"
