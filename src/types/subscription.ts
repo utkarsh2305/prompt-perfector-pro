@@ -50,7 +50,7 @@ export interface RewriteCredits {
 export interface RewriteTransaction {
   id: string;
   user_id: string;
-  transaction_type: "usage" | "purchase" | "rollover" | "reset" | "bonus";
+  transaction_type: "usage" | "purchase" | "rollover" | "reset" | "bonus" | "tier_change" | "package_change";
   credits_amount: number;
   balance_after: number;
   prompt_analysis_id: string | null;

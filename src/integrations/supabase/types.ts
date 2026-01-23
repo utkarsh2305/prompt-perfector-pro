@@ -536,6 +536,19 @@ export type Database = {
           usage_limit: number
         }[]
       }
+      change_credit_package: {
+        Args: { new_package_id: string; user_uuid: string }
+        Returns: Json
+      }
+      change_user_tier: {
+        Args: {
+          new_billing_cycle?: string
+          new_credit_package_id?: string
+          new_tier: string
+          user_uuid: string
+        }
+        Returns: Json
+      }
       check_rewrite_credits: {
         Args: { user_uuid: string }
         Returns: {

@@ -135,3 +135,58 @@ export function useConsumeRewriteCredit() {
     },
   });
 }
+
+export interface ChangeTierParams {
+  userId: string;
+  newTier: "free" | "pro" | "unlimited";
+  creditPackageId?: string;
+  billingCycle?: "monthly" | "yearly";
+}
+
+export function useChangeTier() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, newTier, creditPackageId, billingCycle = "monthly" }: ChangeTierParams) => {
+      const { data, error } = await supabase
+        .rpc("change_user_tier", { 
+          user_uuid: userId, 
+          new_tier: newTier,
+          new_credit_package_id: creditPackageId ?? null,
+          new_billing_cycle: billingCycle
+        });
+      
+      if (error) throw error;
+      return data as { success: boolean; new_tier: string; new_credits: number; billing_cycle: string };
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["user-subscription", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["rewrite-credits", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["check-rewrite-credits", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["user-subscription-info", variables.userId] });
+    },
+  });
+}
+
+export function useChangeCreditPackage() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, packageId }: { userId: string; packageId: string }) => {
+      const { data, error } = await supabase
+        .rpc("change_credit_package", { 
+          user_uuid: userId, 
+          new_package_id: packageId
+        });
+      
+      if (error) throw error;
+      return data as { success: boolean; new_credits?: number; error?: string };
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["user-subscription", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["rewrite-credits", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["check-rewrite-credits", variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ["user-subscription-info", variables.userId] });
+    },
+  });
+}
