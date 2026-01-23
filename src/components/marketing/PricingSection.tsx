@@ -10,57 +10,9 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Check, X, Target, Brain, Coins } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useCreditPackages } from "@/hooks/use-subscription";
-
-/* -------------------------------------------------------------------------- */
-/*                               USP Section                                  */
-/* -------------------------------------------------------------------------- */
-
-function USPSection() {
-  const usps = [
-    {
-      icon: Target,
-      title: "Score & Learn",
-      description: "See exactly why your prompt scores against 55 proven principles",
-    },
-    {
-      icon: Brain,
-      title: "Personalized Coaching",
-      description: "System learns your patterns and adapts teaching to your weak spots",
-    },
-    {
-      icon: Coins,
-      title: "Save on AI Costs",
-      description: "Better prompts = fewer retries. Users report 40% token savings",
-    },
-  ];
-
-  return (
-    <div className="mb-12 text-center">
-      <h2 className="pp-text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
-        Don't just fix prompts. Master them.
-      </h2>
-      <p className="mt-3 text-muted-foreground">
-        Prompt Perfector trains you to write prompts that work the first time
-      </p>
-
-      <div className="mt-10 grid gap-6 sm:grid-cols-3">
-        {usps.map((usp) => (
-          <div key={usp.title} className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <usp.icon className="h-6 w-6 text-primary" />
-            </div>
-            <h3 className="mt-4 text-base font-semibold">{usp.title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{usp.description}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+import { cn } from "@/lib/utils";
 
 /* -------------------------------------------------------------------------- */
 /*                            Billing Toggle                                  */
@@ -74,29 +26,31 @@ function BillingToggle({
   onToggle: (yearly: boolean) => void;
 }) {
   return (
-    <div className="mb-8 flex items-center justify-center gap-3">
-      <Label 
-        htmlFor="billing-toggle" 
-        className={!isYearly ? "font-medium" : "text-muted-foreground"}
-      >
-        Monthly
-      </Label>
-      <Switch
-        id="billing-toggle"
-        checked={isYearly}
-        onCheckedChange={onToggle}
-      />
-      <Label 
-        htmlFor="billing-toggle" 
-        className={isYearly ? "font-medium" : "text-muted-foreground"}
-      >
-        Yearly
-      </Label>
-      {isYearly && (
-        <Badge variant="secondary" className="ml-2 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-          2 months free
-        </Badge>
-      )}
+    <div className="mb-10 flex items-center justify-center">
+      <div className="inline-flex items-center rounded-full border border-border bg-muted/50 p-1">
+        <button
+          onClick={() => onToggle(false)}
+          className={cn(
+            "rounded-full px-5 py-2 text-sm font-medium transition-all",
+            !isYearly 
+              ? "bg-background text-foreground shadow-sm" 
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Monthly
+        </button>
+        <button
+          onClick={() => onToggle(true)}
+          className={cn(
+            "rounded-full px-5 py-2 text-sm font-medium transition-all",
+            isYearly 
+              ? "bg-background text-foreground shadow-sm" 
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Annual
+        </button>
+      </div>
     </div>
   );
 }
@@ -112,17 +66,16 @@ interface FeatureItemProps {
 
 function FeatureItem({ text, included }: FeatureItemProps) {
   return (
-    <li className="flex items-start gap-2 text-sm">
-      <span 
-        className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-md ${
-          included 
-            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
-            : "bg-muted text-muted-foreground"
-        }`}
-      >
-        {included ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
-      </span>
-      <span className={included ? "text-foreground" : "text-muted-foreground"}>
+    <li className="flex items-center gap-3 py-1.5">
+      {included ? (
+        <Check className="h-4 w-4 flex-shrink-0 text-primary" />
+      ) : (
+        <X className="h-4 w-4 flex-shrink-0 text-muted-foreground/50" />
+      )}
+      <span className={cn(
+        "text-sm",
+        included ? "text-foreground" : "text-muted-foreground/60"
+      )}>
         {text}
       </span>
     </li>
@@ -135,14 +88,14 @@ function FeatureItem({ text, included }: FeatureItemProps) {
 
 interface PricingCardProps {
   title: string;
-  badge?: string;
+  badge?: { text: string; variant: "outline" | "filled" };
   price: string;
   priceSubtext?: string;
   savingsBadge?: string;
-  description: string;
   features: { text: string; included: boolean }[];
   cta: string;
-  ctaVariant?: "default" | "hero" | "outline";
+  ctaSubtext?: string;
+  ctaVariant?: "default" | "gradient" | "outline";
   isHighlighted?: boolean;
   children?: React.ReactNode;
 }
@@ -153,69 +106,131 @@ function PricingCard({
   price,
   priceSubtext,
   savingsBadge,
-  description,
   features,
   cta,
+  ctaSubtext,
   ctaVariant = "outline",
   isHighlighted = false,
   children,
 }: PricingCardProps) {
   return (
     <Card
-      className={`relative flex flex-col rounded-xl border p-6 ${
+      className={cn(
+        "relative flex flex-col rounded-2xl border p-6 transition-all",
         isHighlighted
-          ? "border-primary/50 bg-gradient-to-b from-primary/5 to-transparent ring-1 ring-primary/20"
-          : "bg-card"
-      }`}
-    >
-      {isHighlighted && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
-        </div>
+          ? "border-primary/40 bg-gradient-to-b from-primary/[0.08] via-background to-background shadow-[0_0_30px_-5px_hsl(var(--primary)/0.25)]"
+          : "border-border bg-card hover:border-border/80"
       )}
-
-      <div className="flex items-center justify-between gap-3">
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
-        {badge && !isHighlighted && (
-          <Badge variant="secondary">{badge}</Badge>
+        {badge && (
+          <Badge 
+            variant={badge.variant === "filled" ? "default" : "outline"}
+            className={cn(
+              "text-xs font-medium",
+              badge.variant === "filled" && "bg-primary text-primary-foreground"
+            )}
+          >
+            {badge.text}
+          </Badge>
         )}
       </div>
 
-      <div className="mt-4">
+      {/* Price */}
+      <div className="mt-5">
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-bold tracking-tight">{price}</span>
           {savingsBadge && (
-            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+            <Badge 
+              variant="secondary" 
+              className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
+            >
               {savingsBadge}
             </Badge>
           )}
         </div>
         {priceSubtext && (
-          <p className="mt-1 text-sm text-muted-foreground">{priceSubtext}</p>
+          <p className="mt-1.5 text-sm text-muted-foreground">{priceSubtext}</p>
         )}
       </div>
 
-      <p className="mt-3 text-sm text-muted-foreground">{description}</p>
-
+      {/* Custom content (dropdown for Pro) */}
       {children}
 
-      <ul className="mt-6 flex-1 space-y-3">
-        {features.map((feature) => (
-          <FeatureItem key={feature.text} {...feature} />
+      {/* Features */}
+      <ul className="mt-6 flex-1 space-y-0.5">
+        {features.map((feature, i) => (
+          <FeatureItem key={i} {...feature} />
         ))}
       </ul>
 
-      <div className="mt-6">
-        <Button 
-          asChild 
-          variant={ctaVariant} 
-          size="xl" 
-          className="w-full"
-        >
-          <NavLink to="/dashboard">{cta}</NavLink>
-        </Button>
+      {/* CTA */}
+      <div className="mt-6 space-y-2">
+        {ctaVariant === "gradient" ? (
+          <Button 
+            asChild 
+            size="lg" 
+            className="w-full bg-gradient-to-r from-primary to-purple-600 text-primary-foreground hover:from-primary/90 hover:to-purple-600/90 shadow-lg"
+          >
+            <NavLink to="/signup">{cta}</NavLink>
+          </Button>
+        ) : (
+          <Button 
+            asChild 
+            variant="outline" 
+            size="lg" 
+            className="w-full"
+          >
+            <NavLink to="/signup">{cta}</NavLink>
+          </Button>
+        )}
+        {ctaSubtext && (
+          <p className="text-center text-xs text-muted-foreground">{ctaSubtext}</p>
+        )}
       </div>
     </Card>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Credit Package Dropdown                          */
+/* -------------------------------------------------------------------------- */
+
+interface CreditPackageDropdownProps {
+  packages: Array<{ id: string; credits_amount: number }>;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}
+
+function CreditPackageDropdown({ packages, selectedId, onSelect }: CreditPackageDropdownProps) {
+  const selected = packages.find(p => p.id === selectedId) ?? packages[0];
+  
+  return (
+    <div className="mt-5">
+      <Select
+        value={selectedId ?? packages[0]?.id ?? ""}
+        onValueChange={onSelect}
+      >
+        <SelectTrigger className="w-full h-11 bg-muted/50 border-border hover:bg-muted/70 transition-colors">
+          <SelectValue>
+            {selected?.credits_amount.toLocaleString()} credits / month
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="bg-popover border-border">
+          {packages.map((pkg) => (
+            <SelectItem 
+              key={pkg.id} 
+              value={pkg.id}
+              className="cursor-pointer"
+            >
+              {pkg.credits_amount.toLocaleString()} credits / month
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
 
@@ -245,7 +260,6 @@ export function PricingSection() {
   const proYearlyMonthly = proYearlyTotal / 12;
   const proSavings = proMonthlyPrice * 12 - proYearlyTotal;
   const proCredits = selectedPackage?.credits_amount ?? 200;
-  const proCostPerRewrite = selectedPackage?.cost_per_rewrite ?? 0.015;
 
   // Unlimited pricing
   const unlimitedMonthly = 19;
@@ -253,91 +267,109 @@ export function PricingSection() {
   const unlimitedYearlyMonthly = unlimitedYearlyTotal / 12;
   const unlimitedSavings = unlimitedMonthly * 12 - unlimitedYearlyTotal;
 
-  return (
-    <section id="pricing" className="py-12 sm:py-16">
-      <div className="container">
-        <USPSection />
+  // Format price display
+  const formatPrice = (monthly: number, yearly: number, isYearlyBilling: boolean) => {
+    if (isYearlyBilling) {
+      return `$${(yearly / 12).toFixed(yearly % 12 === 0 ? 0 : 2)}`;
+    }
+    return `$${monthly}`;
+  };
 
+  const formatSubtext = (monthly: number, yearly: number, savings: number, isYearlyBilling: boolean) => {
+    if (isYearlyBilling) {
+      return `$${yearly}/year (billed annually)`;
+    }
+    return `or $${yearly}/year (save $${savings})`;
+  };
+
+  return (
+    <section id="pricing" className="py-16 sm:py-24">
+      <div className="container">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Choose your plan
+          </h2>
+          <p className="mt-3 text-lg text-muted-foreground">
+            Upgrade or downgrade anytime.
+          </p>
+        </div>
+
+        {/* Billing Toggle */}
         <BillingToggle isYearly={isYearly} onToggle={setIsYearly} />
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        {/* Pricing Cards Grid */}
+        <div className="grid gap-6 lg:grid-cols-3 lg:gap-8 max-w-6xl mx-auto">
           {/* Free Tier */}
           <PricingCard
             title="Free"
-            badge="Free forever"
+            badge={{ text: "Free forever", variant: "outline" }}
             price="$0"
             priceSubtext="/month"
-            description="Get started with prompt mastery"
             features={[
               { text: "Unlimited prompt analyses", included: true },
               { text: "Full 55-rule scoring", included: true },
-              { text: "Detailed improvement suggestions", included: true },
-              { text: "Learning pattern tracking", included: true },
+              { text: "Improvement suggestions", included: true },
+              { text: "Works on all AI platforms", included: true },
               { text: "10 AI rewrites/month", included: true },
               { text: "Credit rollovers", included: false },
               { text: "Priority support", included: false },
             ]}
-            cta="Get Started"
+            cta="Get started"
             ctaVariant="outline"
           />
 
           {/* Pro Tier */}
           <PricingCard
             title="Pro"
-            price={isYearly ? `$${proYearlyMonthly.toFixed(2)}` : `$${proMonthlyPrice}`}
-            priceSubtext={isYearly ? "/month, billed yearly" : "/month"}
+            badge={{ text: "Most popular", variant: "filled" }}
+            price={`${formatPrice(proMonthlyPrice, proYearlyTotal, isYearly)}`}
+            priceSubtext={formatSubtext(proMonthlyPrice, proYearlyTotal, proSavings, isYearly)}
             savingsBadge={isYearly ? `Save $${proSavings}` : undefined}
-            description="For serious prompt engineers"
             isHighlighted
             features={[
               { text: "Everything in Free, plus:", included: true },
-              { text: `${proCredits} monthly credits`, included: true },
+              { text: `${proCredits.toLocaleString()} monthly credits`, included: true },
               { text: "Up to 200 rollover credits", included: true },
               { text: "Priority support", included: true },
             ]}
-            cta="Upgrade to Pro"
-            ctaVariant="hero"
+            cta="Start 7-day free trial"
+            ctaSubtext="No credit card required"
+            ctaVariant="gradient"
           >
-            {/* Package Selector */}
-            <div className="mt-4">
-              <Select
-                value={selectedPackageId ?? defaultPackage?.id ?? ""}
-                onValueChange={setSelectedPackageId}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select credits package" />
-                </SelectTrigger>
-                <SelectContent>
-                  {packages.map((pkg) => (
-                    <SelectItem key={pkg.id} value={pkg.id}>
-                      {pkg.credits_amount} credits / month
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="mt-2 text-xs text-muted-foreground">
-                (${proCostPerRewrite.toFixed(4)}/rewrite)
-              </p>
-            </div>
+            <CreditPackageDropdown 
+              packages={packages}
+              selectedId={selectedPackageId ?? defaultPackage?.id ?? null}
+              onSelect={setSelectedPackageId}
+            />
           </PricingCard>
 
           {/* Unlimited Tier */}
           <PricingCard
             title="Unlimited"
-            badge="Power Users"
-            price={isYearly ? `$${unlimitedYearlyMonthly.toFixed(2)}` : `$${unlimitedMonthly}`}
-            priceSubtext={isYearly ? "/month, billed yearly" : "/month"}
+            badge={{ text: "Power users", variant: "outline" }}
+            price={`${formatPrice(unlimitedMonthly, unlimitedYearlyTotal, isYearly)}`}
+            priceSubtext={formatSubtext(unlimitedMonthly, unlimitedYearlyTotal, unlimitedSavings, isYearly)}
             savingsBadge={isYearly ? `Save $${unlimitedSavings}` : undefined}
-            description="Unlimited rewrites, zero limits"
             features={[
               { text: "Everything in Free, plus:", included: true },
               { text: "Unlimited AI rewrites", included: true },
               { text: "Priority support", included: true },
-              { text: "Early access to new features", included: true },
+              { text: "Early access features", included: true },
             ]}
             cta="Go Unlimited"
             ctaVariant="outline"
           />
+        </div>
+
+        {/* FAQ Link */}
+        <div className="mt-12 text-center">
+          <p className="text-sm text-muted-foreground">
+            Questions about pricing?{" "}
+            <NavLink to="/#faq" className="text-primary hover:underline font-medium">
+              Read the FAQ
+            </NavLink>
+          </p>
         </div>
       </div>
     </section>
