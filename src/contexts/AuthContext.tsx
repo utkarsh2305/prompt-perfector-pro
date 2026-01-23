@@ -66,9 +66,17 @@ async function fetchRolesForUser(userId: string): Promise<AppRole[]> {
 async function fetchAdminAllowlistStatus(): Promise<boolean> {
   // Server-side enforcement: Edge Function checks BOTH (role + allowlist).
   // Client never trusts itself; it only asks the server.
-  const { data, error } = await supabase.functions.invoke("admin-check");
-  if (error) return false;
-  return Boolean((data as { is_admin?: boolean } | null)?.is_admin);
+  try {
+    const { data, error } = await supabase.functions.invoke("admin-check");
+    if (error) {
+      console.warn("admin-check failed:", error.message);
+      return false;
+    }
+    return Boolean((data as { is_admin?: boolean } | null)?.is_admin);
+  } catch (err) {
+    console.warn("admin-check exception:", err);
+    return false;
+  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -80,30 +88,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const hydrateForSession = useCallback(async (nextSession: Session | null) => {
-    setSession(nextSession);
-    const nextUser = nextSession?.user ?? null;
-    setUser(nextUser);
+    try {
+      setSession(nextSession);
+      const nextUser = nextSession?.user ?? null;
+      setUser(nextUser);
 
-    if (!nextUser) {
+      if (!nextUser) {
+        setProfile(null);
+        setRoles([]);
+        setIsAdminAllowlisted(false);
+        return;
+      }
+
+      await upsertProfileForUser(nextUser);
+      const [nextProfile, nextRoles] = await Promise.all([
+        fetchProfileForUser(nextUser.id),
+        fetchRolesForUser(nextUser.id),
+      ]);
+      setProfile(nextProfile);
+      setRoles(nextRoles);
+
+      // Only check allowlist if they *might* be admin.
+      if (nextRoles.includes("admin")) {
+        const allowlisted = await fetchAdminAllowlistStatus();
+        setIsAdminAllowlisted(allowlisted);
+      } else {
+        setIsAdminAllowlisted(false);
+      }
+    } catch (err) {
+      console.error("hydrateForSession error:", err);
+      // Reset state on error to prevent stuck loading
       setProfile(null);
       setRoles([]);
-      setIsAdminAllowlisted(false);
-      return;
-    }
-
-    await upsertProfileForUser(nextUser);
-    const [nextProfile, nextRoles] = await Promise.all([
-      fetchProfileForUser(nextUser.id),
-      fetchRolesForUser(nextUser.id),
-    ]);
-    setProfile(nextProfile);
-    setRoles(nextRoles);
-
-    // Only check allowlist if they *might* be admin.
-    if (nextRoles.includes("admin")) {
-      const allowlisted = await fetchAdminAllowlistStatus();
-      setIsAdminAllowlisted(allowlisted);
-    } else {
       setIsAdminAllowlisted(false);
     }
   }, []);
