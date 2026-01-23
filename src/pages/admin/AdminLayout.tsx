@@ -30,7 +30,7 @@ export default function AdminLayout() {
               </SheetTrigger>
               <SheetContent side="left" className="w-72">
                 <div className="flex items-center gap-2">
-                  <img src={logo} alt="Prompt Perfector logo" className="h-6 w-6 rounded" />
+                  <img src={logo} alt="Prompt Perfector logo" className="h-8 w-8 rounded" />
                   <span className="text-sm font-semibold">Admin</span>
                 </div>
                 <AdminNav className="mt-4" onNavigate={() => setOpen(false)} />
@@ -38,7 +38,7 @@ export default function AdminLayout() {
             </Sheet>
 
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Prompt Perfector logo" className="h-8 w-8 rounded-md" />
+              <img src={logo} alt="Prompt Perfector logo" className="h-10 w-10 rounded-md" />
             </Link>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary" />

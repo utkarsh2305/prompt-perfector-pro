@@ -83,7 +83,7 @@ export function LandingHeader({ onCtaClick }: LandingHeaderProps) {
           className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
           aria-label="Prompt Perfector (back to top)"
         >
-          <img src={logo} alt="Prompt Perfector logo" className="h-8 w-8 rounded-md" />
+          <img src={logo} alt="Prompt Perfector logo" className="h-10 w-10 rounded-md" />
           <span>Prompt Perfector</span>
         </a>
 
