@@ -252,10 +252,19 @@ export function useUpdateRule() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<FrameworkRule> & { id: string }) => {
+    mutationFn: async ({ id, incrementVersion = true, ...updates }: Partial<FrameworkRule> & { id: string; incrementVersion?: boolean }) => {
+      // First get the current version
+      const { data: current } = await supabase
+        .from("framework_rules")
+        .select("version")
+        .eq("id", id)
+        .single();
+
+      const newVersion = incrementVersion ? (current?.version ?? 1) + 1 : (updates.version ?? current?.version ?? 1);
+
       const { data, error } = await supabase
         .from("framework_rules")
-        .update({ ...updates, version: (updates.version ?? 1) + 1 })
+        .update({ ...updates, version: newVersion, updated_at: new Date().toISOString() })
         .eq("id", id)
         .select()
         .single();
@@ -265,6 +274,66 @@ export function useUpdateRule() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["framework-rules"] });
+      queryClient.invalidateQueries({ queryKey: ["rule-changelog"] });
+    },
+  });
+}
+
+export function useSplitRule() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      parentRule, 
+      childRules 
+    }: { 
+      parentRule: FrameworkRule; 
+      childRules: Array<{ rule_name: string; rule_description: string }> 
+    }) => {
+      // Get next rule number
+      const { data: startNum } = await supabase.rpc("get_next_rule_number");
+      let nextNum = startNum ?? 1;
+
+      // Create child rules
+      const childRulesWithParent = childRules.map((child, idx) => ({
+        rule_name: child.rule_name,
+        rule_description: child.rule_description,
+        category_id: parentRule.category_id,
+        weight: parentRule.weight,
+        tier_required: parentRule.tier_required,
+        source: parentRule.source,
+        detection_keywords: parentRule.detection_keywords,
+        detection_patterns: parentRule.detection_patterns,
+        positive_examples: [],
+        negative_examples: [],
+        improvement_template: parentRule.improvement_template,
+        parent_rule_id: parentRule.id,
+        rule_number: nextNum + idx,
+        is_active: true,
+        version: 1,
+      }));
+
+      const { data: newRules, error: insertError } = await supabase
+        .from("framework_rules")
+        .insert(childRulesWithParent)
+        .select();
+
+      if (insertError) throw insertError;
+
+      // Deactivate the parent rule
+      const { error: updateError } = await supabase
+        .from("framework_rules")
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq("id", parentRule.id);
+
+      if (updateError) throw updateError;
+
+      return newRules;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["framework-rules"] });
+      queryClient.invalidateQueries({ queryKey: ["rule-categories"] });
+      queryClient.invalidateQueries({ queryKey: ["rule-changelog"] });
     },
   });
 }
