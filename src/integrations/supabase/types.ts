@@ -190,6 +190,8 @@ export type Database = {
           ai_platform: Database["public"]["Enums"]["ai_platform"] | null
           analysis_method: Database["public"]["Enums"]["analysis_method"]
           created_at: string
+          estimated_tokens_original: number | null
+          estimated_tokens_rewritten: number | null
           grade: Database["public"]["Enums"]["letter_grade"] | null
           id: string
           improved_prompt: string
@@ -201,10 +203,13 @@ export type Database = {
           llm_tokens_input: number
           llm_tokens_output: number
           max_score: number
+          money_saved_cents: number | null
           original_prompt: string
           processing_time_ms: number | null
           prompt_length: number
+          retries_avoided: number | null
           score: number
+          tokens_saved: number | null
           user_feedback: string | null
           user_id: string
           user_rating: number | null
@@ -214,6 +219,8 @@ export type Database = {
           ai_platform?: Database["public"]["Enums"]["ai_platform"] | null
           analysis_method: Database["public"]["Enums"]["analysis_method"]
           created_at?: string
+          estimated_tokens_original?: number | null
+          estimated_tokens_rewritten?: number | null
           grade?: Database["public"]["Enums"]["letter_grade"] | null
           id?: string
           improved_prompt: string
@@ -225,10 +232,13 @@ export type Database = {
           llm_tokens_input?: number
           llm_tokens_output?: number
           max_score?: number
+          money_saved_cents?: number | null
           original_prompt: string
           processing_time_ms?: number | null
           prompt_length: number
+          retries_avoided?: number | null
           score: number
+          tokens_saved?: number | null
           user_feedback?: string | null
           user_id: string
           user_rating?: number | null
@@ -238,6 +248,8 @@ export type Database = {
           ai_platform?: Database["public"]["Enums"]["ai_platform"] | null
           analysis_method?: Database["public"]["Enums"]["analysis_method"]
           created_at?: string
+          estimated_tokens_original?: number | null
+          estimated_tokens_rewritten?: number | null
           grade?: Database["public"]["Enums"]["letter_grade"] | null
           id?: string
           improved_prompt?: string
@@ -249,10 +261,13 @@ export type Database = {
           llm_tokens_input?: number
           llm_tokens_output?: number
           max_score?: number
+          money_saved_cents?: number | null
           original_prompt?: string
           processing_time_ms?: number | null
           prompt_length?: number
+          retries_avoided?: number | null
           score?: number
+          tokens_saved?: number | null
           user_feedback?: string | null
           user_id?: string
           user_rating?: number | null
@@ -652,6 +667,63 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_savings_stats: {
+        Row: {
+          avg_score_after: number
+          avg_score_before: number
+          created_at: string
+          current_month_money_saved_cents: number
+          current_month_tokens_saved: number
+          id: string
+          last_calculated_at: string | null
+          preferred_ai_platform: string
+          total_money_saved_cents: number
+          total_prompts_analyzed: number
+          total_prompts_rewritten: number
+          total_retries_avoided: number
+          total_time_saved_minutes: number
+          total_tokens_saved: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_score_after?: number
+          avg_score_before?: number
+          created_at?: string
+          current_month_money_saved_cents?: number
+          current_month_tokens_saved?: number
+          id?: string
+          last_calculated_at?: string | null
+          preferred_ai_platform?: string
+          total_money_saved_cents?: number
+          total_prompts_analyzed?: number
+          total_prompts_rewritten?: number
+          total_retries_avoided?: number
+          total_time_saved_minutes?: number
+          total_tokens_saved?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_score_after?: number
+          avg_score_before?: number
+          created_at?: string
+          current_month_money_saved_cents?: number
+          current_month_tokens_saved?: number
+          id?: string
+          last_calculated_at?: string | null
+          preferred_ai_platform?: string
+          total_money_saved_cents?: number
+          total_prompts_analyzed?: number
+          total_prompts_rewritten?: number
+          total_retries_avoided?: number
+          total_time_saved_minutes?: number
+          total_tokens_saved?: number
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
