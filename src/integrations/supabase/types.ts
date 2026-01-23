@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_packages: {
+        Row: {
+          cost_per_rewrite: number
+          created_at: string
+          credits_amount: number
+          id: string
+          is_active: boolean
+          is_default: boolean
+          monthly_price: number
+          sort_order: number
+          yearly_price: number
+        }
+        Insert: {
+          cost_per_rewrite: number
+          created_at?: string
+          credits_amount: number
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          monthly_price: number
+          sort_order?: number
+          yearly_price: number
+        }
+        Update: {
+          cost_per_rewrite?: number
+          created_at?: string
+          credits_amount?: number
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          monthly_price?: number
+          sort_order?: number
+          yearly_price?: number
+        }
+        Relationships: []
+      }
       framework_principles: {
         Row: {
           better_practice: string
@@ -203,6 +239,113 @@ export type Database = {
         }
         Relationships: []
       }
+      rewrite_credits: {
+        Row: {
+          credits_remaining: number
+          credits_used_this_period: number
+          id: string
+          last_reset_at: string
+          rollover_credits: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          credits_remaining?: number
+          credits_used_this_period?: number
+          id?: string
+          last_reset_at?: string
+          rollover_credits?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          credits_remaining?: number
+          credits_used_this_period?: number
+          id?: string
+          last_reset_at?: string
+          rollover_credits?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rewrite_transactions: {
+        Row: {
+          balance_after: number
+          created_at: string
+          credits_amount: number
+          id: string
+          metadata: Json | null
+          prompt_analysis_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          balance_after: number
+          created_at?: string
+          credits_amount: number
+          id?: string
+          metadata?: Json | null
+          prompt_analysis_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          balance_after?: number
+          created_at?: string
+          credits_amount?: number
+          id?: string
+          metadata?: Json | null
+          prompt_analysis_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rewrite_transactions_prompt_analysis_id_fkey"
+            columns: ["prompt_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_analysis_log"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_tiers: {
+        Row: {
+          base_monthly_price: number
+          base_rewrite_credits: number
+          base_yearly_price: number
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          max_rollover: number
+          name: string
+        }
+        Insert: {
+          base_monthly_price?: number
+          base_rewrite_credits?: number
+          base_yearly_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_rollover?: number
+          name: string
+        }
+        Update: {
+          base_monthly_price?: number
+          base_rewrite_credits?: number
+          base_yearly_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_rollover?: number
+          name?: string
+        }
+        Relationships: []
+      }
       tier_features: {
         Row: {
           config: Json
@@ -326,6 +469,59 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          billing_cycle: string
+          created_at: string
+          credit_package_id: string | null
+          current_period_end: string
+          current_period_start: string
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          tier_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_cycle?: string
+          created_at?: string
+          credit_package_id?: string | null
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier_name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: string
+          created_at?: string
+          credit_package_id?: string | null
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_credit_package_id_fkey"
+            columns: ["credit_package_id"]
+            isOneToOne: false
+            referencedRelation: "credit_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -338,6 +534,35 @@ export type Database = {
           reason: string
           usage_count: number
           usage_limit: number
+        }[]
+      }
+      check_rewrite_credits: {
+        Args: { user_uuid: string }
+        Returns: {
+          can_rewrite: boolean
+          credits_remaining: number
+          is_unlimited: boolean
+        }[]
+      }
+      consume_rewrite_credit: {
+        Args: { analysis_id?: string; user_uuid: string }
+        Returns: {
+          is_unlimited: boolean
+          new_balance: number
+          success: boolean
+        }[]
+      }
+      get_user_subscription_info: {
+        Args: { user_uuid: string }
+        Returns: {
+          billing_cycle: string
+          credit_package_credits: number
+          credits_remaining: number
+          credits_used: number
+          is_unlimited: boolean
+          period_end: string
+          rollover_credits: number
+          tier_name: string
         }[]
       }
       get_user_tier: {
