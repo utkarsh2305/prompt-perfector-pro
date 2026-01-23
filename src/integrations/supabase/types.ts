@@ -50,63 +50,57 @@ export type Database = {
         }
         Relationships: []
       }
-      framework_principles: {
+      framework_rules: {
         Row: {
-          better_practice: string
+          category: string
           created_at: string
-          default_penalty: number
           detection_keywords: string[]
-          display_order: number | null
-          example_clear: string | null
-          example_vague: string | null
-          id: number
+          detection_patterns: string[]
+          id: string
+          improvement_template: string | null
           is_active: boolean
-          principle: string
-          section_name: string
-          section_number: number
-          severity_level: Database["public"]["Enums"]["severity_level"]
-          tier_required: Database["public"]["Enums"]["app_tier"]
+          negative_examples: string[]
+          positive_examples: string[]
+          rule_description: string
+          rule_name: string
+          rule_number: number
+          tier_required: string
           updated_at: string
-          what_to_avoid: string | null
-          why_matters: string
+          weight: number
         }
         Insert: {
-          better_practice: string
+          category: string
           created_at?: string
-          default_penalty?: number
           detection_keywords?: string[]
-          display_order?: number | null
-          example_clear?: string | null
-          example_vague?: string | null
-          id?: number
+          detection_patterns?: string[]
+          id?: string
+          improvement_template?: string | null
           is_active?: boolean
-          principle: string
-          section_name: string
-          section_number: number
-          severity_level?: Database["public"]["Enums"]["severity_level"]
-          tier_required?: Database["public"]["Enums"]["app_tier"]
+          negative_examples?: string[]
+          positive_examples?: string[]
+          rule_description: string
+          rule_name: string
+          rule_number: number
+          tier_required?: string
           updated_at?: string
-          what_to_avoid?: string | null
-          why_matters: string
+          weight?: number
         }
         Update: {
-          better_practice?: string
+          category?: string
           created_at?: string
-          default_penalty?: number
           detection_keywords?: string[]
-          display_order?: number | null
-          example_clear?: string | null
-          example_vague?: string | null
-          id?: number
+          detection_patterns?: string[]
+          id?: string
+          improvement_template?: string | null
           is_active?: boolean
-          principle?: string
-          section_name?: string
-          section_number?: number
-          severity_level?: Database["public"]["Enums"]["severity_level"]
-          tier_required?: Database["public"]["Enums"]["app_tier"]
+          negative_examples?: string[]
+          positive_examples?: string[]
+          rule_description?: string
+          rule_name?: string
+          rule_number?: number
+          tier_required?: string
           updated_at?: string
-          what_to_avoid?: string | null
-          why_matters?: string
+          weight?: number
         }
         Relationships: []
       }
