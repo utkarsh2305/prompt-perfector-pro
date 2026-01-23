@@ -5,7 +5,6 @@ const items = [
   { label: "Overview", to: "/dashboard" },
   { label: "History", to: "/dashboard/history" },
   { label: "Analytics", to: "/dashboard/analytics" },
-  { label: "Settings", to: "/dashboard/settings" },
 ];
 
 export function DashboardNav({ className }: { className?: string }) {
