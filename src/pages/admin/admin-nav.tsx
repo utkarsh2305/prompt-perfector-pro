@@ -1,5 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { cn } from "@/lib/utils";
+import { LayoutDashboard } from "lucide-react";
 
 const items = [
   { label: "Overview", to: "/admin" },
@@ -27,6 +28,19 @@ export function AdminNav({ className, onNavigate }: { className?: string; onNavi
           {it.label}
         </NavLink>
       ))}
+      
+      {/* Separator */}
+      <div className="my-3 border-t" />
+      
+      {/* Back to Dashboard */}
+      <NavLink
+        to="/dashboard"
+        onClick={onNavigate}
+        className="min-h-11 flex items-center gap-2 rounded-md px-3 text-sm font-medium text-primary hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+      >
+        <LayoutDashboard className="h-4 w-4" />
+        Back to Dashboard
+      </NavLink>
     </nav>
   );
 }
