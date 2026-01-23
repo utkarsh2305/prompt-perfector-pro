@@ -57,7 +57,7 @@ function isAnalysisError(res: unknown): res is AnalysisResultError {
 
 export default function DashboardOverview() {
   const navigate = useNavigate();
-  const { user, profile, isAdmin, signOut } = useAuth();
+  const { user, profile } = useAuth();
 
   const userId = user?.id;
   const tier = (profile?.tier as string | undefined) ?? "free";
@@ -117,26 +117,6 @@ export default function DashboardOverview() {
                 <p className="text-sm text-muted-foreground">Last login: {new Date(lastLoginAt as string).toLocaleString()}</p>
               ) : null}
             </div>
-          </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            {isAdmin ? (
-              <Button asChild variant="outline" size="xl" className="w-full sm:w-auto">
-                <NavLink to="/admin">Admin</NavLink>
-              </Button>
-            ) : null}
-            <Button 
-              variant="outline" 
-              size="xl" 
-              type="button" 
-              className="w-full sm:w-auto" 
-              onClick={async () => {
-                await signOut();
-                navigate("/login");
-              }}
-            >
-              Sign out
-            </Button>
           </div>
         </div>
 
