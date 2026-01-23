@@ -1,1 +1,4 @@
 project_id = "tenxnfduxdgybnocikkj"
+
+[functions.monthly-credit-reset]
+verify_jwt = false

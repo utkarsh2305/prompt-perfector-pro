@@ -7,11 +7,12 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Alert } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SubscriptionManager } from "@/components/subscription/SubscriptionManager";
 
 export default function DashboardSettings() {
   const { user, profile, updatePassword } = useAuth();
 
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +42,6 @@ export default function DashboardSettings() {
       title: "Password updated",
       description: "Your password has been changed successfully.",
     });
-    setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
   };
@@ -51,68 +51,81 @@ export default function DashboardSettings() {
       <div className="mx-auto max-w-6xl">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Settings</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Manage your account settings and password.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Manage your account, subscription, and password.</p>
         </div>
 
         <DashboardNav className="mt-6" />
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <Card className="pp-surface rounded-xl border p-5">
-            <div className="text-sm font-semibold">Account</div>
-            <div className="mt-3 text-sm text-muted-foreground">Email: {user?.email ?? "—"}</div>
-            <div className="mt-1 text-sm text-muted-foreground">Tier: {String(profile?.tier ?? "free")}</div>
-          </Card>
+        <Tabs defaultValue="subscription" className="mt-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="subscription">Subscription</TabsTrigger>
+            <TabsTrigger value="account">Account</TabsTrigger>
+          </TabsList>
 
-          <Card className="pp-surface rounded-xl border p-5">
-            <div className="text-sm font-semibold">Privacy</div>
-            <p className="mt-3 text-sm text-muted-foreground">Your analyses are protected by Supabase Auth + RLS.</p>
-          </Card>
+          <TabsContent value="subscription" className="mt-6">
+            <SubscriptionManager />
+          </TabsContent>
 
-          <Card className="pp-surface rounded-xl border p-5 lg:col-span-2">
-            <div className="text-base font-semibold">Change Password</div>
-            <p className="mt-1 text-sm text-muted-foreground">Update your password to keep your account secure.</p>
+          <TabsContent value="account" className="mt-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card className="rounded-xl border p-5">
+                <div className="text-sm font-semibold">Account</div>
+                <div className="mt-3 text-sm text-muted-foreground">Email: {user?.email ?? "—"}</div>
+                <div className="mt-1 text-sm text-muted-foreground">Tier: {String(profile?.tier ?? "free")}</div>
+              </Card>
 
-            <div className="mt-5 space-y-4 max-w-md">
-              {error ? (
-                <Alert className="border-border bg-background">
-                  <div className="text-sm">{error}</div>
-                </Alert>
-              ) : null}
+              <Card className="rounded-xl border p-5">
+                <div className="text-sm font-semibold">Privacy</div>
+                <p className="mt-3 text-sm text-muted-foreground">Your analyses are protected by Supabase Auth + RLS.</p>
+              </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">New password</Label>
-                <PasswordInput
-                  id="newPassword"
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-              </div>
+              <Card className="rounded-xl border p-5 lg:col-span-2">
+                <div className="text-base font-semibold">Change Password</div>
+                <p className="mt-1 text-sm text-muted-foreground">Update your password to keep your account secure.</p>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm new password</Label>
-                <PasswordInput
-                  id="confirmPassword"
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
+                <div className="mt-5 space-y-4 max-w-md">
+                  {error ? (
+                    <Alert className="border-border bg-background">
+                      <div className="text-sm">{error}</div>
+                    </Alert>
+                  ) : null}
 
-              <Button
-                variant="hero"
-                size="xl"
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleChangePassword}
-              >
-                {isSubmitting ? "Updating…" : "Update password"}
-              </Button>
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword">New password</Label>
+                    <PasswordInput
+                      id="newPassword"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm new password</Label>
+                    <PasswordInput
+                      id="confirmPassword"
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
+
+                  <Button
+                    variant="hero"
+                    size="xl"
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={handleChangePassword}
+                  >
+                    {isSubmitting ? "Updating…" : "Update password"}
+                  </Button>
+                </div>
+              </Card>
             </div>
-          </Card>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </section>
   );

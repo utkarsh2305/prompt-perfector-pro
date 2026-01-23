@@ -33,6 +33,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CreditBalanceWidget } from "@/components/subscription/CreditBalanceWidget";
 
 function formatRelativeTime(iso: string) {
   const d = new Date(iso);
@@ -106,7 +107,7 @@ export default function DashboardOverview() {
     <section className="container pb-safe-bottom py-8 sm:py-10">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h1 className="pp-text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
               Welcome back{fullName ? `, ${fullName}` : ""}!
@@ -118,6 +119,7 @@ export default function DashboardOverview() {
               ) : null}
             </div>
           </div>
+          <CreditBalanceWidget />
         </div>
 
         {/* Tabs */}
