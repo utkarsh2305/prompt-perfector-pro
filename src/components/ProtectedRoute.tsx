@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -36,16 +36,42 @@ export default function ProtectedRoute({
   children: React.ReactNode;
   requireAdmin?: boolean;
 }) {
-  const { user, isAdmin, isLoading } = useAuth();
+  const { user, isAdmin, isLoading, roles, isAdminAllowlisted } = useAuth();
   const location = useLocation();
+  
+  // Track if we've waited long enough for admin status to resolve
+  const [adminCheckTimeout, setAdminCheckTimeout] = useState(false);
+  
+  // For admin routes, give a brief window for admin status to load
+  // This prevents flashing "access denied" before admin check completes
+  useEffect(() => {
+    if (requireAdmin && user && roles.includes("admin") && !isAdminAllowlisted) {
+      const timer = setTimeout(() => setAdminCheckTimeout(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [requireAdmin, user, roles, isAdminAllowlisted]);
 
+  // Still loading initial auth state
   if (isLoading) return <PageLoader />;
 
+  // Not logged in
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  if (requireAdmin && !isAdmin) {
+  // Admin route handling
+  if (requireAdmin) {
+    // User has admin role and is allowlisted - allow access
+    if (isAdmin) {
+      return <>{children}</>;
+    }
+    
+    // User has admin role but allowlist check not done yet - wait briefly
+    if (roles.includes("admin") && !isAdminAllowlisted && !adminCheckTimeout) {
+      return <PageLoader />;
+    }
+    
+    // User doesn't have admin role or allowlist check timed out/failed
     return <AdminDeniedRedirect />;
   }
 

@@ -85,14 +85,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [isAdminAllowlisted, setIsAdminAllowlisted] = useState(false);
+  // isLoading = true ONLY until we know if user is logged in or not
+  // Profile/roles are loaded in background without blocking navigation
   const [isLoading, setIsLoading] = useState(true);
+  const [isHydrating, setIsHydrating] = useState(false);
 
-  const hydrateForSession = useCallback(async (nextSession: Session | null) => {
+  // Lightweight hydration: quickly set user/session, then load profile in background
+  const hydrateForSession = useCallback(async (nextSession: Session | null, isInitial = false) => {
     try {
       setSession(nextSession);
       const nextUser = nextSession?.user ?? null;
       setUser(nextUser);
 
+      // If no user, clear everything immediately
       if (!nextUser) {
         setProfile(null);
         setRoles([]);
@@ -100,6 +105,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // For initial load, we already have the user - stop blocking
+      // Profile & roles load in the background
+      if (isInitial) {
+        setIsLoading(false);
+      }
+
+      setIsHydrating(true);
+
+      // Upsert and fetch profile/roles in parallel (non-blocking)
       await upsertProfileForUser(nextUser);
       const [nextProfile, nextRoles] = await Promise.all([
         fetchProfileForUser(nextUser.id),
@@ -108,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(nextProfile);
       setRoles(nextRoles);
 
-      // Only check allowlist if they *might* be admin.
+      // Admin check only if they have admin role
       if (nextRoles.includes("admin")) {
         const allowlisted = await fetchAdminAllowlistStatus();
         setIsAdminAllowlisted(allowlisted);
@@ -117,18 +131,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (err) {
       console.error("hydrateForSession error:", err);
-      // Reset state on error to prevent stuck loading
       setProfile(null);
       setRoles([]);
       setIsAdminAllowlisted(false);
+    } finally {
+      setIsHydrating(false);
     }
   }, []);
 
   useEffect(() => {
     let isMounted = true;
-    let initialCheckDone = false;
 
-    // IMPORTANT: set up listener BEFORE getSession to avoid missing auth events.
+    // Set up listener BEFORE getSession to avoid missing auth events
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
       if (!isMounted) return;
       
@@ -143,26 +157,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       
-      // Only handle other auth changes after initial check is done
-      if (initialCheckDone) {
-        setIsLoading(true);
-        await hydrateForSession(nextSession);
-        if (isMounted) setIsLoading(false);
+      // For other auth changes, hydrate session (don't set isLoading=true to avoid flicker)
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        hydrateForSession(nextSession, false);
       }
     });
 
-    // Initial session check
+    // Initial session check - this is the only time we block on isLoading
     supabase.auth.getSession().then(async ({ data, error }) => {
       if (!isMounted) return;
       if (error) {
         setIsLoading(false);
-        initialCheckDone = true;
         return;
       }
-      await hydrateForSession(data.session);
+      
+      if (data.session) {
+        // User is logged in - set user immediately, load profile in background
+        await hydrateForSession(data.session, true);
+      }
+      // Always clear loading after initial check
       if (isMounted) {
         setIsLoading(false);
-        initialCheckDone = true;
       }
     });
 

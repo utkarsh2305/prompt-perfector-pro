@@ -35,10 +35,10 @@ const queryClient = new QueryClient({
   },
 });
 
-// Loading fallback for lazy-loaded routes
+// Minimal loading fallback - only shown during lazy chunk loading
 function PageLoader() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="space-y-4 text-center">
         <Skeleton className="mx-auto h-12 w-12 rounded-full" />
         <Skeleton className="mx-auto h-4 w-32" />
@@ -51,6 +51,7 @@ function PageLoader() {
 function AuthRedirect({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   
+  // Only show loader on initial auth check, not on re-renders
   if (isLoading) return <PageLoader />;
   if (user) return <Navigate to="/dashboard" replace />;
   
