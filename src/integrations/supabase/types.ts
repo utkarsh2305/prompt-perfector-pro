@@ -52,57 +52,84 @@ export type Database = {
       }
       framework_rules: {
         Row: {
-          category: string
+          category_id: string | null
           created_at: string
           detection_keywords: string[]
           detection_patterns: string[]
+          effectiveness_score: number | null
           id: string
           improvement_template: string | null
           is_active: boolean
           negative_examples: string[]
+          parent_rule_id: string | null
           positive_examples: string[]
-          rule_description: string
+          rule_description: string | null
           rule_name: string
           rule_number: number
+          source: string
           tier_required: string
           updated_at: string
+          version: number
           weight: number
         }
         Insert: {
-          category: string
+          category_id?: string | null
           created_at?: string
           detection_keywords?: string[]
           detection_patterns?: string[]
+          effectiveness_score?: number | null
           id?: string
           improvement_template?: string | null
           is_active?: boolean
           negative_examples?: string[]
+          parent_rule_id?: string | null
           positive_examples?: string[]
-          rule_description: string
+          rule_description?: string | null
           rule_name: string
           rule_number: number
+          source?: string
           tier_required?: string
           updated_at?: string
+          version?: number
           weight?: number
         }
         Update: {
-          category?: string
+          category_id?: string | null
           created_at?: string
           detection_keywords?: string[]
           detection_patterns?: string[]
+          effectiveness_score?: number | null
           id?: string
           improvement_template?: string | null
           is_active?: boolean
           negative_examples?: string[]
+          parent_rule_id?: string | null
           positive_examples?: string[]
-          rule_description?: string
+          rule_description?: string | null
           rule_name?: string
           rule_number?: number
+          source?: string
           tier_required?: string
           updated_at?: string
+          version?: number
           weight?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "framework_rules_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "rule_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "framework_rules_parent_rule_id_fkey"
+            columns: ["parent_rule_id"]
+            isOneToOne: false
+            referencedRelation: "framework_rules"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -300,6 +327,80 @@ export type Database = {
             columns: ["prompt_analysis_id"]
             isOneToOne: false
             referencedRelation: "prompt_analysis_log"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rule_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      rule_changelog: {
+        Row: {
+          change_type: string
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_values: Json
+          old_values: Json | null
+          reason: string | null
+          rule_id: string
+        }
+        Insert: {
+          change_type: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_values: Json
+          old_values?: Json | null
+          reason?: string | null
+          rule_id: string
+        }
+        Update: {
+          change_type?: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_values?: Json
+          old_values?: Json | null
+          reason?: string | null
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rule_changelog_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "framework_rules"
             referencedColumns: ["id"]
           },
         ]
@@ -559,6 +660,7 @@ export type Database = {
           success: boolean
         }[]
       }
+      get_next_rule_number: { Args: never; Returns: number }
       get_user_subscription_info: {
         Args: { user_uuid: string }
         Returns: {
