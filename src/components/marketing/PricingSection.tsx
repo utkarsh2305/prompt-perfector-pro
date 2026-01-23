@@ -299,7 +299,7 @@ export function PricingSection() {
         <BillingToggle isYearly={isYearly} onToggle={setIsYearly} />
 
         {/* Pricing Cards Grid */}
-        <div className="grid gap-6 lg:grid-cols-3 lg:gap-8 max-w-6xl mx-auto">
+        <div className="grid gap-6 md:grid-cols-3 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
           {/* Free Tier */}
           <PricingCard
             title="Free"
