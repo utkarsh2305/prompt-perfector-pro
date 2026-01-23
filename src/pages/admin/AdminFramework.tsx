@@ -293,6 +293,10 @@ function RulesTab() {
   const [splitDialogOpen, setSplitDialogOpen] = useState(false);
   const [splittingRule, setSplittingRule] = useState<(FrameworkRule & { effectiveness_rate: number | null }) | null>(null);
 
+  // Create rule modal state
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const createRule = useCreateRule();
+
   const handleOpenHistory = (ruleId: string) => {
     setSelectedRuleId(ruleId);
     setHistoryDialogOpen(true);
@@ -376,10 +380,6 @@ function RulesTab() {
       </div>
     );
   }
-
-  // Create rule modal state
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const createRule = useCreateRule();
 
   const handleCreateRule = async (ruleData: Partial<FrameworkRule>) => {
     try {
