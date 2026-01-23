@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { CreditBalanceWidget } from "@/components/subscription/CreditBalanceWidget";
+import { SavingsCard } from "@/components/dashboard/SavingsCard";
 
 function formatRelativeTime(iso: string) {
   const d = new Date(iso);
@@ -402,6 +403,9 @@ export default function DashboardOverview() {
 
           {/* Sidebar widgets (desktop) / moves below on mobile automatically */}
           <div className="space-y-6">
+            {/* Savings Card */}
+            <SavingsCard />
+
             {/* Quick test */}
             <Card className="pp-surface rounded-xl border p-5">
               <div className="flex items-start justify-between gap-3">
