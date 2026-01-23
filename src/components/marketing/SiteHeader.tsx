@@ -47,7 +47,7 @@ export function SiteHeader() {
           to="/"
           className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-semibold"
         >
-          <img src={logo} alt="Prompt Perfector logo" className="h-8 w-8 rounded-md" />
+          <img src={logo} alt="Prompt Perfector logo" className="h-10 w-10 rounded-md" />
           <span>Prompt Perfector</span>
         </NavLink>
 
