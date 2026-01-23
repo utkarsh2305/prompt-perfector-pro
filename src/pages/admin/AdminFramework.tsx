@@ -377,6 +377,29 @@ function RulesTab() {
     );
   }
 
+  // Create rule modal state
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const createRule = useCreateRule();
+
+  const handleCreateRule = async (ruleData: Partial<FrameworkRule>) => {
+    try {
+      await createRule.mutateAsync({
+        rule_name: ruleData.rule_name || "",
+        rule_description: ruleData.rule_description || undefined,
+        category_id: ruleData.category_id || null,
+        weight: ruleData.weight,
+        tier_required: ruleData.tier_required,
+        source: ruleData.source,
+        is_active: true,
+      });
+      toast.success("Rule created successfully");
+      setCreateDialogOpen(false);
+      refetch();
+    } catch (err) {
+      toast.error("Failed to create rule");
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Header with count and actions */}
@@ -389,9 +412,13 @@ function RulesTab() {
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <Button size="sm" onClick={() => setImportModalOpen(true)}>
+          <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Import CSV
+          </Button>
+          <Button size="sm" onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Rule
           </Button>
         </div>
       </div>
@@ -610,6 +637,15 @@ function RulesTab() {
         }}
         isSaving={splitRule.isPending}
       />
+
+      {/* Create Rule Modal */}
+      <CreateRuleDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        categories={categories}
+        onSave={handleCreateRule}
+        isSaving={createRule.isPending}
+      />
     </div>
   );
 }
@@ -770,12 +806,15 @@ function EditRuleDialog({
 
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select value={formData.category_id} onValueChange={(v) => setFormData({ ...formData, category_id: v })}>
+              <Select 
+                value={formData.category_id || "__none__"} 
+                onValueChange={(v) => setFormData({ ...formData, category_id: v === "__none__" ? "" : v })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="__none__">None</SelectItem>
                   {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                   ))}
@@ -882,6 +921,227 @@ function EditRuleDialog({
           <Button onClick={handleSubmit} disabled={!formData.rule_name || isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          Create Rule Dialog                                */
+/* -------------------------------------------------------------------------- */
+
+function CreateRuleDialog({
+  open,
+  onOpenChange,
+  categories,
+  onSave,
+  isSaving,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  categories: RuleCategory[];
+  onSave: (ruleData: Partial<FrameworkRule>) => Promise<void>;
+  isSaving: boolean;
+}) {
+  const [formData, setFormData] = useState({
+    rule_name: "",
+    rule_description: "",
+    category_id: "",
+    weight: 3,
+    tier_required: "free",
+    detection_keywords: "",
+    detection_patterns: "",
+    positive_examples: "",
+    negative_examples: "",
+    improvement_template: "",
+    source: "original",
+  });
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        rule_name: "",
+        rule_description: "",
+        category_id: "",
+        weight: 3,
+        tier_required: "free",
+        detection_keywords: "",
+        detection_patterns: "",
+        positive_examples: "",
+        negative_examples: "",
+        improvement_template: "",
+        source: "original",
+      });
+    }
+  }, [open]);
+
+  const handleSubmit = async () => {
+    await onSave({
+      rule_name: formData.rule_name,
+      rule_description: formData.rule_description || null,
+      category_id: formData.category_id || null,
+      weight: formData.weight,
+      tier_required: formData.tier_required,
+      detection_keywords: formData.detection_keywords.split(",").map((k) => k.trim()).filter(Boolean),
+      detection_patterns: formData.detection_patterns.split("\n").map((p) => p.trim()).filter(Boolean),
+      positive_examples: formData.positive_examples.split("\n").filter(Boolean),
+      negative_examples: formData.negative_examples.split("\n").filter(Boolean),
+      improvement_template: formData.improvement_template || null,
+      source: formData.source,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-auto">
+        <DialogHeader>
+          <DialogTitle>Create New Rule</DialogTitle>
+          <DialogDescription>
+            Add a new framework rule to the prompt analysis engine.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2 col-span-2">
+              <Label>Rule Name *</Label>
+              <Input
+                value={formData.rule_name}
+                onChange={(e) => setFormData({ ...formData, rule_name: e.target.value })}
+                placeholder="e.g., Specify Output Format"
+              />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Description</Label>
+              <Textarea
+                value={formData.rule_description}
+                onChange={(e) => setFormData({ ...formData, rule_description: e.target.value })}
+                placeholder="What this rule checks for..."
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select 
+                value={formData.category_id || "__none__"} 
+                onValueChange={(v) => setFormData({ ...formData, category_id: v === "__none__" ? "" : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">None</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Weight (1-5)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={5}
+                value={formData.weight}
+                onChange={(e) => setFormData({ ...formData, weight: Number(e.target.value) || 3 })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tier Required</Label>
+              <Select value={formData.tier_required} onValueChange={(v) => setFormData({ ...formData, tier_required: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free">Free</SelectItem>
+                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="enterprise">Enterprise</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Source</Label>
+              <Select value={formData.source} onValueChange={(v) => setFormData({ ...formData, source: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="original">Original</SelectItem>
+                  <SelectItem value="user_feedback">User Feedback</SelectItem>
+                  <SelectItem value="ai_discovered">AI Discovered</SelectItem>
+                  <SelectItem value="community">Community</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Detection Keywords (comma-separated)</Label>
+              <Input
+                value={formData.detection_keywords}
+                onChange={(e) => setFormData({ ...formData, detection_keywords: e.target.value })}
+                placeholder="vague, unclear, ambiguous"
+              />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Detection Patterns (one regex per line)</Label>
+              <Textarea
+                value={formData.detection_patterns}
+                onChange={(e) => setFormData({ ...formData, detection_patterns: e.target.value })}
+                placeholder="/^.{1,20}$/&#10;/[?]+$/"
+                rows={2}
+                className="font-mono text-sm"
+              />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label>Improvement Template</Label>
+              <Textarea
+                value={formData.improvement_template}
+                onChange={(e) => setFormData({ ...formData, improvement_template: e.target.value })}
+                placeholder="Consider adding {{suggestion}} to improve clarity..."
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Positive Examples (one per line)</Label>
+              <Textarea
+                value={formData.positive_examples}
+                onChange={(e) => setFormData({ ...formData, positive_examples: e.target.value })}
+                placeholder="Good example 1&#10;Good example 2"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Negative Examples (one per line)</Label>
+              <Textarea
+                value={formData.negative_examples}
+                onChange={(e) => setFormData({ ...formData, negative_examples: e.target.value })}
+                placeholder="Bad example 1&#10;Bad example 2"
+                rows={3}
+              />
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={!formData.rule_name || isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create Rule
           </Button>
         </DialogFooter>
       </DialogContent>
