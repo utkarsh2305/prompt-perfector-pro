@@ -1,18 +1,23 @@
-import { assertAdmin } from "../_shared/admin.ts";
+import { assertAdmin, sanitizeSearchInput, corsHeaders } from "../_shared/admin.ts";
 
 type Body = { q?: string; tier?: string; active?: string; page?: number; pageSize?: number };
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   const auth = await assertAdmin(req);
   if (!auth.ok) {
     return new Response(JSON.stringify({ success: false, error: "Forbidden" }), {
       status: auth.status,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   const body = (await req.json().catch(() => ({}))) as Body;
-  const q = (body.q ?? "").trim();
+  const q = sanitizeSearchInput(body.q ?? "", 100);
   const tier = body.tier ?? "all";
   const active = body.active ?? "all";
   const pageSize = Math.min(200, Math.max(1, Number(body.pageSize ?? 25)));
@@ -37,12 +42,12 @@ Deno.serve(async (req) => {
   if (error) {
     return new Response(JSON.stringify({ success: false, error: "Query failed" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   return new Response(JSON.stringify({ rows: data ?? [], total: count ?? 0 }), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
