@@ -1,15 +1,20 @@
-import { assertAdmin } from "../_shared/admin.ts";
+import { assertAdmin, corsHeaders } from "../_shared/admin.ts";
 
 function isoDay(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   const auth = await assertAdmin(req);
   if (!auth.ok) {
     return new Response(JSON.stringify({ success: false, error: "Forbidden" }), {
       status: auth.status,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
@@ -83,6 +88,6 @@ Deno.serve(async (req) => {
 
   return new Response(JSON.stringify(body), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
