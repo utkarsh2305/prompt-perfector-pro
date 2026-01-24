@@ -727,32 +727,54 @@ serve(async (req) => {
   const startTime = Date.now();
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Missing authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    // Try to get user (OPTIONAL - don't fail if not authenticated)
+    let userId: string | null = null;
+    let userTier = "free";
+    const authHeader = req.headers.get("Authorization");
 
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (authHeader && authHeader !== "Bearer null" && authHeader !== "Bearer undefined") {
+      const token = authHeader.replace("Bearer ", "");
+      if (token && token.length > 10) {
+        try {
+          const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+          if (!authError && user) {
+            userId = user.id;
+
+            // Check rate limit for authenticated users (30 requests per minute)
+            const rateLimitResult = await checkRateLimit(userId, "score-prompt", supabase);
+            if (!rateLimitResult.allowed) {
+              return rateLimitResponse(rateLimitResult, corsHeaders);
+            }
+
+            // Get user tier for authenticated users
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("tier")
+              .eq("id", userId)
+              .maybeSingle();
+
+            userTier = profile?.tier || "free";
+          }
+        } catch (authErr) {
+          // Auth failed, continue as anonymous
+          console.log("Auth check failed, continuing as anonymous:", authErr);
+        }
+      }
     }
 
-    // Check rate limit (30 requests per minute)
-    const rateLimitResult = await checkRateLimit(user.id, "score-prompt", supabase);
-    if (!rateLimitResult.allowed) {
-      return rateLimitResponse(rateLimitResult, corsHeaders);
+    // Rate limit for anonymous users by IP (more restrictive: 10 requests per minute)
+    if (!userId) {
+      const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+                       req.headers.get("cf-connecting-ip") || 
+                       "anonymous";
+      const rateLimitResult = await checkRateLimit(`anon:${clientIP}`, "score-prompt-anon", supabase);
+      if (!rateLimitResult.allowed) {
+        return rateLimitResponse(rateLimitResult, corsHeaders);
+      }
     }
 
     const { prompt } = await req.json();
@@ -771,14 +793,7 @@ serve(async (req) => {
       );
     }
 
-    // Get user tier to filter rules
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("tier")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    const userTier = profile?.tier || "free";
+    // Determine allowed tiers based on user
     const allowedTiers = ["free"];
     if (userTier === "pro" || userTier === "enterprise") {
       allowedTiers.push("pro");
@@ -880,69 +895,72 @@ serve(async (req) => {
       .slice(0, 3)
       .map((b) => b.ruleName);
 
-    // Update user_weak_rules for failed rules
-    const failedRulePromises = failed.map((ruleId) =>
-      supabase.rpc("increment_weak_rule", {
-        p_user_id: user.id,
-        p_rule_id: ruleId,
-      })
-    );
-
-    const effectivenessPromises = breakdown.map((b) =>
-      supabase.rpc("update_rule_effectiveness", {
-        p_rule_id: b.ruleId,
-        p_was_triggered: true,
-        p_was_followed: b.score === 1,
-      })
-    );
-
-    // Log to prompt_analysis_log
     const processingTimeMs = Date.now() - startTime;
+    let analysisId: string | null = null;
 
-    const violations = breakdown
-      .filter((b) => b.score < 1)
-      .map((b) => ({
-        rule_id: b.ruleId,
-        section: b.category || "General",
-        principle: b.ruleName,
-        issue: b.score === 0 ? "Rule not followed" : "Rule partially followed",
-        severity: b.weight >= 4 ? "critical" : b.weight >= 3 ? "major" : "minor",
-        penalty: Math.round((1 - b.score) * b.weight),
-        suggestion: b.suggestion || "",
-      }));
+    // ========== OPTIONAL: Log to database if authenticated ==========
+    if (userId) {
+      // Update user_weak_rules for failed rules
+      const failedRulePromises = failed.map((ruleId) =>
+        supabase.rpc("increment_weak_rule", {
+          p_user_id: userId,
+          p_rule_id: ruleId,
+        })
+      );
 
-    const { data: logData, error: logError } = await supabase
-      .from("prompt_analysis_log")
-      .insert({
-        user_id: user.id,
-        original_prompt: prompt,
-        prompt_length: prompt.length,
-        score: percentage,
-        max_score: 100,
-        grade: grade.replace("+", "") as "A" | "B" | "C" | "D" | "F",
-        violations,
-        analysis_method: "template",
-        improved_prompt: "",
-        processing_time_ms: processingTimeMs,
-      })
-      .select("id")
-      .single();
+      const effectivenessPromises = breakdown.map((b) =>
+        supabase.rpc("update_rule_effectiveness", {
+          p_rule_id: b.ruleId,
+          p_was_triggered: true,
+          p_was_followed: b.score === 1,
+        })
+      );
 
-    if (logError) {
-      console.error("Failed to log analysis:", logError);
+      const violations = breakdown
+        .filter((b) => b.score < 1)
+        .map((b) => ({
+          rule_id: b.ruleId,
+          section: b.category || "General",
+          principle: b.ruleName,
+          issue: b.score === 0 ? "Rule not followed" : "Rule partially followed",
+          severity: b.weight >= 4 ? "critical" : b.weight >= 3 ? "major" : "minor",
+          penalty: Math.round((1 - b.score) * b.weight),
+          suggestion: b.suggestion || "",
+        }));
+
+      const { data: logData, error: logError } = await supabase
+        .from("prompt_analysis_log")
+        .insert({
+          user_id: userId,
+          original_prompt: prompt,
+          prompt_length: prompt.length,
+          score: percentage,
+          max_score: 100,
+          grade: grade.replace("+", "") as "A" | "B" | "C" | "D" | "F",
+          violations,
+          analysis_method: "template",
+          improved_prompt: "",
+          processing_time_ms: processingTimeMs,
+        })
+        .select("id")
+        .single();
+
+      if (logError) {
+        console.error("Failed to log analysis:", logError);
+      }
+
+      analysisId = logData?.id ?? null;
+
+      // Execute background operations (don't wait)
+      Promise.all([
+        ...failedRulePromises,
+        ...effectivenessPromises,
+      ]).catch((err) => console.error("Background operations failed:", err));
     }
-
-    const analysisId = logData?.id ?? crypto.randomUUID();
-
-    // Execute background operations (don't wait)
-    Promise.all([
-      ...failedRulePromises,
-      ...effectivenessPromises,
-    ]).catch((err) => console.error("Background operations failed:", err));
 
     // Build response with enhanced structure
     const response: ScoreResponse = {
-      analysisId,
+      analysisId: analysisId ?? crypto.randomUUID(),
       score: percentage,
       grade,
       gradeLabel: label,
