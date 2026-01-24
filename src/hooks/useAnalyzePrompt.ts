@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface RuleBreakdown {
+export interface RuleBreakdown {
   ruleId: string;
   ruleName: string;
   category: string | null;
@@ -10,7 +10,25 @@ interface RuleBreakdown {
   suggestion: string | null;
 }
 
-interface AnalysisResult {
+export interface ContextualSuggestion {
+  ruleId: string;
+  ruleName: string;
+  category: string | null;
+  weight: number;
+  genericSuggestion: string | null;
+  contextualSuggestion: string;
+  examplePrompt: string | null;
+  quickInsertions: string[];
+}
+
+export interface PromptComponents {
+  detectedAction: string | null;
+  detectedSubject: string | null;
+  detectedFormat: string | null;
+  detectedTopic: string | null;
+}
+
+export interface AnalysisResult {
   score: number;
   grade: string;
   gradeLabel: string;
@@ -18,11 +36,12 @@ interface AnalysisResult {
   passed: string[];
   partial: string[];
   failed: string[];
-  topImprovements: string[];
+  topImprovements: ContextualSuggestion[];
   strengths: string[];
+  promptComponents?: PromptComponents;
 }
 
-interface RewriteResult {
+export interface RewriteResult {
   rewrittenPrompt: string;
   modelUsed: string;
   scoreBefore: number;

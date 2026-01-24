@@ -234,16 +234,69 @@ export function PromptAnalyzer({
               </div>
             )}
 
-            {/* Top Improvements */}
+            {/* Top Improvements - Contextual Suggestions */}
             {analysisResult.topImprovements.length > 0 && (
               <div className="rounded-lg border bg-amber-50/50 dark:bg-amber-950/20 p-4">
-                <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400 mb-2">
+                <h4 className="text-sm font-medium text-amber-700 dark:text-amber-400 mb-3">
                   💡 Top Improvements
                 </h4>
-                <ul className="space-y-2">
-                  {analysisResult.topImprovements.map((tip, i) => (
-                    <li key={i} className="text-sm text-muted-foreground">
-                      {i + 1}. {tip}
+                <ul className="space-y-4">
+                  {analysisResult.topImprovements.map((suggestion, i) => (
+                    <li key={suggestion.ruleId} className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <span className="text-sm font-medium text-foreground shrink-0">{i + 1}.</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium text-foreground">{suggestion.ruleName}</span>
+                            {suggestion.category && (
+                              <Badge variant="outline" className="text-xs">
+                                {suggestion.category}
+                              </Badge>
+                            )}
+                          </div>
+                          
+                          {/* Contextual suggestion with markdown-style bold */}
+                          <p 
+                            className="text-sm text-muted-foreground mt-1"
+                            dangerouslySetInnerHTML={{
+                              __html: suggestion.contextualSuggestion
+                                .replace(/\*\*(.+?)\*\*/g, '<strong class="text-primary font-semibold">$1</strong>')
+                            }}
+                          />
+                          
+                          {/* Example prompt */}
+                          {suggestion.examplePrompt && (
+                            <p 
+                              className="text-xs text-muted-foreground/80 mt-1 italic"
+                              dangerouslySetInnerHTML={{
+                                __html: `e.g., "${suggestion.examplePrompt
+                                  .replace(/\*\*(.+?)\*\*/g, '<strong class="text-primary font-medium">$1</strong>')
+                                }"`
+                              }}
+                            />
+                          )}
+                          
+                          {/* Quick insertions */}
+                          {suggestion.quickInsertions.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {suggestion.quickInsertions.slice(0, 4).map((insertion, j) => (
+                                <Badge
+                                  key={j}
+                                  variant="secondary"
+                                  className="text-xs cursor-pointer hover:bg-primary/20 transition-colors"
+                                  onClick={() => {
+                                    // Append the insertion to the current prompt
+                                    const cleanInsertion = insertion.replace(/\[.+?\]/g, '___');
+                                    setPrompt(prev => `${prev.trim()} ${cleanInsertion}`);
+                                  }}
+                                >
+                                  + {insertion}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </li>
                   ))}
                 </ul>
