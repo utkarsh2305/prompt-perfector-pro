@@ -1,33 +1,37 @@
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/Logo";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t py-10">
+    <footer className="border-t py-12">
       <div className="container">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-            <p className="text-sm font-medium">Prompt Perfector</p>
-            <nav className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-              <Link to="/privacy" className="hover:text-foreground hover:underline">
-                Privacy Policy
-              </Link>
-              <Link to="/terms" className="hover:text-foreground hover:underline">
-                Terms of Service
-              </Link>
-              <a 
-                href="mailto:support@promptperfector.com" 
-                className="hover:text-foreground hover:underline"
-              >
-                Contact
-              </a>
-            </nav>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} Prompt Perfector. All rights reserved.</p>
-            <p className="mt-1 text-xs">
-              Built for ChatGPT, Claude, Gemini & more. No affiliation.
-            </p>
-          </div>
+        <div className="flex flex-col items-center gap-6 text-center">
+          <Logo />
+          <p className="text-sm text-muted-foreground">
+            Stop guessing. Start prompting.
+          </p>
+          <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+            <Link to="/pricing" className="hover:text-foreground transition-colors">
+              Pricing
+            </Link>
+            <a 
+              href="https://chrome.google.com/webstore" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors"
+            >
+              Extension
+            </a>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
+          </nav>
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} ZeroRetry
+          </p>
         </div>
       </div>
     </footer>

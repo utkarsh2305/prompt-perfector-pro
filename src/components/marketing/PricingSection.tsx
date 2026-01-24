@@ -283,12 +283,12 @@ export function PricingSection() {
   };
 
   return (
-    <section id="pricing" className="py-16 sm:py-24">
+    <section id="pricing" className="py-16 sm:py-24 bg-muted/30">
       <div className="container">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Choose your plan
+          <h2 className="text-3xl font-bold tracking-tight font-heading sm:text-4xl">
+            Simple pricing
           </h2>
           <p className="mt-3 text-lg text-muted-foreground">
             Upgrade or downgrade anytime.

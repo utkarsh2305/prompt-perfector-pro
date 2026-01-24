@@ -86,7 +86,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <p className="mt-4 text-xs text-muted-foreground">
               If this keeps happening, please{" "}
-              <a href="mailto:support@promptperfector.com" className="text-primary underline">
+              <a href="mailto:support@zeroretry.com" className="text-primary underline">
                 contact support
               </a>
               .

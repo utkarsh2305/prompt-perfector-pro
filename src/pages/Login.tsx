@@ -49,13 +49,13 @@ const Login = () => {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="pp-reduce-motion">
+      <main className="zr-reduce-motion">
         <section className="container py-10 sm:py-14">
           <div className="mx-auto max-w-md">
-            <Card className="pp-surface rounded-xl border p-6">
-              <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+            <Card className="zr-surface rounded-xl border p-6">
+              <h1 className="text-2xl font-semibold tracking-tight font-heading">Sign in</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Sign in to your Prompt Perfector account.
+                Sign in to your ZeroRetry account.
               </p>
 
               <div className="mt-5 space-y-4">
