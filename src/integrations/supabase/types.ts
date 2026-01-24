@@ -650,6 +650,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          active_platforms: string[]
+          analysis_mode: string
+          auto_replace_on_rewrite: boolean
+          created_at: string
+          id: string
+          primary_ai_platform: string
+          show_hover_suggestions: boolean
+          show_score_badge: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_platforms?: string[]
+          analysis_mode?: string
+          auto_replace_on_rewrite?: boolean
+          created_at?: string
+          id?: string
+          primary_ai_platform?: string
+          show_hover_suggestions?: boolean
+          show_score_badge?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_platforms?: string[]
+          analysis_mode?: string
+          auto_replace_on_rewrite?: boolean
+          created_at?: string
+          id?: string
+          primary_ai_platform?: string
+          show_hover_suggestions?: boolean
+          show_score_badge?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -781,6 +820,44 @@ export type Database = {
           },
         ]
       }
+      user_weak_rules: {
+        Row: {
+          created_at: string
+          fail_count: number
+          id: string
+          last_failed_at: string | null
+          rule_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fail_count?: number
+          id?: string
+          last_failed_at?: string | null
+          rule_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fail_count?: number
+          id?: string
+          last_failed_at?: string | null
+          rule_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_weak_rules_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "framework_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -825,6 +902,27 @@ export type Database = {
         }[]
       }
       get_next_rule_number: { Args: never; Returns: number }
+      get_or_create_user_preferences: {
+        Args: { p_user_id: string }
+        Returns: {
+          active_platforms: string[]
+          analysis_mode: string
+          auto_replace_on_rewrite: boolean
+          created_at: string
+          id: string
+          primary_ai_platform: string
+          show_hover_suggestions: boolean
+          show_score_badge: boolean
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "user_preferences"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_top_effective_rules: {
         Args: { limit_count?: number }
         Returns: {
@@ -873,6 +971,10 @@ export type Database = {
         Returns: boolean
       }
       increment_usage: { Args: { user_uuid: string }; Returns: undefined }
+      increment_weak_rule: {
+        Args: { p_rule_id: string; p_user_id: string }
+        Returns: undefined
+      }
       reset_daily_usage: { Args: never; Returns: undefined }
       update_rule_effectiveness: {
         Args: {
