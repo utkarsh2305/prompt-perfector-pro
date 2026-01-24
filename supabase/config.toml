@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.create-billing-portal]
 verify_jwt = false
+
+[functions.score-prompt]
+verify_jwt = false
