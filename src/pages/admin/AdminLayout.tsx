@@ -9,6 +9,7 @@ import AdminAnalyses from "@/pages/admin/AdminAnalyses";
 import AdminFramework from "@/pages/admin/AdminFramework";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminTestAnalyzer from "@/pages/admin/AdminTestAnalyzer";
 import { useAuth } from "@/hooks/useAuth";
 import { LayoutDashboard, Shield } from "lucide-react";
 import logo from "@/assets/logo.png";
@@ -73,6 +74,7 @@ export default function AdminLayout() {
             <Route path="analyses" element={<AdminAnalyses />} />
             <Route path="framework" element={<AdminFramework />} />
             <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="test" element={<AdminTestAnalyzer />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
