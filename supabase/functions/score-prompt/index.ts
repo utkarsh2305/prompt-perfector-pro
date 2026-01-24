@@ -30,6 +30,7 @@ interface RuleBreakdown {
 }
 
 interface ScoreResponse {
+  analysisId: string;
   score: number;
   grade: string;
   gradeLabel: string;
@@ -270,29 +271,39 @@ serve(async (req) => {
         penalty: Math.round((1 - b.score) * b.weight),
         suggestion: b.suggestion || "",
       }));
+    // Insert log and get the ID (we need this for the response)
+    const { data: logData, error: logError } = await supabase
+      .from("prompt_analysis_log")
+      .insert({
+        user_id: user.id,
+        original_prompt: prompt,
+        prompt_length: prompt.length,
+        score: percentage,
+        max_score: 100,
+        grade: grade.replace("+", "") as "A" | "B" | "C" | "D" | "F",
+        violations,
+        analysis_method: "template",
+        improved_prompt: "",
+        processing_time_ms: processingTimeMs,
+      })
+      .select("id")
+      .single();
 
-    const logPromise = supabase.from("prompt_analysis_log").insert({
-      user_id: user.id,
-      original_prompt: prompt,
-      prompt_length: prompt.length,
-      score: percentage,
-      max_score: 100,
-      grade: grade.replace("+", "") as "A" | "B" | "C" | "D" | "F", // Supabase enum doesn't have B+
-      violations,
-      analysis_method: "template",
-      improved_prompt: "", // Will be filled by rewrite function
-      processing_time_ms: processingTimeMs,
-    });
+    if (logError) {
+      console.error("Failed to log analysis:", logError);
+    }
 
-    // Execute all background operations in parallel (don't wait for them)
+    const analysisId = logData?.id ?? crypto.randomUUID();
+
+    // Execute background operations (don't wait)
     Promise.all([
       ...failedRulePromises,
       ...effectivenessPromises,
-      logPromise,
     ]).catch((err) => console.error("Background operations failed:", err));
 
     // Build response
     const response: ScoreResponse = {
+      analysisId,
       score: percentage,
       grade,
       gradeLabel: label,
