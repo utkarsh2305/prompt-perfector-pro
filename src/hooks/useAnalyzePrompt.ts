@@ -95,13 +95,13 @@ export function useAnalyzePrompt() {
       const { data, error: fnError } = await supabase.functions.invoke('rewrite-prompt', {
         body: { 
           prompt, 
-          scoreResult: {
+          score_result: {
             score: scoreResult.score,
             grade: scoreResult.grade,
             breakdown: scoreResult.breakdown,
             failed: scoreResult.failed
           },
-          failedRules
+          failed_rules: failedRules
         }
       });
       
@@ -120,8 +120,23 @@ export function useAnalyzePrompt() {
         throw new Error(data.error);
       }
       
-      setRewriteResult(data);
-      return data;
+      // Transform snake_case response to camelCase
+      const result: RewriteResult = {
+        rewrittenPrompt: data.rewritten_prompt,
+        modelUsed: data.model_used,
+        scoreBefore: data.score_before,
+        scoreAfter: data.score_after,
+        improvement: data.score_after - data.score_before,
+        creditsRemaining: data.credits_remaining,
+        tokens: data.tokens_used ?? { input: 0, output: 0 },
+        costCents: data.cost_cents ?? 0,
+        tokensSaved: data.tokens_saved ?? 0,
+        moneySavedCents: data.money_saved_cents ?? 0,
+        retriesAvoided: data.retries_avoided ?? 0,
+      };
+      
+      setRewriteResult(result);
+      return result;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to rewrite prompt';
       setError(message);
