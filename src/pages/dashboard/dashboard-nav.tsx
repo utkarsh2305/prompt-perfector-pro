@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 const items = [
   { label: "Overview", to: "/dashboard" },
+  { label: "Analyze", to: "/dashboard/analyze" },
   { label: "History", to: "/dashboard/history" },
   { label: "Analytics", to: "/dashboard/analytics" },
 ];

@@ -1,6 +1,7 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import { SiteHeader } from "@/components/marketing/SiteHeader";
 import DashboardOverview from "@/pages/dashboard/DashboardOverview";
+import DashboardAnalyze from "@/pages/dashboard/DashboardAnalyze";
 import DashboardHistory from "@/pages/dashboard/DashboardHistory";
 import DashboardAnalytics from "@/pages/dashboard/DashboardAnalytics";
 import DashboardSettings from "@/pages/dashboard/DashboardSettings";
@@ -13,6 +14,7 @@ export default function DashboardLayout() {
       <main className="pp-reduce-motion">
         <Routes>
           <Route index element={<DashboardOverview />} />
+          <Route path="analyze" element={<DashboardAnalyze />} />
           <Route path="history" element={<DashboardHistory />} />
           <Route path="analytics" element={<DashboardAnalytics />} />
           <Route path="settings" element={<DashboardSettings />} />

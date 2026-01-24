@@ -1,6 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, FlaskConical } from "lucide-react";
 
 const items = [
   { label: "Overview", to: "/admin" },
@@ -8,6 +8,7 @@ const items = [
   { label: "Analyses", to: "/admin/analyses" },
   { label: "Framework", to: "/admin/framework" },
   { label: "Analytics", to: "/admin/analytics" },
+  { label: "Test Analyzer", to: "/admin/test", icon: FlaskConical },
   { label: "Settings", to: "/admin/settings" },
 ];
 
@@ -21,10 +22,11 @@ export function AdminNav({ className, onNavigate }: { className?: string; onNavi
           end={it.to === "/admin"}
           onClick={onNavigate}
           className={
-            "min-h-11 flex items-center rounded-md px-3 text-sm font-medium text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+            "min-h-11 flex items-center gap-2 rounded-md px-3 text-sm font-medium text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
           }
           activeClassName="bg-muted text-foreground"
         >
+          {it.icon && <it.icon className="h-4 w-4" />}
           {it.label}
         </NavLink>
       ))}
