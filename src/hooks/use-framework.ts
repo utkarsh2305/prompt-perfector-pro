@@ -222,19 +222,41 @@ export function useCreateRule() {
   return useMutation({
     mutationFn: async (rule: { 
       rule_name: string; 
-      rule_description?: string; 
+      rule_description?: string | null; 
       category_id?: string | null;
       weight?: number;
       tier_required?: string;
       source?: string;
       is_active?: boolean;
+      detection_keywords?: string[];
+      detection_patterns?: string[];
+      positive_examples?: string[];
+      negative_examples?: string[];
+      improvement_template?: string | null;
     }) => {
       // Get next rule number
       const { data: nextNum } = await supabase.rpc("get_next_rule_number");
       
+      const ruleData = {
+        rule_name: rule.rule_name,
+        rule_description: rule.rule_description || null,
+        category_id: rule.category_id || null,
+        weight: rule.weight ?? 3,
+        tier_required: rule.tier_required || "free",
+        source: rule.source || "original",
+        is_active: rule.is_active ?? true,
+        detection_keywords: rule.detection_keywords || [],
+        detection_patterns: rule.detection_patterns || [],
+        positive_examples: rule.positive_examples || [],
+        negative_examples: rule.negative_examples || [],
+        improvement_template: rule.improvement_template || null,
+        rule_number: nextNum ?? 1,
+        version: 1,
+      };
+
       const { data, error } = await supabase
         .from("framework_rules")
-        .insert([{ ...rule, rule_number: nextNum ?? 1 }])
+        .insert([ruleData])
         .select()
         .single();
 

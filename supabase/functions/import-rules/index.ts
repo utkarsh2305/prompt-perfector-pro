@@ -112,13 +112,13 @@ serve(async (req) => {
     // Get existing rules by rule_number
     const { data: existingRules } = await supabase
       .from("framework_rules")
-      .select("id, rule_number");
+      .select("id, rule_number, version");
 
     const existingRuleNumbers = new Set(
       (existingRules || []).map((r) => r.rule_number)
     );
-    const ruleIdByNumber = new Map<number, string>(
-      (existingRules || []).map((r) => [r.rule_number, r.id])
+    const ruleDataByNumber = new Map<number, { id: string; version: number }>(
+      (existingRules || []).map((r) => [r.rule_number, { id: r.id, version: r.version }])
     );
 
     // Process each row
@@ -140,7 +140,7 @@ serve(async (req) => {
       const isDuplicate = existingRuleNumbers.has(row.rule_number);
       
       if (isDuplicate) {
-        if (options.skipDuplicates) {
+        if (options.skipDuplicates && !options.updateExisting) {
           result.skipped++;
           continue;
         } else if (!options.updateExisting) {
@@ -149,7 +149,7 @@ serve(async (req) => {
         }
       }
 
-      // Resolve category
+      // Resolve category to category_id
       let categoryId: string | null = null;
       if (row.category) {
         const catLower = row.category.toLowerCase().trim();
@@ -200,47 +200,33 @@ serve(async (req) => {
 
       if (isDuplicate && options.updateExisting) {
         // Update existing rule
-        const existingId = ruleIdByNumber.get(row.rule_number)!;
+        const existingRule = ruleDataByNumber.get(row.rule_number)!;
         const { error: updateError } = await supabase
           .from("framework_rules")
           .update({
             ...ruleData,
-            version: 1, // Will be incremented by trigger if exists
+            version: existingRule.version + 1,
+            updated_at: new Date().toISOString(),
           })
-          .eq("id", existingId);
+          .eq("id", existingRule.id);
 
         if (updateError) {
           result.errors.push({ row: rowNum, message: `Failed to update: ${updateError.message}` });
         } else {
-          // Log changelog
-          await supabase.from("rule_changelog").insert({
-            rule_id: existingId,
-            changed_by: user.id,
-            change_type: "updated",
-            new_values: ruleData,
-            reason: "Bulk import update",
-          });
           result.imported++;
         }
       } else {
         // Insert new rule
-        const { data: newRule, error: insertError } = await supabase
+        const { error: insertError } = await supabase
           .from("framework_rules")
-          .insert(ruleData)
-          .select("id")
-          .single();
+          .insert({
+            ...ruleData,
+            version: 1,
+          });
 
         if (insertError) {
           result.errors.push({ row: rowNum, message: `Failed to insert: ${insertError.message}` });
         } else {
-          // Log changelog
-          await supabase.from("rule_changelog").insert({
-            rule_id: newRule.id,
-            changed_by: user.id,
-            change_type: "created",
-            new_values: ruleData,
-            reason: "Bulk import",
-          });
           existingRuleNumbers.add(row.rule_number);
           result.imported++;
         }

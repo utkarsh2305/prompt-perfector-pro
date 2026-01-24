@@ -385,12 +385,17 @@ function RulesTab() {
     try {
       await createRule.mutateAsync({
         rule_name: ruleData.rule_name || "",
-        rule_description: ruleData.rule_description || undefined,
+        rule_description: ruleData.rule_description || null,
         category_id: ruleData.category_id || null,
         weight: ruleData.weight,
         tier_required: ruleData.tier_required,
         source: ruleData.source,
         is_active: true,
+        detection_keywords: ruleData.detection_keywords || [],
+        detection_patterns: ruleData.detection_patterns || [],
+        positive_examples: ruleData.positive_examples || [],
+        negative_examples: ruleData.negative_examples || [],
+        improvement_template: ruleData.improvement_template || null,
       });
       toast.success("Rule created successfully");
       setCreateDialogOpen(false);
