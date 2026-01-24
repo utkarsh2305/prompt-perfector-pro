@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" width="200" height="48">
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5"/>
+      <stop offset="100%" style="stop-color:#7C3AED"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Symbol: 0 with crossed-out retry arrow -->
+  <g transform="translate(4, 4)">
+    <!-- Zero circle -->
+    <circle cx="20" cy="20" r="16" fill="none" stroke="url(#brandGradient)" stroke-width="3"/>
+    
+    <!-- Retry arrow (circular) -->
+    <path d="M20 8 A12 12 0 1 1 8 20" fill="none" stroke="url(#brandGradient)" stroke-width="2.5" stroke-linecap="round"/>
+    <polygon points="8,14 8,22 14,18" fill="url(#brandGradient)"/>
+    
+    <!-- Strike-through line -->
+    <line x1="6" y1="34" x2="34" y2="6" stroke="url(#brandGradient)" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Wordmark -->
+  <text x="52" y="32" font-family="Plus Jakarta Sans, Inter, system-ui, sans-serif" font-size="24" fill="#0F172A">
+    <tspan font-weight="400">Zero</tspan><tspan font-weight="700">Retry</tspan>
+  </text>
+</svg>

@@ -1,6 +1,6 @@
-# Prompt Perfector
+# ZeroRetry
 
-AI prompt analyzer and optimizer for ChatGPT, Claude, Gemini, and more. Get 10/10 prompts every time.
+AI prompt analyzer and optimizer. Get it right the first time. Works with ChatGPT, Claude, Gemini, and more.
 
 ## Tech Stack
 
@@ -25,10 +25,14 @@ AI prompt analyzer and optimizer for ChatGPT, Claude, Gemini, and more. Get 10/1
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd prompt-perfector
+cd zeroretry
 
 # Install dependencies
 npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your Supabase credentials
 
 # Start development server
 npm run dev
@@ -36,112 +40,97 @@ npm run dev
 
 ### Environment Variables
 
-Create a `.env.local` file with:
+Create a `.env` file with the following:
 
 ```env
-# Supabase (required)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-
-# Analytics (optional)
-VITE_POSTHOG_KEY=your-posthog-key
-VITE_POSTHOG_HOST=https://us.i.posthog.com
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
-
-See `.env.example` for full documentation.
-
-### Supabase Setup
-
-1. Create a new Supabase project
-2. Run the migrations in `supabase/migrations/`
-3. Deploy edge functions: `supabase functions deploy`
-4. Set edge function secrets:
-   - `ADMIN_EMAILS`: Comma-separated list of admin emails
 
 ## Project Structure
 
 ```
 src/
-├── components/          # Reusable UI components
-│   ├── ui/             # shadcn/ui components
-│   └── marketing/      # Landing page components
-├── contexts/           # React contexts (Auth, Analytics)
-├── hooks/              # Custom React hooks
-├── lib/                # Utility functions
-├── pages/              # Page components
-│   ├── admin/          # Admin panel pages
-│   └── dashboard/      # User dashboard pages
-├── types/              # TypeScript type definitions
-└── integrations/       # Third-party integrations
+├── components/     # Reusable UI components
+├── contexts/       # React contexts (Auth, Analytics)
+├── hooks/          # Custom React hooks
+├── lib/            # Utility functions and configurations
+├── pages/          # Route pages
+│   ├── admin/      # Admin dashboard pages
+│   └── dashboard/  # User dashboard pages
+└── integrations/   # Third-party integrations
 
 supabase/
-├── functions/          # Edge functions
-└── migrations/         # Database migrations
-
-docs/
-├── analytics-events.md # Event taxonomy
-└── supabase-schema.sql # Database schema reference
-```
-
-## Available Scripts
-
-```bash
-npm run dev        # Start development server
-npm run build      # Build for production
-npm run preview    # Preview production build
-npm run lint       # Run ESLint
-npm run test       # Run tests
+├── functions/      # Edge Functions
+└── migrations/     # Database migrations
 ```
 
 ## Features
 
-### User Features
-- **Prompt Analysis**: Get instant feedback on your AI prompts
-- **Score & Grade**: See how your prompt rates (1-10, A-F)
-- **Improvements**: Get actionable suggestions to improve
-- **History**: View and revisit past analyses
-- **Multi-platform**: Optimize for ChatGPT, Claude, Gemini, etc.
+### Core Features
+- **Prompt Analysis**: Score prompts against proven principles
+- **AI Rewrites**: Generate improved versions of prompts
+- **History Tracking**: View and manage past analyses
+- **Multi-platform**: Works with ChatGPT, Claude, Gemini, Perplexity
 
-### Admin Features
-- **Dashboard**: Overview of platform health
-- **User Management**: View and manage users
-- **Analytics**: Detailed usage analytics
-- **Framework Rules**: Manage prompt analysis rules
+### Subscription Tiers
+- **Free**: Unlimited scoring, 10 AI rewrites/month
+- **Pro**: 200+ AI rewrites/month with rollover credits
+- **Unlimited**: Unlimited AI rewrites
 
-### Tiers
-- **Free**: 10 analyses/day, template-based analysis
-- **Pro** ($9/mo): Unlimited analyses, AI-powered analysis
+## Development
+
+### Code Style
+
+- TypeScript strict mode
+- ESLint + Prettier
+- Tailwind CSS for styling
+- shadcn/ui component library
+
+### Testing
+
+```bash
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+### Building
+
+```bash
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
 
 ## Deployment
 
-### Vercel (Recommended)
+The project is configured for deployment on Vercel or Netlify.
 
-1. Connect your GitHub repository
-2. Set environment variables in Project Settings
-3. Deploy automatically on push to main
+### Vercel
 
-### Build
+1. Connect your repository to Vercel
+2. Set environment variables
+3. Deploy
+
+### Supabase Edge Functions
 
 ```bash
-npm run build
+# Deploy all functions
+npx supabase functions deploy
+
+# Deploy specific function
+npx supabase functions deploy function-name
 ```
-
-Output is in the `dist/` directory.
-
-## Security
-
-- Row Level Security (RLS) on all tables
-- Server-side admin verification (role + email allowlist)
-- No client-side admin trust
-- GDPR-compliant analytics with consent
-- Input validation on all forms
-
-## Documentation
-
-- [Analytics Events](docs/analytics-events.md) - Event taxonomy
-- [Database Schema](docs/supabase-schema.sql) - Schema reference
-- [Changelog](CHANGELOG.md) - Version history
 
 ## License
 
 Proprietary - All rights reserved.
+
+## Support
+
+For support, email support@zeroretry.com

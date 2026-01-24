@@ -8,19 +8,19 @@ export default function TermsOfService() {
       <SiteHeader />
       <main className="container py-10 sm:py-14">
         <Card className="mx-auto max-w-3xl p-6 sm:p-10">
-          <h1 className="text-3xl font-bold tracking-tight">Terms of Service</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Last updated: January 22, 2026</p>
+          <h1 className="text-3xl font-bold tracking-tight font-heading">Terms of Service</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Last updated: January 24, 2026</p>
 
           <div className="prose prose-sm mt-8 max-w-none text-foreground">
             <h2 className="text-xl font-semibold">1. Agreement to Terms</h2>
             <p>
-              By accessing or using Prompt Perfector ("Service"), you agree to be bound by these 
+              By accessing or using ZeroRetry ("Service"), you agree to be bound by these 
               Terms of Service. If you do not agree to these terms, do not use the Service.
             </p>
 
             <h2 className="mt-6 text-xl font-semibold">2. Description of Service</h2>
             <p>
-              Prompt Perfector is a tool that analyzes AI prompts and provides suggestions for 
+              ZeroRetry is a tool that analyzes AI prompts and provides suggestions for 
               improvement. The Service is provided on a freemium basis, with additional features 
               available through paid subscriptions.
             </p>
@@ -55,13 +55,13 @@ export default function TermsOfService() {
 
             <h2 className="mt-6 text-xl font-semibold">6. Free Tier Limitations</h2>
             <p>
-              Free tier users are limited to 10 prompt analyses per day. We reserve the right 
+              Free tier users are limited to 10 AI rewrites per month. We reserve the right 
               to modify these limits at any time.
             </p>
 
             <h2 className="mt-6 text-xl font-semibold">7. Intellectual Property</h2>
             <ul className="ml-4 mt-2 list-disc space-y-1">
-              <li>The Service and its original content are owned by Prompt Perfector.</li>
+              <li>The Service and its original content are owned by ZeroRetry.</li>
               <li>You retain ownership of the prompts you submit.</li>
               <li>By using the Service, you grant us a license to process your prompts for analysis.</li>
               <li>We do not claim ownership of your improved prompts.</li>
@@ -75,7 +75,7 @@ export default function TermsOfService() {
 
             <h2 className="mt-6 text-xl font-semibold">9. Limitation of Liability</h2>
             <p>
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, PROMPT PERFECTOR SHALL NOT BE LIABLE FOR 
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, ZERORETRY SHALL NOT BE LIABLE FOR 
               ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT 
               OF OR RELATED TO YOUR USE OF THE SERVICE.
             </p>
@@ -94,8 +94,8 @@ export default function TermsOfService() {
 
             <h2 className="mt-6 text-xl font-semibold">12. Governing Law</h2>
             <p>
-              These Terms shall be governed by the laws of the jurisdiction in which Prompt 
-              Perfector operates, without regard to conflict of law principles.
+              These Terms shall be governed by the laws of the jurisdiction in which ZeroRetry 
+              operates, without regard to conflict of law principles.
             </p>
 
             <h2 className="mt-6 text-xl font-semibold">13. Contact</h2>
@@ -103,8 +103,8 @@ export default function TermsOfService() {
               For questions about these Terms, please contact us at:
             </p>
             <p className="mt-2">
-              <a href="mailto:legal@promptperfector.com" className="text-primary underline">
-                legal@promptperfector.com
+              <a href="mailto:legal@zeroretry.com" className="text-primary underline">
+                legal@zeroretry.com
               </a>
             </p>
           </div>

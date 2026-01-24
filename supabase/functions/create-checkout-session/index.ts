@@ -156,7 +156,7 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name: tier === "unlimited" ? "Prompt Perfector Unlimited" : "Prompt Perfector Pro",
+              name: tier === "unlimited" ? "ZeroRetry Unlimited" : "ZeroRetry Pro",
               description: tier === "unlimited" 
                 ? "Unlimited AI rewrites, priority support, early access features"
                 : `${creditsAmount} AI rewrite credits per month, up to 200 rollover`,

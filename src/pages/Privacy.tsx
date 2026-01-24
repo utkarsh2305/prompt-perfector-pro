@@ -8,13 +8,13 @@ export default function PrivacyPolicy() {
       <SiteHeader />
       <main className="container py-10 sm:py-14">
         <Card className="mx-auto max-w-3xl p-6 sm:p-10">
-          <h1 className="text-3xl font-bold tracking-tight">Privacy Policy</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Last updated: January 22, 2026</p>
+          <h1 className="text-3xl font-bold tracking-tight font-heading">Privacy Policy</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Last updated: January 24, 2026</p>
 
           <div className="prose prose-sm mt-8 max-w-none text-foreground">
             <h2 className="text-xl font-semibold">1. Introduction</h2>
             <p>
-              Welcome to Prompt Perfector ("we," "our," or "us"). We are committed to protecting your 
+              Welcome to ZeroRetry ("we," "our," or "us"). We are committed to protecting your 
               personal information and your right to privacy. This Privacy Policy explains how we collect, 
               use, disclose, and safeguard your information when you use our service.
             </p>
@@ -95,8 +95,8 @@ export default function PrivacyPolicy() {
               If you have questions about this Privacy Policy, please contact us at:
             </p>
             <p className="mt-2">
-              <a href="mailto:privacy@promptperfector.com" className="text-primary underline">
-                privacy@promptperfector.com
+              <a href="mailto:privacy@zeroretry.com" className="text-primary underline">
+                privacy@zeroretry.com
               </a>
             </p>
           </div>

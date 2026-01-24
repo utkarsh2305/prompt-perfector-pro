@@ -4,24 +4,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
-import { Settings, Shield, LogOut, User } from "lucide-react";
-import logo from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 
 function getInitials(name: string | null | undefined, email: string | null | undefined): string {
   if (name) {
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   }
   if (email) {
-    return email.slice(0, 2).toUpperCase();
+    return email[0].toUpperCase();
   }
   return "U";
 }
@@ -30,10 +26,10 @@ export function SiteHeader() {
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const fullName = profile?.full_name ?? user?.user_metadata?.full_name ?? null;
-  const email = profile?.email ?? user?.email ?? null;
-  const initials = getInitials(fullName, email);
   const isLoggedIn = !!user;
+  const fullName = profile?.full_name || null;
+  const email = user?.email || null;
+  const initials = getInitials(fullName, email);
 
   const handleSignOut = async () => {
     await signOut();
@@ -41,14 +37,13 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/50">
-      <div className="container flex h-14 items-center justify-between">
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="container flex h-16 items-center justify-between">
         <NavLink
           to="/"
           className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-semibold"
         >
-          <img src={logo} alt="Prompt Perfector logo" className="h-10 w-10 rounded-md" />
-          <span>Prompt Perfector</span>
+          <Logo />
         </NavLink>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -58,65 +53,51 @@ export function SiteHeader() {
           <a className="text-sm text-muted-foreground hover:text-foreground" href="#pricing">
             Pricing
           </a>
-          <a className="text-sm text-muted-foreground hover:text-foreground" href="#framework">
-            55 Principles
-          </a>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">{fullName || "User"}</p>
-                  <p className="text-xs text-muted-foreground truncate">{email}</p>
-                </div>
+              <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{fullName || "User"}</p>
+                    <p className="text-xs text-muted-foreground">{email}</p>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <NavLink to="/dashboard" className="flex items-center gap-2 cursor-pointer">
-                    <User className="h-4 w-4" />
-                    Dashboard
-                  </NavLink>
+                  <NavLink to="/dashboard" className="w-full cursor-pointer">Dashboard</NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <NavLink to="/dashboard/settings" className="flex items-center gap-2 cursor-pointer">
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </NavLink>
+                  <NavLink to="/dashboard/settings" className="w-full cursor-pointer">Settings</NavLink>
                 </DropdownMenuItem>
                 {isAdmin && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <NavLink to="/admin" className="flex items-center gap-2 cursor-pointer">
-                        <Shield className="h-4 w-4" />
-                        Admin Panel
-                      </NavLink>
-                    </DropdownMenuItem>
-                  </>
+                  <DropdownMenuItem asChild>
+                    <NavLink to="/admin" className="w-full cursor-pointer">Admin Panel</NavLink>
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive">
-                  <LogOut className="h-4 w-4" />
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
-              <Button asChild variant="ghost" className="hidden sm:inline-flex">
+              <Button asChild variant="ghost" size="sm">
                 <NavLink to="/login">Sign in</NavLink>
               </Button>
-              <Button asChild variant="hero" size="sm">
+              <Button asChild variant="default" size="sm" className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
                 <NavLink to="/signup">Try it now</NavLink>
               </Button>
             </>

@@ -20,16 +20,15 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Settings, Shield, LogOut, User } from "lucide-react";
-import logo from "@/assets/logo.png";
+import { Logo } from "@/components/Logo";
 
 type LandingHeaderProps = {
   onCtaClick?: (cta: string) => void;
 };
 
 const NAV_ITEMS = [
-  { label: "Features", href: "#features" },
-  { label: "Pricing", href: "#pricing" },
   { label: "How it works", href: "#how-it-works" },
+  { label: "Pricing", href: "#pricing" },
 ];
 
 function getInitials(name: string | null | undefined, email: string | null | undefined): string {
@@ -81,10 +80,9 @@ export function LandingHeader({ onCtaClick }: LandingHeaderProps) {
         <a
           href="#top"
           className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-          aria-label="Prompt Perfector (back to top)"
+          aria-label="ZeroRetry (back to top)"
         >
-          <img src={logo} alt="Prompt Perfector logo" className="h-10 w-10 rounded-md" />
-          <span>Prompt Perfector</span>
+          <Logo />
         </a>
 
         <nav className="hidden items-center gap-6 md:flex" aria-label="Primary">
@@ -161,9 +159,8 @@ export function LandingHeader({ onCtaClick }: LandingHeaderProps) {
 
               <Button
                 asChild
-                variant="hero"
                 size="sm"
-                className="hidden sm:inline-flex"
+                className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent text-primary-foreground"
                 onClick={() => onCtaClick?.("nav_get_started")}
               >
                 <NavLink to="/signup">Get started</NavLink>
@@ -204,19 +201,19 @@ export function LandingHeader({ onCtaClick }: LandingHeaderProps) {
                 {isLoggedIn ? (
                   <div className="space-y-2">
                     <SheetClose asChild>
-                      <Button asChild variant="outline" size="xl" className="w-full">
+                      <Button asChild variant="outline" size="lg" className="w-full">
                         <NavLink to="/dashboard">Dashboard</NavLink>
                       </Button>
                     </SheetClose>
                     {isAdmin && (
                       <SheetClose asChild>
-                        <Button asChild variant="outline" size="xl" className="w-full">
+                        <Button asChild variant="outline" size="lg" className="w-full">
                           <NavLink to="/admin">Admin Panel</NavLink>
                         </Button>
                       </SheetClose>
                     )}
                     <SheetClose asChild>
-                      <Button variant="destructive" size="xl" className="w-full" onClick={handleSignOut}>
+                      <Button variant="destructive" size="lg" className="w-full" onClick={handleSignOut}>
                         Sign out
                       </Button>
                     </SheetClose>
@@ -224,16 +221,15 @@ export function LandingHeader({ onCtaClick }: LandingHeaderProps) {
                 ) : (
                   <div className="space-y-2">
                     <SheetClose asChild>
-                      <Button asChild variant="outline" size="xl" className="w-full">
+                      <Button asChild variant="outline" size="lg" className="w-full">
                         <NavLink to="/login">Sign in</NavLink>
                       </Button>
                     </SheetClose>
                     <SheetClose asChild>
                       <Button
                         asChild
-                        variant="hero"
-                        size="xl"
-                        className="w-full"
+                        size="lg"
+                        className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground"
                         onClick={() => onCtaClick?.("mobile_get_started")}
                       >
                         <NavLink to="/signup">Get started</NavLink>
