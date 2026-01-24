@@ -1,9 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.91.0";
+import { checkRateLimit, rateLimitResponse } from "./rate-limit.ts";
 
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+export { checkRateLimit, rateLimitResponse };
 
 function parseAllowlist(raw: string | undefined): string[] {
   if (!raw) return [];
@@ -84,5 +87,12 @@ export async function assertAdmin(req: Request) {
   }
 
   const adminClient = createClient(url, serviceRole);
+
+  // Check admin rate limit (20 requests per minute)
+  const rateLimitResult = await checkRateLimit(user.id, "admin", adminClient);
+  if (!rateLimitResult.allowed) {
+    return { ok: false as const, status: 429, body: { error: "Rate limit exceeded" } };
+  }
+
   return { ok: true as const, user, email, adminClient };
 }

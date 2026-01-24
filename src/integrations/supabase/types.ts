@@ -275,6 +275,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          endpoint: string
+          id: string
+          identifier: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          endpoint: string
+          id?: string
+          identifier: string
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          endpoint?: string
+          id?: string
+          identifier?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       revert_events: {
         Row: {
           created_at: string
@@ -995,6 +1019,19 @@ export type Database = {
         }
         Returns: Json
       }
+      check_rate_limit: {
+        Args: {
+          p_endpoint: string
+          p_identifier: string
+          p_max_requests: number
+          p_window_minutes?: number
+        }
+        Returns: {
+          allowed: boolean
+          current_count: number
+          reset_at: string
+        }[]
+      }
       check_rewrite_credits: {
         Args: { user_uuid: string }
         Returns: {
@@ -1003,6 +1040,7 @@ export type Database = {
           is_unlimited: boolean
         }[]
       }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
       consume_rewrite_credit: {
         Args: { analysis_id?: string; user_uuid: string }
         Returns: {
