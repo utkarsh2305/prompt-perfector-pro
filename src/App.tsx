@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 // Lazy loaded pages (code splitting)
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Pricing = lazy(() => import("./pages/Pricing"));
 const DashboardLayout = lazy(() => import("./pages/dashboard/DashboardLayout"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -64,6 +65,7 @@ function AppRoutes() {
       <Routes>
         {/* Public pages */}
         <Route path="/" element={<Landing />} />
+        <Route path="/pricing" element={<Pricing />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         

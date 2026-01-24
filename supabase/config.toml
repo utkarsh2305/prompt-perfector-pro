@@ -2,3 +2,12 @@ project_id = "tenxnfduxdgybnocikkj"
 
 [functions.monthly-credit-reset]
 verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-checkout-session]
+verify_jwt = false
+
+[functions.create-billing-portal]
+verify_jwt = false
