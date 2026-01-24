@@ -275,6 +275,47 @@ export type Database = {
         }
         Relationships: []
       }
+      revert_events: {
+        Row: {
+          created_at: string
+          id: string
+          platform: string | null
+          prompt_analysis_id: string | null
+          revert_reason: string | null
+          score_after: number | null
+          score_before: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          platform?: string | null
+          prompt_analysis_id?: string | null
+          revert_reason?: string | null
+          score_after?: number | null
+          score_before?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          platform?: string | null
+          prompt_analysis_id?: string | null
+          revert_reason?: string | null
+          score_after?: number | null
+          score_before?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revert_events_prompt_analysis_id_fkey"
+            columns: ["prompt_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_analysis_log"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rewrite_credits: {
         Row: {
           credits_remaining: number
@@ -512,6 +553,42 @@ export type Database = {
           },
         ]
       }
+      snooze_events: {
+        Row: {
+          actual_duration_minutes: number | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          platform: string | null
+          session_id: string | null
+          snooze_reason: string | null
+          snooze_type: string
+          user_id: string
+        }
+        Insert: {
+          actual_duration_minutes?: number | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          platform?: string | null
+          session_id?: string | null
+          snooze_reason?: string | null
+          snooze_type: string
+          user_id: string
+        }
+        Update: {
+          actual_duration_minutes?: number | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          platform?: string | null
+          session_id?: string | null
+          snooze_reason?: string | null
+          snooze_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_tiers: {
         Row: {
           base_monthly_price: number
@@ -655,11 +732,15 @@ export type Database = {
           active_platforms: string[]
           analysis_mode: string
           auto_replace_on_rewrite: boolean
+          auto_unsnooze_enabled: boolean | null
           created_at: string
+          default_snooze_minutes: number | null
           id: string
           primary_ai_platform: string
           show_hover_suggestions: boolean
+          show_rewrite_confirmation: boolean | null
           show_score_badge: boolean
+          snooze_analytics_enabled: boolean | null
           updated_at: string
           user_id: string
         }
@@ -667,11 +748,15 @@ export type Database = {
           active_platforms?: string[]
           analysis_mode?: string
           auto_replace_on_rewrite?: boolean
+          auto_unsnooze_enabled?: boolean | null
           created_at?: string
+          default_snooze_minutes?: number | null
           id?: string
           primary_ai_platform?: string
           show_hover_suggestions?: boolean
+          show_rewrite_confirmation?: boolean | null
           show_score_badge?: boolean
+          snooze_analytics_enabled?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -679,11 +764,15 @@ export type Database = {
           active_platforms?: string[]
           analysis_mode?: string
           auto_replace_on_rewrite?: boolean
+          auto_unsnooze_enabled?: boolean | null
           created_at?: string
+          default_snooze_minutes?: number | null
           id?: string
           primary_ai_platform?: string
           show_hover_suggestions?: boolean
+          show_rewrite_confirmation?: boolean | null
           show_score_badge?: boolean
+          snooze_analytics_enabled?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -860,7 +949,28 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_revert_analytics: {
+        Row: {
+          avg_score_after_reverted: number | null
+          avg_score_before: number | null
+          date: string | null
+          platform: string | null
+          revert_count: number | null
+          revert_reason: string | null
+        }
+        Relationships: []
+      }
+      admin_snooze_analytics: {
+        Row: {
+          avg_actual_duration: number | null
+          avg_planned_duration: number | null
+          date: string | null
+          platform: string | null
+          snooze_count: number | null
+          snooze_reason: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_user_analyze: {
@@ -908,11 +1018,15 @@ export type Database = {
           active_platforms: string[]
           analysis_mode: string
           auto_replace_on_rewrite: boolean
+          auto_unsnooze_enabled: boolean | null
           created_at: string
+          default_snooze_minutes: number | null
           id: string
           primary_ai_platform: string
           show_hover_suggestions: boolean
+          show_rewrite_confirmation: boolean | null
           show_score_badge: boolean
+          snooze_analytics_enabled: boolean | null
           updated_at: string
           user_id: string
         }[]
