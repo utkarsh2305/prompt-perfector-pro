@@ -13,6 +13,11 @@ interface UpdatePreferencesInput {
   showScoreBadge?: boolean;
   showHoverSuggestions?: boolean;
   autoReplaceOnRewrite?: boolean;
+  // Snooze preferences
+  defaultSnoozeMinutes?: number;
+  autoUnsnoozeEnabled?: boolean;
+  showRewriteConfirmation?: boolean;
+  snoozeAnalyticsEnabled?: boolean;
 }
 
 serve(async (req) => {
@@ -88,6 +93,29 @@ serve(async (req) => {
       updateData.auto_replace_on_rewrite = body.autoReplaceOnRewrite;
     }
 
+    // Snooze preferences
+    if (body.defaultSnoozeMinutes !== undefined) {
+      if (![0, 15, 30, 60].includes(body.defaultSnoozeMinutes)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid defaultSnoozeMinutes. Must be 0, 15, 30, or 60" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      updateData.default_snooze_minutes = body.defaultSnoozeMinutes;
+    }
+
+    if (body.autoUnsnoozeEnabled !== undefined) {
+      updateData.auto_unsnooze_enabled = body.autoUnsnoozeEnabled;
+    }
+
+    if (body.showRewriteConfirmation !== undefined) {
+      updateData.show_rewrite_confirmation = body.showRewriteConfirmation;
+    }
+
+    if (body.snoozeAnalyticsEnabled !== undefined) {
+      updateData.snooze_analytics_enabled = body.snoozeAnalyticsEnabled;
+    }
+
     if (Object.keys(updateData).length === 0) {
       return new Response(
         JSON.stringify({ error: "No valid fields to update" }),
@@ -120,6 +148,11 @@ serve(async (req) => {
         showScoreBadge: updated.show_score_badge,
         showHoverSuggestions: updated.show_hover_suggestions,
         autoReplaceOnRewrite: updated.auto_replace_on_rewrite,
+        // Snooze preferences
+        defaultSnoozeMinutes: updated.default_snooze_minutes,
+        autoUnsnoozeEnabled: updated.auto_unsnooze_enabled,
+        showRewriteConfirmation: updated.show_rewrite_confirmation,
+        snoozeAnalyticsEnabled: updated.snooze_analytics_enabled,
       },
     };
 

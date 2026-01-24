@@ -39,6 +39,11 @@ interface ExtensionDataResponse {
     showScoreBadge: boolean;
     showHoverSuggestions: boolean;
     autoReplaceOnRewrite: boolean;
+    // Snooze preferences
+    defaultSnoozeMinutes: number;
+    autoUnsnoozeEnabled: boolean;
+    showRewriteConfirmation: boolean;
+    snoozeAnalyticsEnabled: boolean;
   };
 }
 
@@ -180,6 +185,11 @@ serve(async (req) => {
         showScoreBadge: preferences?.show_score_badge ?? true,
         showHoverSuggestions: preferences?.show_hover_suggestions ?? true,
         autoReplaceOnRewrite: preferences?.auto_replace_on_rewrite ?? false,
+        // Snooze preferences
+        defaultSnoozeMinutes: preferences?.default_snooze_minutes ?? 30,
+        autoUnsnoozeEnabled: preferences?.auto_unsnooze_enabled ?? true,
+        showRewriteConfirmation: preferences?.show_rewrite_confirmation ?? true,
+        snoozeAnalyticsEnabled: preferences?.snooze_analytics_enabled ?? true,
       },
     };
 
