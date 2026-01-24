@@ -26,6 +26,23 @@ export interface PromptComponents {
   detectedSubject: string | null;
   detectedFormat: string | null;
   detectedTopic: string | null;
+  // Extended analysis
+  hasConditional: boolean;
+  hasComparison: boolean;
+  hasList: boolean;
+  hasQuestion: boolean;
+  questionType: string | null;
+  detectedAudience: string | null;
+  detectedTone: string | null;
+  detectedLength: string | null;
+  detectedPersona: string | null;
+  detectedGoal: string | null;
+  detectedLanguage: string | null;
+  detectedFramework: string | null;
+  detectedPlatform: string | null;
+  clauseCount: number;
+  constraintCount: number;
+  exampleCount: number;
 }
 
 export interface AnalysisResult {

@@ -65,61 +65,460 @@ interface ScoreResponse {
     detectedSubject: string | null;
     detectedFormat: string | null;
     detectedTopic: string | null;
+    // Extended analysis
+    hasConditional: boolean;
+    hasComparison: boolean;
+    hasList: boolean;
+    hasQuestion: boolean;
+    questionType: string | null;
+    detectedAudience: string | null;
+    detectedTone: string | null;
+    detectedLength: string | null;
+    detectedPersona: string | null;
+    detectedGoal: string | null;
+    detectedLanguage: string | null;
+    detectedFramework: string | null;
+    detectedPlatform: string | null;
+    clauseCount: number;
+    constraintCount: number;
+    exampleCount: number;
   };
+}
+
+// Extended interface for complex prompt parsing
+interface ExtendedPromptComponents extends PromptComponents {
+  // Multi-clause detection
+  clauses: string[];
+  hasConditional: boolean;
+  conditionalParts: { condition: string; then: string } | null;
+  hasComparison: boolean;
+  comparisonItems: string[];
+  hasList: boolean;
+  listItems: string[];
+  hasQuestion: boolean;
+  questionType: string | null;
+  
+  // Context detection
+  audience: string | null;
+  constraints: string[];
+  examples: string[];
+  tone: string | null;
+  length: string | null;
+  persona: string | null;
+  goal: string | null;
+  
+  // Technical detection
+  programmingLanguage: string | null;
+  framework: string | null;
+  platform: string | null;
 }
 
 // Extract components from the user's prompt for contextual suggestions
 function extractPromptComponents(prompt: string): PromptComponents {
-  const components: PromptComponents = {
+  const extended = extractExtendedComponents(prompt);
+  
+  // Return basic components for backward compatibility
+  return {
+    fullPrompt: extended.fullPrompt,
+    action: extended.action,
+    subject: extended.subject,
+    coreTask: extended.coreTask,
+    topic: extended.topic,
+    format: extended.format,
+  };
+}
+
+// Full extraction with all advanced patterns
+function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
+  const components: ExtendedPromptComponents = {
     fullPrompt: prompt,
     action: null,
     subject: null,
     coreTask: null,
     topic: null,
     format: null,
+    
+    // Multi-clause
+    clauses: [],
+    hasConditional: false,
+    conditionalParts: null,
+    hasComparison: false,
+    comparisonItems: [],
+    hasList: false,
+    listItems: [],
+    hasQuestion: false,
+    questionType: null,
+    
+    // Context
+    audience: null,
+    constraints: [],
+    examples: [],
+    tone: null,
+    length: null,
+    persona: null,
+    goal: null,
+    
+    // Technical
+    programmingLanguage: null,
+    framework: null,
+    platform: null,
   };
 
-  // Extract action verb at the start
-  const actionMatch = prompt.match(
-    /^(write|create|generate|explain|analyze|summarize|make|build|design|draft|compose|develop|help me with|help me|give me|show me|tell me|find|list|describe|compare|review|check|fix|improve|optimize|refactor|translate|convert|calculate|solve|plan|outline|suggest|recommend|brainstorm)\s+/i
-  );
-  
-  if (actionMatch) {
-    components.action = actionMatch[1].toLowerCase();
-    components.subject = prompt.slice(actionMatch[0].length).trim();
-  } else {
+  const promptLower = prompt.toLowerCase();
+
+  // ===== ACTION VERB EXTRACTION (enhanced) =====
+  // Handle imperative verbs, infinitives, and gerunds
+  const actionPatterns = [
+    // Direct imperatives at start
+    /^(write|create|generate|explain|analyze|summarize|make|build|design|draft|compose|develop|find|list|describe|compare|review|check|fix|improve|optimize|refactor|translate|convert|calculate|solve|plan|outline|suggest|recommend|brainstorm|implement|debug|test|deploy|configure|setup|install|migrate|upgrade|downgrade|integrate|validate|verify|format|parse|serialize|deserialize|encode|decode|encrypt|decrypt|compress|extract|merge|split|combine|sort|filter|search|query|fetch|retrieve|update|delete|insert|modify|transform|map|reduce|iterate|loop|traverse|navigate|render|display|show|hide|toggle|enable|disable|animate|style|layout|align|center|justify|wrap|truncate|paginate|cache|memoize|debounce|throttle|batch|queue|schedule|monitor|log|track|measure|benchmark|profile|audit|scan|lint|minify|bundle|compile|transpile|polyfill)\s+/i,
+    // "Help me" variants
+    /^(help me|help me to|help me with|assist me with|assist me in|guide me through|walk me through|show me how to|teach me to|explain how to)\s+/i,
+    // "I want/need to" variants
+    /^(?:i want to|i need to|i'd like to|i would like to|can you|could you|would you|please)\s+(write|create|generate|explain|make|build|design|help|show|give|tell|find|list|describe|fix|improve)\s*/i,
+    // Question-style actions
+    /^(?:how (?:do i|can i|should i|to)|what is the best way to|what's the best way to)\s+/i,
+  ];
+
+  for (const pattern of actionPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      // Extract the core action verb
+      const fullMatch = match[0];
+      const actionVerb = match[1] ? match[1].toLowerCase() : fullMatch.toLowerCase().trim();
+      
+      // Normalize compound actions
+      components.action = normalizeAction(actionVerb);
+      components.subject = prompt.slice(fullMatch.length).trim();
+      break;
+    }
+  }
+
+  // Fallback: if no action detected, treat entire prompt as subject
+  if (!components.subject) {
     components.subject = prompt;
   }
 
-  // Extract core task (remove leading articles)
-  components.coreTask = (components.subject || prompt).replace(/^(a|an|the)\s+/i, "");
+  // ===== CLAUSE SPLITTING =====
+  // Split by sentence boundaries and conjunctions
+  const clauseDelimiters = /(?:[.!?](?:\s+|$))|(?:\s+(?:and then|then|after that|next|finally|also|additionally|furthermore|moreover|however|but|although|while|whereas|meanwhile)\s+)/gi;
+  components.clauses = prompt
+    .split(clauseDelimiters)
+    .map(c => c.trim())
+    .filter(c => c.length > 3);
 
-  // Try to extract format type
-  const formatMatch = (components.subject || prompt).match(
-    /\b(blog post|email|article|report|essay|code|function|script|letter|message|summary|list|guide|tutorial|presentation|proposal|story|poem|tweet|post|review|analysis|documentation|readme|api|query|sql|regex|prompt|template|response|reply|comment|feedback|description|headline|title|tagline|slogan|bio|introduction|conclusion|outline|plan|strategy|roadmap|checklist|schedule|agenda|minutes|notes|memo|announcement|newsletter|press release|case study|white paper|ebook|landing page|homepage|product description|faq|help article|knowledge base|sop|policy|contract|terms|privacy policy|job description|resume|cover letter|linkedin|portfolio|pitch|deck|slides|dashboard|chart|graph|table|spreadsheet|formula|macro|test|unit test|spec|requirement|user story|acceptance criteria|bug report|feature request|changelog|commit message|pr description|code review)\b/i
-  );
-  if (formatMatch) {
-    components.format = formatMatch[1].toLowerCase();
+  // ===== CONDITIONAL DETECTION =====
+  const conditionalPatterns = [
+    /if\s+(.+?)\s*[,;]\s*(?:then\s+)?(.+?)(?:\.|$)/i,
+    /when\s+(.+?)\s*[,;]\s*(.+?)(?:\.|$)/i,
+    /(?:in case|in the case that|should)\s+(.+?)\s*[,;]\s*(.+?)(?:\.|$)/i,
+    /unless\s+(.+?)\s*[,;]\s*(.+?)(?:\.|$)/i,
+  ];
+
+  for (const pattern of conditionalPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.hasConditional = true;
+      components.conditionalParts = {
+        condition: match[1].trim(),
+        then: match[2].trim(),
+      };
+      break;
+    }
   }
 
-  // Try to extract topic (after "about", "for", "on", "regarding")
-  const topicMatch = prompt.match(
-    /\b(?:about|for|on|regarding|concerning|related to)\s+(.+?)(?:\.|$|,|\s+(?:that|which|with|in|using|and|or|but|to|from|by|as|at|into|onto|upon|within|without|through|during|before|after|above|below|between|among|against|toward|towards))/i
-  );
-  if (topicMatch) {
-    components.topic = topicMatch[1].trim();
-  } else {
-    // Fallback: try to get topic from the core task
-    const fallbackTopic = (components.coreTask || "").replace(
-      /^(a|an|the|some|any|my|your|our|their|this|that|these|those)\s+/i,
-      ""
-    );
+  // ===== COMPARISON DETECTION =====
+  const comparisonPatterns = [
+    /compare\s+(.+?)\s+(?:with|to|and|vs\.?|versus)\s+(.+?)(?:\.|,|$)/i,
+    /(?:difference|differences)\s+between\s+(.+?)\s+and\s+(.+?)(?:\.|,|$)/i,
+    /(.+?)\s+(?:vs\.?|versus|compared to|in comparison to)\s+(.+?)(?:\.|,|$)/i,
+    /(?:which is better|what's better|pros and cons of)\s+(.+?)\s+(?:or|vs\.?|versus)\s+(.+?)(?:\?|\.|,|$)/i,
+  ];
+
+  for (const pattern of comparisonPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.hasComparison = true;
+      components.comparisonItems = [match[1].trim(), match[2].trim()];
+      break;
+    }
+  }
+
+  // ===== LIST DETECTION =====
+  // Detect enumerated lists, bullet points, or comma-separated items
+  const listPatterns = [
+    /(?:^|\s)(?:\d+[\.\)]\s*(.+?)(?:,|;|\n|$))+/gm, // numbered lists
+    /(?:^|\s)(?:[-•*]\s*(.+?)(?:\n|$))+/gm, // bullet lists
+    /(?:including|such as|like|for example|e\.g\.|i\.e\.)\s+(.+?)(?:\.|$)/i, // inline lists
+  ];
+
+  // Check for comma-separated items after keywords
+  const inlineListMatch = prompt.match(/(?:including|such as|like|for example|namely)\s+(.+?)(?:\.|$)/i);
+  if (inlineListMatch) {
+    const items = inlineListMatch[1].split(/,\s*(?:and\s+)?|\s+and\s+/);
+    if (items.length >= 2) {
+      components.hasList = true;
+      components.listItems = items.map(i => i.trim()).filter(i => i.length > 0);
+    }
+  }
+
+  // Check for multiple requests with "and"
+  const multiRequestMatch = prompt.match(/(.+?)\s+and\s+(?:also\s+)?(.+?)\s+and\s+(?:also\s+)?(.+?)(?:\.|$)/i);
+  if (multiRequestMatch) {
+    components.hasList = true;
+    components.listItems = [
+      multiRequestMatch[1].trim(),
+      multiRequestMatch[2].trim(),
+      multiRequestMatch[3].trim(),
+    ];
+  }
+
+  // ===== QUESTION DETECTION =====
+  const questionPatterns = [
+    { pattern: /^what\s+(?:is|are|was|were|would|could|should)\s+/i, type: "definition" },
+    { pattern: /^how\s+(?:do|does|can|could|should|would|to)\s+/i, type: "process" },
+    { pattern: /^why\s+(?:do|does|is|are|did|would|should)\s+/i, type: "explanation" },
+    { pattern: /^when\s+(?:do|does|is|are|should|would)\s+/i, type: "timing" },
+    { pattern: /^where\s+(?:do|does|is|are|can|should)\s+/i, type: "location" },
+    { pattern: /^who\s+(?:is|are|was|were|can|should|would)\s+/i, type: "person" },
+    { pattern: /^which\s+(?:is|are|one|ones)\s+/i, type: "selection" },
+    { pattern: /^can\s+(?:you|i|we)\s+/i, type: "capability" },
+    { pattern: /^(?:is|are|does|do|will|would|should|could|can)\s+.+\?$/i, type: "yes-no" },
+  ];
+
+  if (prompt.includes("?") || /^(?:what|how|why|when|where|who|which|can|is|are|does|do)\s+/i.test(prompt)) {
+    components.hasQuestion = true;
+    for (const { pattern, type } of questionPatterns) {
+      if (pattern.test(prompt)) {
+        components.questionType = type;
+        break;
+      }
+    }
+    if (!components.questionType) {
+      components.questionType = "general";
+    }
+  }
+
+  // ===== AUDIENCE EXTRACTION =====
+  const audiencePatterns = [
+    /(?:for|targeting|aimed at|intended for|designed for|written for)\s+(?:a\s+)?(.+?)(?:\.|,|;|$|\s+(?:who|that|which))/i,
+    /(?:audience|readers?|users?|customers?)\s+(?:is|are|will be|should be)\s+(.+?)(?:\.|,|;|$)/i,
+    /(?:this is for|meant for|geared toward|tailored to)\s+(.+?)(?:\.|,|;|$)/i,
+  ];
+
+  for (const pattern of audiencePatterns) {
+    const match = prompt.match(pattern);
+    if (match && !components.audience) {
+      components.audience = match[1].trim();
+      break;
+    }
+  }
+
+  // ===== CONSTRAINT EXTRACTION =====
+  const constraintPatterns = [
+    /(?:must|should|needs? to|has? to|require[sd]?)\s+(.+?)(?:\.|,|;|$)/gi,
+    /(?:limit|restrict|constrain|cap|maximum|minimum|at least|at most|no more than|no less than)\s+(.+?)(?:\.|,|;|$)/gi,
+    /(?:within|under|over|between)\s+(\d+\s*(?:words?|characters?|paragraphs?|sentences?|pages?|minutes?|seconds?|hours?|days?|mb|kb|gb))/gi,
+    /(?:don't|do not|avoid|exclude|without|skip|omit|leave out)\s+(.+?)(?:\.|,|;|$)/gi,
+  ];
+
+  for (const pattern of constraintPatterns) {
+    let match;
+    while ((match = pattern.exec(prompt)) !== null) {
+      components.constraints.push(match[1].trim());
+    }
+  }
+
+  // ===== EXAMPLE EXTRACTION =====
+  const examplePatterns = [
+    /(?:for example|e\.g\.|such as|like|example:|examples?:)\s+(.+?)(?:\.|$)/gi,
+    /(?:similar to|based on|inspired by|following the style of)\s+(.+?)(?:\.|,|$)/gi,
+    /(?:here's? (?:an )?example|see (?:the )?example|consider (?:this|the following)):\s*(.+?)(?:\.|$)/gi,
+  ];
+
+  for (const pattern of examplePatterns) {
+    let match;
+    while ((match = pattern.exec(prompt)) !== null) {
+      components.examples.push(match[1].trim());
+    }
+  }
+
+  // ===== TONE EXTRACTION =====
+  const tonePatterns = [
+    /(?:in (?:a|an)?|with (?:a|an)?|using (?:a|an)?)\s+(professional|casual|formal|informal|friendly|serious|humorous|witty|sarcastic|empathetic|authoritative|conversational|technical|academic|playful|enthusiastic|neutral|objective|persuasive|inspirational|motivational)\s+(?:tone|voice|style|manner)/i,
+    /(?:tone|voice|style|manner)\s+(?:should be|is|must be)\s+(professional|casual|formal|informal|friendly|serious|humorous|witty|empathetic|authoritative|conversational|technical|academic|playful)/i,
+    /(?:make it|keep it|sound|be)\s+(professional|casual|formal|informal|friendly|serious|fun|playful|authoritative|conversational)/i,
+  ];
+
+  for (const pattern of tonePatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.tone = match[1].toLowerCase();
+      break;
+    }
+  }
+
+  // ===== LENGTH EXTRACTION =====
+  const lengthPatterns = [
+    /(\d+(?:[-–]\d+)?)\s*(?:words?|characters?|chars?)/i,
+    /(\d+(?:[-–]\d+)?)\s*(?:paragraphs?|sentences?|pages?|lines?)/i,
+    /(brief|short|concise|long|detailed|comprehensive|extended|in-depth|quick|thorough)/i,
+    /(?:about|approximately|around|roughly)\s*(\d+)\s*(?:words?|paragraphs?|sentences?)/i,
+    /(?:no (?:more|less) than|at (?:least|most)|maximum|minimum)\s*(\d+)\s*(?:words?|paragraphs?)/i,
+  ];
+
+  for (const pattern of lengthPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.length = match[1];
+      break;
+    }
+  }
+
+  // ===== PERSONA EXTRACTION =====
+  const personaPatterns = [
+    /(?:act as|acting as|pretend (?:to be|you're)|you are|imagine you're|assume the role of|take on the role of|as a|as an)\s+(?:a |an )?(.+?)(?:\.|,|;|and\s|who\s|that\s|$)/i,
+    /(?:from the perspective of|in the voice of|channeling|embodying)\s+(?:a |an )?(.+?)(?:\.|,|;|$)/i,
+    /(?:like|as if)\s+(?:a |an )?(.+?)\s+(?:would|might|could)/i,
+  ];
+
+  for (const pattern of personaPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.persona = match[1].trim();
+      break;
+    }
+  }
+
+  // ===== GOAL/OBJECTIVE EXTRACTION =====
+  const goalPatterns = [
+    /(?:goal|objective|purpose|aim|intent|intention)\s+(?:is|being|:)\s*(.+?)(?:\.|,|;|$)/i,
+    /(?:in order to|so that|to achieve|to accomplish|to help|to make|to ensure|to improve)\s+(.+?)(?:\.|,|;|$)/i,
+    /(?:the result should|outcome should|should result in|should lead to)\s+(.+?)(?:\.|,|;|$)/i,
+  ];
+
+  for (const pattern of goalPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.goal = match[1].trim();
+      break;
+    }
+  }
+
+  // ===== PROGRAMMING LANGUAGE DETECTION =====
+  const langPatterns = [
+    /\b(javascript|typescript|python|java|c\+\+|c#|csharp|ruby|go|golang|rust|swift|kotlin|scala|php|perl|r\b|matlab|sql|bash|shell|powershell|html|css|sass|scss|less|jsx|tsx|vue|svelte|dart|lua|haskell|erlang|elixir|clojure|f#|ocaml|assembly|vhdl|verilog|cobol|fortran|pascal|delphi|groovy|objective-c|objectivec)\b/i,
+    /\b(?:in|using|with)\s+(javascript|typescript|python|java|c\+\+|c#|ruby|go|rust|swift|kotlin|php|sql)\b/i,
+  ];
+
+  for (const pattern of langPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.programmingLanguage = match[1].toLowerCase();
+      break;
+    }
+  }
+
+  // ===== FRAMEWORK DETECTION =====
+  const frameworkPatterns = [
+    /\b(react|angular|vue|svelte|next\.?js|nuxt|gatsby|remix|astro|express|fastify|koa|nest\.?js|django|flask|fastapi|spring|rails|laravel|symfony|asp\.net|blazor|flutter|react native|electron|tauri|unity|unreal|godot|tensorflow|pytorch|keras|scikit-learn|pandas|numpy|matplotlib|d3\.?js|three\.?js|tailwind|bootstrap|material-ui|chakra|antd?|prisma|drizzle|typeorm|mongoose|sequelize|knex|graphql|apollo|trpc|redux|mobx|zustand|jotai|recoil|tanstack|swr|axios|lodash|moment|dayjs|jest|vitest|cypress|playwright|selenium)\b/i,
+  ];
+
+  for (const pattern of frameworkPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.framework = match[1].toLowerCase();
+      break;
+    }
+  }
+
+  // ===== PLATFORM DETECTION =====
+  const platformPatterns = [
+    /\b(?:for|on|targeting)\s+(web|mobile|ios|android|desktop|windows|macos|linux|aws|azure|gcp|google cloud|firebase|vercel|netlify|heroku|docker|kubernetes|raspberry pi|arduino|wordpress|shopify|wix|squarespace)\b/i,
+    /\b(aws|azure|gcp|firebase|vercel|netlify|heroku|supabase|planetscale|mongodb atlas|redis|elasticsearch|kafka|rabbitmq|nginx|apache|cloudflare)\b/i,
+  ];
+
+  for (const pattern of platformPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.platform = match[1].toLowerCase();
+      break;
+    }
+  }
+
+  // ===== CORE TASK (remove articles and common prefixes) =====
+  components.coreTask = (components.subject || prompt)
+    .replace(/^(a|an|the|some|any|my|your|our|their|this|that)\s+/i, "")
+    .replace(/^(new|simple|basic|complex|advanced|custom|unique|specific)\s+/i, "$1 ");
+
+  // ===== FORMAT EXTRACTION (comprehensive) =====
+  const formatPatterns = [
+    /\b(blog post|email|article|report|essay|code|function|script|letter|message|summary|list|guide|tutorial|presentation|proposal|story|poem|tweet|post|review|analysis|documentation|readme|api|query|sql|regex|prompt|template|response|reply|comment|feedback|description|headline|title|tagline|slogan|bio|introduction|conclusion|outline|plan|strategy|roadmap|checklist|schedule|agenda|minutes|notes|memo|announcement|newsletter|press release|case study|white paper|ebook|landing page|homepage|product description|faq|help article|knowledge base|sop|policy|contract|terms|privacy policy|job description|resume|cv|cover letter|linkedin|portfolio|pitch|deck|slides|dashboard|chart|graph|table|spreadsheet|formula|macro|test|unit test|spec|requirement|user story|acceptance criteria|bug report|feature request|changelog|commit message|pr description|code review|pull request|issue|ticket|epic|sprint|backlog|kanban|wireframe|mockup|prototype|design|logo|icon|banner|infographic|video script|podcast script|social media post|instagram|tiktok|youtube|marketing copy|ad copy|sales copy|product copy|ux copy|microcopy|error message|notification|alert|modal|form|survey|questionnaire|interview|transcript|meeting notes|action items|follow-up|recap|executive summary|abstract|thesis|dissertation|research paper|literature review|methodology|findings|discussion|bibliography|citation|reference|appendix|glossary|index|table of contents|preface|foreword|acknowledgments|dedication)\b/i,
+  ];
+
+  for (const pattern of formatPatterns) {
+    const match = (components.subject || prompt).match(pattern);
+    if (match) {
+      components.format = match[1].toLowerCase();
+      break;
+    }
+  }
+
+  // ===== TOPIC EXTRACTION (enhanced) =====
+  const topicPatterns = [
+    // Direct topic markers
+    /\b(?:about|regarding|concerning|on the topic of|on the subject of|related to|pertaining to)\s+(.+?)(?:\.|$|,|\s+(?:that|which|with|in|using|and|or|but|to|from|by|as|at|into|for\s+(?:a|an|the|my|our|your)))/i,
+    // After format types
+    /(?:blog post|article|essay|report|guide|tutorial|summary|review|analysis)\s+(?:about|on|regarding|for)\s+(.+?)(?:\.|$|,)/i,
+    // Subject-verb patterns
+    /(?:explain|describe|discuss|analyze|explore|examine|investigate|review|cover|address)\s+(.+?)(?:\.|$|,|\s+(?:and|in|with|by|for|to))/i,
+  ];
+
+  for (const pattern of topicPatterns) {
+    const match = prompt.match(pattern);
+    if (match) {
+      components.topic = match[1].trim();
+      break;
+    }
+  }
+
+  // Fallback topic: use core task if no specific topic found
+  if (!components.topic) {
+    const fallbackTopic = (components.coreTask || "")
+      .replace(/^(a|an|the|some|any|my|your|our|their|this|that|these|those)\s+/i, "")
+      .replace(/\s+(in|with|for|to|from|by|at|on|about)\s+.*$/i, "");
     if (fallbackTopic.length > 3 && fallbackTopic.length < 100) {
       components.topic = fallbackTopic;
     }
   }
 
   return components;
+}
+
+// Normalize action verbs to standard forms
+function normalizeAction(action: string): string {
+  const actionMap: Record<string, string> = {
+    "help me": "help",
+    "help me to": "help",
+    "help me with": "help",
+    "assist me with": "help",
+    "assist me in": "help",
+    "guide me through": "guide",
+    "walk me through": "explain",
+    "show me how to": "explain",
+    "teach me to": "explain",
+    "explain how to": "explain",
+    "i want to": "",
+    "i need to": "",
+    "i'd like to": "",
+    "i would like to": "",
+    "can you": "",
+    "could you": "",
+    "would you": "",
+    "please": "",
+  };
+
+  const normalized = actionMap[action.toLowerCase()];
+  return normalized !== undefined ? normalized : action.toLowerCase();
 }
 
 // Generate contextual suggestion based on rule and prompt components
@@ -412,7 +811,8 @@ serve(async (req) => {
       );
     }
 
-    // Extract prompt components for contextual suggestions
+    // Extract prompt components for contextual suggestions (use extended version)
+    const extendedComponents = extractExtendedComponents(prompt);
     const promptComponents = extractPromptComponents(prompt);
 
     // Score each rule
@@ -550,6 +950,23 @@ serve(async (req) => {
         detectedSubject: promptComponents.subject,
         detectedFormat: promptComponents.format,
         detectedTopic: promptComponents.topic,
+        // Extended analysis
+        hasConditional: extendedComponents.hasConditional,
+        hasComparison: extendedComponents.hasComparison,
+        hasList: extendedComponents.hasList,
+        hasQuestion: extendedComponents.hasQuestion,
+        questionType: extendedComponents.questionType,
+        detectedAudience: extendedComponents.audience,
+        detectedTone: extendedComponents.tone,
+        detectedLength: extendedComponents.length,
+        detectedPersona: extendedComponents.persona,
+        detectedGoal: extendedComponents.goal,
+        detectedLanguage: extendedComponents.programmingLanguage,
+        detectedFramework: extendedComponents.framework,
+        detectedPlatform: extendedComponents.platform,
+        clauseCount: extendedComponents.clauses.length,
+        constraintCount: extendedComponents.constraints.length,
+        exampleCount: extendedComponents.examples.length,
       },
     };
 
