@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -110,5 +110,41 @@ export function useAdminFramework(params: { q: string; tier: string; active: str
     queryFn: () => invoke<AdminFrameworkResponse>("admin-framework", params),
     staleTime: 10_000,
     enabled: !authLoading && !!session,
+  });
+}
+
+// Admin tier change mutation
+export interface AdminChangeTierParams {
+  userId: string;
+  newTier: "free" | "pro" | "unlimited";
+  creditPackageId?: string;
+  reason?: string;
+}
+
+export interface AdminChangeTierResponse {
+  success: boolean;
+  oldTier: string;
+  newTier: string;
+  newCredits: number;
+  message: string;
+}
+
+export function useAdminChangeTier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: AdminChangeTierParams) => {
+      const { data, error } = await supabase.functions.invoke("admin-change-tier", {
+        body: params,
+      });
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error || "Failed to change tier");
+      return data as AdminChangeTierResponse;
+    },
+    onSuccess: () => {
+      // Invalidate user-related queries to refresh the list
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "overview"] });
+    },
   });
 }
