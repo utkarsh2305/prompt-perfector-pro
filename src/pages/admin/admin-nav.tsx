@@ -1,6 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, FlaskConical } from "lucide-react";
+import { LayoutDashboard, FlaskConical, UserMinus } from "lucide-react";
 
 const items = [
   { label: "Overview", to: "/admin" },
@@ -8,6 +8,7 @@ const items = [
   { label: "Analyses", to: "/admin/analyses" },
   { label: "Framework", to: "/admin/framework" },
   { label: "Analytics", to: "/admin/analytics" },
+  { label: "Uninstalls", to: "/admin/uninstalls", icon: UserMinus },
   { label: "Test Analyzer", to: "/admin/test", icon: FlaskConical },
   { label: "Settings", to: "/admin/settings" },
 ];
