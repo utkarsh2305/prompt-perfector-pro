@@ -8,6 +8,7 @@ import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminAnalyses from "@/pages/admin/AdminAnalyses";
 import AdminFramework from "@/pages/admin/AdminFramework";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
+import AdminUninstallFeedback from "@/pages/admin/AdminUninstallFeedback";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminTestAnalyzer from "@/pages/admin/AdminTestAnalyzer";
 import { useAuth } from "@/hooks/useAuth";
@@ -74,6 +75,7 @@ export default function AdminLayout() {
             <Route path="analyses" element={<AdminAnalyses />} />
             <Route path="framework" element={<AdminFramework />} />
             <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="uninstalls" element={<AdminUninstallFeedback />} />
             <Route path="test" element={<AdminTestAnalyzer />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
