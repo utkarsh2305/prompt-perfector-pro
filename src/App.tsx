@@ -26,6 +26,7 @@ const DashboardLayout = lazy(() => import("./pages/dashboard/DashboardLayout"));
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
+const UninstallFeedback = lazy(() => import("./pages/feedback/UninstallFeedback"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +69,7 @@ function AppRoutes() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/feedback/uninstall" element={<UninstallFeedback />} />
         
         {/* Auth pages - redirect if already logged in */}
         <Route path="/login" element={<AuthRedirect><Login /></AuthRedirect>} />
