@@ -122,6 +122,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(nextProfile);
       setRoles(nextRoles);
 
+      // Check and expire trial if needed (non-blocking)
+      (async () => {
+        try {
+          const { data, error } = await supabase.rpc("check_and_expire_trial", { user_uuid: nextUser.id });
+          if (!error && data && (data as { expired?: boolean }).expired) {
+            // Refresh profile if trial was expired
+            const refreshedProfile = await fetchProfileForUser(nextUser.id);
+            setProfile(refreshedProfile);
+          }
+        } catch (err) {
+          console.warn("Trial check failed:", err);
+        }
+      })();
+
       // Admin check only if they have admin role
       if (nextRoles.includes("admin")) {
         const allowlisted = await fetchAdminAllowlistStatus();
