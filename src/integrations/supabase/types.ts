@@ -685,6 +685,47 @@ export type Database = {
         }
         Relationships: []
       }
+      uninstall_feedback: {
+        Row: {
+          additional_comments: string | null
+          browser: string | null
+          created_at: string | null
+          days_used: number | null
+          id: string
+          reason: string
+          user_id: string | null
+          user_tier: string | null
+        }
+        Insert: {
+          additional_comments?: string | null
+          browser?: string | null
+          created_at?: string | null
+          days_used?: number | null
+          id?: string
+          reason: string
+          user_id?: string | null
+          user_tier?: string | null
+        }
+        Update: {
+          additional_comments?: string | null
+          browser?: string | null
+          created_at?: string | null
+          days_used?: number | null
+          id?: string
+          reason?: string
+          user_id?: string | null
+          user_tier?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uninstall_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usage_analytics: {
         Row: {
           active_users: number
