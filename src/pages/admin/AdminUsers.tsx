@@ -5,7 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { useAdminUsers } from "@/hooks/use-admin-data";
+import { useAdminUsers, type AdminUsersResponse } from "@/hooks/use-admin-data";
+import { UserDetailModal } from "@/components/admin/UserDetailModal";
+import { Crown, Sparkles, User } from "lucide-react";
+
+type UserRow = AdminUsersResponse["rows"][number];
+
+const tierIcons = {
+  free: User,
+  pro: Sparkles,
+  unlimited: Crown,
+};
+
+const tierColors = {
+  free: "secondary",
+  pro: "default",
+  unlimited: "default",
+} as const;
 
 export default function AdminUsers() {
   const [q, setQ] = useState("");
@@ -14,6 +30,9 @@ export default function AdminUsers() {
   const [page, setPage] = useState(1);
   const pageSize = 50;
 
+  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
   const query = useAdminUsers({ q, tier, status, page, pageSize });
 
   const totalPages = useMemo(() => {
@@ -21,11 +40,20 @@ export default function AdminUsers() {
     return Math.max(1, Math.ceil(total / pageSize));
   }, [query.data?.total]);
 
+  const handleUserClick = (user: UserRow) => {
+    setSelectedUser(user);
+    setModalOpen(true);
+  };
+
+  const handleModalSuccess = () => {
+    query.refetch();
+  };
+
   return (
     <section aria-label="Admin users">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Search and review user accounts.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Search and review user accounts. Click a user to manage their tier.</p>
       </div>
 
       <Card className="pp-surface mt-6 rounded-xl border p-5">
@@ -66,7 +94,7 @@ export default function AdminUsers() {
             </div>
           ) : query.isError ? (
             <Alert className="border-border bg-background">
-              <div className="text-sm">Couldn’t load users.</div>
+              <div className="text-sm">Couldn't load users.</div>
               <div className="mt-2">
                 <Button variant="outline" size="sm" onClick={() => query.refetch()}>
                   Try again
@@ -75,23 +103,41 @@ export default function AdminUsers() {
             </Alert>
           ) : query.data?.rows.length ? (
             <div className="space-y-2">
-              {query.data.rows.map((u) => (
-                <div key={u.id} className="rounded-lg border p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <div className="text-sm font-medium">{u.email ?? u.id}</div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {u.full_name ?? "—"} • Joined {new Date(u.created_at).toLocaleDateString()} • Last active {u.last_login_at ? new Date(u.last_login_at).toLocaleDateString() : "—"}
+              {query.data.rows.map((u) => {
+                const TierIcon = tierIcons[u.tier as keyof typeof tierIcons] || User;
+                return (
+                  <div
+                    key={u.id}
+                    className="cursor-pointer rounded-lg border p-4 transition-colors hover:bg-muted/50"
+                    onClick={() => handleUserClick(u)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleUserClick(u);
+                      }
+                    }}
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="text-sm font-medium">{u.email ?? u.id}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {u.full_name ?? "—"} • Joined {new Date(u.created_at).toLocaleDateString()} • Last active {u.last_login_at ? new Date(u.last_login_at).toLocaleDateString() : "—"}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={tierColors[u.tier as keyof typeof tierColors] || "secondary"}>
+                          <TierIcon className="mr-1 h-3 w-3" />
+                          {u.tier}
+                        </Badge>
+                        <Badge variant="outline">{u.subscription_status}</Badge>
+                        <Badge variant="secondary">{u.total_analyses_count} analyses</Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{u.tier}</Badge>
-                      <Badge variant="outline">{u.subscription_status}</Badge>
-                      <Badge variant="secondary">{u.total_analyses_count} analyses</Badge>
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="py-10 text-center text-sm text-muted-foreground">No users found.</div>
@@ -110,6 +156,14 @@ export default function AdminUsers() {
           </Button>
         </div>
       </Card>
+
+      {/* User Detail Modal */}
+      <UserDetailModal
+        user={selectedUser}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onSuccess={handleModalSuccess}
+      />
     </section>
   );
 }
