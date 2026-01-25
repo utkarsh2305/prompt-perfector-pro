@@ -45,6 +45,13 @@ export interface PromptComponents {
   exampleCount: number;
 }
 
+export interface ImprovementApplied {
+  category: string;
+  ruleName: string;
+  applied: boolean;
+  change: string;
+}
+
 export interface AnalysisResult {
   score: number;
   grade: string;
@@ -56,6 +63,14 @@ export interface AnalysisResult {
   topImprovements: ContextualSuggestion[];
   strengths: string[];
   promptComponents?: PromptComponents;
+  // New fields
+  suggestedPrompt: string | null;
+  scoreAfterSuggestion: number | null;
+  improvements: ImprovementApplied[];
+  categoriesEvaluated: string[];
+  rulesPassed: number;
+  rulesFailed: number;
+  rulesTotal: number;
 }
 
 export interface RewriteResult {
@@ -101,8 +116,30 @@ export function useAnalyzePrompt() {
       if (fnError) throw fnError;
       if (data.error) throw new Error(data.error);
       
-      setAnalysisResult(data);
-      return data;
+      // Transform response to ensure all new fields have defaults
+      const result: AnalysisResult = {
+        score: data.score,
+        grade: data.grade,
+        gradeLabel: data.gradeLabel,
+        breakdown: data.breakdown || [],
+        passed: data.passed || [],
+        partial: data.partial || [],
+        failed: data.failed || [],
+        topImprovements: data.topImprovements || [],
+        strengths: data.strengths || [],
+        promptComponents: data.promptComponents,
+        // New fields with defaults
+        suggestedPrompt: data.suggestedPrompt || null,
+        scoreAfterSuggestion: data.scoreAfterSuggestion || null,
+        improvements: data.improvements || [],
+        categoriesEvaluated: data.categoriesEvaluated || [],
+        rulesPassed: data.rulesPassed ?? data.passed?.length ?? 0,
+        rulesFailed: data.rulesFailed ?? data.failed?.length ?? 0,
+        rulesTotal: data.rulesTotal ?? data.breakdown?.length ?? 0,
+      };
+      
+      setAnalysisResult(result);
+      return result;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to analyze prompt';
       setError(message);

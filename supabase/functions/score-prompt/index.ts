@@ -50,11 +50,28 @@ interface ContextualSuggestion {
   quickInsertions: string[];
 }
 
+interface ImprovementApplied {
+  category: string;
+  ruleName: string;
+  applied: boolean;
+  change: string;
+}
+
 interface ScoreResponse {
   analysisId: string;
   score: number;
   grade: string;
   gradeLabel: string;
+  // New: Combined suggested prompt
+  suggestedPrompt: string | null;
+  scoreAfterSuggestion: number | null;
+  improvements: ImprovementApplied[];
+  // Metadata
+  categoriesEvaluated: string[];
+  rulesPassed: number;
+  rulesFailed: number;
+  rulesTotal: number;
+  // Existing fields for backward compatibility
   breakdown: RuleBreakdown[];
   passed: string[];
   partial: string[];
@@ -66,7 +83,6 @@ interface ScoreResponse {
     detectedSubject: string | null;
     detectedFormat: string | null;
     detectedTopic: string | null;
-    // Extended analysis
     hasConditional: boolean;
     hasComparison: boolean;
     hasList: boolean;
@@ -88,7 +104,6 @@ interface ScoreResponse {
 
 // Extended interface for complex prompt parsing
 interface ExtendedPromptComponents extends PromptComponents {
-  // Multi-clause detection
   clauses: string[];
   hasConditional: boolean;
   conditionalParts: { condition: string; then: string } | null;
@@ -98,8 +113,6 @@ interface ExtendedPromptComponents extends PromptComponents {
   listItems: string[];
   hasQuestion: boolean;
   questionType: string | null;
-  
-  // Context detection
   audience: string | null;
   constraints: string[];
   examples: string[];
@@ -107,8 +120,6 @@ interface ExtendedPromptComponents extends PromptComponents {
   length: string | null;
   persona: string | null;
   goal: string | null;
-  
-  // Technical detection
   programmingLanguage: string | null;
   framework: string | null;
   platform: string | null;
@@ -117,8 +128,6 @@ interface ExtendedPromptComponents extends PromptComponents {
 // Extract components from the user's prompt for contextual suggestions
 function extractPromptComponents(prompt: string): PromptComponents {
   const extended = extractExtendedComponents(prompt);
-  
-  // Return basic components for backward compatibility
   return {
     fullPrompt: extended.fullPrompt,
     action: extended.action,
@@ -138,8 +147,6 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
     coreTask: null,
     topic: null,
     format: null,
-    
-    // Multi-clause
     clauses: [],
     hasConditional: false,
     conditionalParts: null,
@@ -149,8 +156,6 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
     listItems: [],
     hasQuestion: false,
     questionType: null,
-    
-    // Context
     audience: null,
     constraints: [],
     examples: [],
@@ -158,8 +163,6 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
     length: null,
     persona: null,
     goal: null,
-    
-    // Technical
     programmingLanguage: null,
     framework: null,
     platform: null,
@@ -167,40 +170,30 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
 
   const promptLower = prompt.toLowerCase();
 
-  // ===== ACTION VERB EXTRACTION (enhanced) =====
-  // Handle imperative verbs, infinitives, and gerunds
+  // ===== ACTION VERB EXTRACTION =====
   const actionPatterns = [
-    // Direct imperatives at start
     /^(write|create|generate|explain|analyze|summarize|make|build|design|draft|compose|develop|find|list|describe|compare|review|check|fix|improve|optimize|refactor|translate|convert|calculate|solve|plan|outline|suggest|recommend|brainstorm|implement|debug|test|deploy|configure|setup|install|migrate|upgrade|downgrade|integrate|validate|verify|format|parse|serialize|deserialize|encode|decode|encrypt|decrypt|compress|extract|merge|split|combine|sort|filter|search|query|fetch|retrieve|update|delete|insert|modify|transform|map|reduce|iterate|loop|traverse|navigate|render|display|show|hide|toggle|enable|disable|animate|style|layout|align|center|justify|wrap|truncate|paginate|cache|memoize|debounce|throttle|batch|queue|schedule|monitor|log|track|measure|benchmark|profile|audit|scan|lint|minify|bundle|compile|transpile|polyfill)\s+/i,
-    // "Help me" variants
     /^(help me|help me to|help me with|assist me with|assist me in|guide me through|walk me through|show me how to|teach me to|explain how to)\s+/i,
-    // "I want/need to" variants
     /^(?:i want to|i need to|i'd like to|i would like to|can you|could you|would you|please)\s+(write|create|generate|explain|make|build|design|help|show|give|tell|find|list|describe|fix|improve)\s*/i,
-    // Question-style actions
     /^(?:how (?:do i|can i|should i|to)|what is the best way to|what's the best way to)\s+/i,
   ];
 
   for (const pattern of actionPatterns) {
     const match = prompt.match(pattern);
     if (match) {
-      // Extract the core action verb
       const fullMatch = match[0];
       const actionVerb = match[1] ? match[1].toLowerCase() : fullMatch.toLowerCase().trim();
-      
-      // Normalize compound actions
       components.action = normalizeAction(actionVerb);
       components.subject = prompt.slice(fullMatch.length).trim();
       break;
     }
   }
 
-  // Fallback: if no action detected, treat entire prompt as subject
   if (!components.subject) {
     components.subject = prompt;
   }
 
   // ===== CLAUSE SPLITTING =====
-  // Split by sentence boundaries and conjunctions
   const clauseDelimiters = /(?:[.!?](?:\s+|$))|(?:\s+(?:and then|then|after that|next|finally|also|additionally|furthermore|moreover|however|but|although|while|whereas|meanwhile)\s+)/gi;
   components.clauses = prompt
     .split(clauseDelimiters)
@@ -245,14 +238,6 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
   }
 
   // ===== LIST DETECTION =====
-  // Detect enumerated lists, bullet points, or comma-separated items
-  const listPatterns = [
-    /(?:^|\s)(?:\d+[\.\)]\s*(.+?)(?:,|;|\n|$))+/gm, // numbered lists
-    /(?:^|\s)(?:[-•*]\s*(.+?)(?:\n|$))+/gm, // bullet lists
-    /(?:including|such as|like|for example|e\.g\.|i\.e\.)\s+(.+?)(?:\.|$)/i, // inline lists
-  ];
-
-  // Check for comma-separated items after keywords
   const inlineListMatch = prompt.match(/(?:including|such as|like|for example|namely)\s+(.+?)(?:\.|$)/i);
   if (inlineListMatch) {
     const items = inlineListMatch[1].split(/,\s*(?:and\s+)?|\s+and\s+/);
@@ -262,7 +247,6 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
     }
   }
 
-  // Check for multiple requests with "and"
   const multiRequestMatch = prompt.match(/(.+?)\s+and\s+(?:also\s+)?(.+?)\s+and\s+(?:also\s+)?(.+?)(?:\.|$)/i);
   if (multiRequestMatch) {
     components.hasList = true;
@@ -446,13 +430,14 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
     }
   }
 
-  // ===== CORE TASK (remove articles and common prefixes) =====
+  // ===== CORE TASK =====
   components.coreTask = (components.subject || prompt)
     .replace(/^(a|an|the|some|any|my|your|our|their|this|that)\s+/i, "")
     .replace(/^(new|simple|basic|complex|advanced|custom|unique|specific)\s+/i, "$1 ");
 
-  // ===== FORMAT EXTRACTION (comprehensive) =====
+  // ===== FORMAT EXTRACTION =====
   const formatPatterns = [
+    /\b(?:as (?:a|an)?|in (?:the )?form of(?: a| an)?|formatted as(?: a| an)?|output as(?: a| an)?|give me(?: a| an)?|provide(?: a| an)?|format:(?: a| an)?)\s+(.+?)(?:\.|,|;|\s+with|\s+that|\s+for|$)/i,
     /\b(blog post|email|article|report|essay|code|function|script|letter|message|summary|list|guide|tutorial|presentation|proposal|story|poem|tweet|post|review|analysis|documentation|readme|api|query|sql|regex|prompt|template|response|reply|comment|feedback|description|headline|title|tagline|slogan|bio|introduction|conclusion|outline|plan|strategy|roadmap|checklist|schedule|agenda|minutes|notes|memo|announcement|newsletter|press release|case study|white paper|ebook|landing page|homepage|product description|faq|help article|knowledge base|sop|policy|contract|terms|privacy policy|job description|resume|cv|cover letter|linkedin|portfolio|pitch|deck|slides|dashboard|chart|graph|table|spreadsheet|formula|macro|test|unit test|spec|requirement|user story|acceptance criteria|bug report|feature request|changelog|commit message|pr description|code review|pull request|issue|ticket|epic|sprint|backlog|kanban|wireframe|mockup|prototype|design|logo|icon|banner|infographic|video script|podcast script|social media post|instagram|tiktok|youtube|marketing copy|ad copy|sales copy|product copy|ux copy|microcopy|error message|notification|alert|modal|form|survey|questionnaire|interview|transcript|meeting notes|action items|follow-up|recap|executive summary|abstract|thesis|dissertation|research paper|literature review|methodology|findings|discussion|bibliography|citation|reference|appendix|glossary|index|table of contents|preface|foreword|acknowledgments|dedication)\b/i,
   ];
 
@@ -464,13 +449,10 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
     }
   }
 
-  // ===== TOPIC EXTRACTION (enhanced) =====
+  // ===== TOPIC EXTRACTION =====
   const topicPatterns = [
-    // Direct topic markers
     /\b(?:about|regarding|concerning|on the topic of|on the subject of|related to|pertaining to)\s+(.+?)(?:\.|$|,|\s+(?:that|which|with|in|using|and|or|but|to|from|by|as|at|into|for\s+(?:a|an|the|my|our|your)))/i,
-    // After format types
     /(?:blog post|article|essay|report|guide|tutorial|summary|review|analysis)\s+(?:about|on|regarding|for)\s+(.+?)(?:\.|$|,)/i,
-    // Subject-verb patterns
     /(?:explain|describe|discuss|analyze|explore|examine|investigate|review|cover|address)\s+(.+?)(?:\.|$|,|\s+(?:and|in|with|by|for|to))/i,
   ];
 
@@ -482,7 +464,6 @@ function extractExtendedComponents(prompt: string): ExtendedPromptComponents {
     }
   }
 
-  // Fallback topic: use core task if no specific topic found
   if (!components.topic) {
     const fallbackTopic = (components.coreTask || "")
       .replace(/^(a|an|the|some|any|my|your|our|their|this|that|these|those)\s+/i, "")
@@ -529,131 +510,108 @@ function generateContextualSuggestion(
 ): ContextualSuggestion {
   const { fullPrompt, action, subject, coreTask, topic, format } = promptComponents;
 
-  // Reconstruct base prompt for suggestions
   const baseAction = action ? capitalizeFirst(action) : "Create";
   const baseSubject = subject || coreTask || fullPrompt.slice(0, 50);
   const displaySubject = baseSubject.length > 60 ? baseSubject.slice(0, 60) + "..." : baseSubject;
-
-  // Build the reconstructed prompt base
   const reconstructed = action ? `${baseAction} ${displaySubject}` : displaySubject;
 
-  // Define contextual templates based on common rule patterns
   const ruleNameLower = rule.rule_name.toLowerCase();
   
   let contextualSuggestion = "";
   let examplePrompt: string | null = null;
   let quickInsertions: string[] = [];
 
-  // CONTEXT-related rules
   if (ruleNameLower.includes("context") || ruleNameLower.includes("background")) {
     contextualSuggestion = `${reconstructed} **for [your context/situation]**`;
     examplePrompt = `${reconstructed} **for my company's quarterly planning meeting**`;
     quickInsertions = ["for my team at [company]", "for a [industry] audience", "given that [situation]"];
   }
-  // AUDIENCE-related rules
   else if (ruleNameLower.includes("audience") || ruleNameLower.includes("reader") || ruleNameLower.includes("who")) {
     contextualSuggestion = `${reconstructed} **for [target audience]**`;
     examplePrompt = `${reconstructed} **for senior executives with limited technical knowledge**`;
     quickInsertions = ["for beginners", "for experts in [field]", "for non-technical stakeholders", "for [role]s"];
   }
-  // LENGTH/SIZE-related rules
   else if (ruleNameLower.includes("length") || ruleNameLower.includes("word") || ruleNameLower.includes("size") || ruleNameLower.includes("brief") || ruleNameLower.includes("concise")) {
     const formatDisplay = format || "response";
     contextualSuggestion = `${baseAction} **a [length]** ${coreTask || formatDisplay}`;
     examplePrompt = `${baseAction} **a 500-word** ${coreTask || formatDisplay}`;
     quickInsertions = ["500-word", "3-paragraph", "brief 2-minute", "comprehensive 2000-word", "one-page"];
   }
-  // FORMAT/STRUCTURE-related rules
   else if (ruleNameLower.includes("format") || ruleNameLower.includes("structure") || ruleNameLower.includes("output")) {
     contextualSuggestion = `${reconstructed} **formatted as [format type]**`;
     examplePrompt = `${reconstructed} **formatted as bullet points with headers**`;
     quickInsertions = ["as a numbered list", "in markdown with headers", "as a table", "in JSON format", "with sections"];
   }
-  // EXAMPLE-related rules
   else if (ruleNameLower.includes("example") || ruleNameLower.includes("sample") || ruleNameLower.includes("instance")) {
     contextualSuggestion = `${reconstructed}. **Example: [sample input] → [expected output]**`;
     examplePrompt = `${reconstructed}. **Example: "AI in healthcare" → should cover diagnostics, treatment, admin**`;
     quickInsertions = ["For example: [sample]", "Like this: [example]", "Such as: [instance]"];
   }
-  // TONE-related rules
   else if (ruleNameLower.includes("tone") || ruleNameLower.includes("style") || ruleNameLower.includes("voice")) {
     contextualSuggestion = `${reconstructed} **in a [tone] tone**`;
     examplePrompt = `${reconstructed} **in a professional yet conversational tone**`;
     quickInsertions = ["professional", "casual", "formal", "friendly", "authoritative", "empathetic"];
   }
-  // PERSONA/ROLE-related rules
   else if (ruleNameLower.includes("persona") || ruleNameLower.includes("role") || ruleNameLower.includes("act as") || ruleNameLower.includes("expert")) {
     contextualSuggestion = `**Act as a [role].** ${reconstructed}`;
     examplePrompt = `**Act as a senior content strategist.** ${reconstructed}`;
     quickInsertions = ["Act as an expert in [field]", "You are a [professional role]", "As a [persona]"];
   }
-  // SCOPE/FOCUS-related rules
   else if (ruleNameLower.includes("scope") || ruleNameLower.includes("focus") || ruleNameLower.includes("limit") || ruleNameLower.includes("specific")) {
     contextualSuggestion = `${reconstructed}. **Focus only on [specific aspect]**`;
     examplePrompt = `${reconstructed}. **Focus only on the technical implementation, not business case**`;
     quickInsertions = ["Focus on [aspect]", "Limit to [boundary]", "Only cover [X]", "Exclude [Y]"];
   }
-  // AVOID/EXCLUDE-related rules
   else if (ruleNameLower.includes("avoid") || ruleNameLower.includes("exclude") || ruleNameLower.includes("don't") || ruleNameLower.includes("not include")) {
     contextualSuggestion = `${reconstructed}. **Avoid [things to exclude]**`;
     examplePrompt = `${reconstructed}. **Avoid technical jargon and keep it accessible**`;
     quickInsertions = ["Avoid jargon", "Don't include [X]", "Exclude [Y]", "Skip [Z]"];
   }
-  // STEP/PROCESS-related rules
   else if (ruleNameLower.includes("step") || ruleNameLower.includes("process") || ruleNameLower.includes("break") || ruleNameLower.includes("sequence")) {
     contextualSuggestion = `${reconstructed}. **Step 1: [first]. Step 2: [second]. Step 3: [third]**`;
     examplePrompt = `${reconstructed}. **Step 1: Outline key points. Step 2: Write draft. Step 3: Add examples**`;
     quickInsertions = ["First... Then... Finally...", "Step 1... Step 2...", "Phase 1... Phase 2..."];
   }
-  // THINKING/REASONING-related rules
   else if (ruleNameLower.includes("think") || ruleNameLower.includes("reason") || ruleNameLower.includes("explain") || ruleNameLower.includes("logic")) {
     contextualSuggestion = `${reconstructed}. **Think step by step before answering**`;
     examplePrompt = `${reconstructed}. **Think step by step and explain your reasoning**`;
     quickInsertions = ["Think through this carefully", "Explain your reasoning", "Show your thought process"];
   }
-  // GOAL/OBJECTIVE-related rules
   else if (ruleNameLower.includes("goal") || ruleNameLower.includes("objective") || ruleNameLower.includes("purpose") || ruleNameLower.includes("outcome")) {
     contextualSuggestion = `${reconstructed} **to achieve [goal/outcome]**`;
     examplePrompt = `${reconstructed} **to achieve a 20% increase in user engagement**`;
     quickInsertions = ["to achieve [goal]", "with the objective of [outcome]", "so that [result]"];
   }
-  // CONSTRAINT-related rules
   else if (ruleNameLower.includes("constraint") || ruleNameLower.includes("requirement") || ruleNameLower.includes("must") || ruleNameLower.includes("condition")) {
     contextualSuggestion = `${reconstructed}. **Requirements: [constraint 1], [constraint 2]**`;
     examplePrompt = `${reconstructed}. **Requirements: must be mobile-friendly, load under 3 seconds**`;
     quickInsertions = ["Must include [X]", "Ensure [requirement]", "Within [constraint]"];
   }
-  // TERMINOLOGY-related rules
   else if (ruleNameLower.includes("terminolog") || ruleNameLower.includes("define") || ruleNameLower.includes("clarif") || ruleNameLower.includes("meaning")) {
     contextualSuggestion = `${reconstructed}. **By "[term]" I mean [definition]**`;
     examplePrompt = `${reconstructed}. **By "performance" I mean response time and throughput**`;
     quickInsertions = ["Define: [term] means [meaning]", "When I say [X], I mean [Y]"];
   }
-  // OPTIONS/ALTERNATIVES-related rules
   else if (ruleNameLower.includes("option") || ruleNameLower.includes("alternative") || ruleNameLower.includes("multiple") || ruleNameLower.includes("variation")) {
     contextualSuggestion = `${baseAction} **3 different versions of** ${coreTask || "this"}`;
     examplePrompt = `${baseAction} **3 different versions of** ${coreTask || "this"} **with varying tones**`;
     quickInsertions = ["Give me 3 options", "Provide 5 alternatives", "List several variations"];
   }
-  // EMOTION/IMPACT-related rules
   else if (ruleNameLower.includes("emotion") || ruleNameLower.includes("impact") || ruleNameLower.includes("feel") || ruleNameLower.includes("inspire")) {
     contextualSuggestion = `${reconstructed}. **The reader should feel [emotion]**`;
     examplePrompt = `${reconstructed}. **The reader should feel inspired and motivated to take action**`;
     quickInsertions = ["Feel confident", "Feel excited", "Feel reassured", "Feel curious"];
   }
-  // PRIORITY-related rules
   else if (ruleNameLower.includes("priorit") || ruleNameLower.includes("important") || ruleNameLower.includes("key") || ruleNameLower.includes("main")) {
     contextualSuggestion = `${reconstructed}. **Prioritize [most important aspect]**`;
     examplePrompt = `${reconstructed}. **Prioritize clarity and actionable takeaways**`;
     quickInsertions = ["Focus on [priority]", "Most importantly [X]", "Key requirement: [Y]"];
   }
-  // LANGUAGE-related rules
   else if (ruleNameLower.includes("language") || ruleNameLower.includes("translat") || ruleNameLower.includes("locali")) {
     contextualSuggestion = `${reconstructed} **in [language]**`;
     examplePrompt = `${reconstructed} **in Spanish, using formal register**`;
     quickInsertions = ["in [language]", "translate to [lang]", "localize for [region]"];
   }
-  // Fallback: create a basic contextual suggestion using the rule's template
   else {
     const templateAction = rule.improvement_template
       ? rule.improvement_template.replace(/^(Add|Specify|Include|Define|Provide|Set|Use|Consider)\s+/i, "**$1** ")
@@ -683,7 +641,6 @@ function checkRule(prompt: string, rule: FrameworkRule): number {
   const promptLower = prompt.toLowerCase();
   let score = 0;
 
-  // Check keywords (partial match)
   const keywordMatches = (rule.detection_keywords || []).filter((kw) =>
     promptLower.includes(kw.toLowerCase())
   );
@@ -691,7 +648,6 @@ function checkRule(prompt: string, rule: FrameworkRule): number {
     score += 0.5;
   }
 
-  // Check regex patterns (if any match, full score)
   const patterns = rule.detection_patterns || [];
   if (patterns.length > 0) {
     const patternMatches = patterns.some((pattern) => {
@@ -719,6 +675,226 @@ function getGrade(percentage: number): { grade: string; label: string } {
   return { grade: "F", label: "Rewrite Recommended" };
 }
 
+// Estimate score after applying suggestions
+function estimateImprovedScore(currentScore: number, failedRulesCount: number, failedRulesWeight: number, totalWeight: number): number {
+  if (failedRulesCount === 0 || totalWeight === 0) return currentScore;
+  const potentialGain = (failedRulesWeight / totalWeight) * 100;
+  // Assume 80% of potential gain is achievable
+  return Math.min(100, Math.round(currentScore + potentialGain * 0.8));
+}
+
+// Generate combined suggested prompt using Lovable AI Gateway
+async function generateCombinedSuggestion(
+  originalPrompt: string,
+  failedRules: (FrameworkRule & { categoryName: string | null })[],
+  extendedComponents: ExtendedPromptComponents
+): Promise<{ suggestedPrompt: string | null; improvements: ImprovementApplied[] }> {
+  // If no failed rules or very few, return null
+  if (failedRules.length === 0) {
+    return { suggestedPrompt: null, improvements: [] };
+  }
+
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  
+  // Build improvement instructions for the AI
+  const improvementInstructions = failedRules
+    .slice(0, 5)
+    .map(rule => {
+      const template = rule.improvement_template || rule.rule_description || rule.rule_name;
+      return `- ${rule.categoryName || 'General'}: ${template}`;
+    })
+    .join('\n');
+
+  // Build context about what was detected
+  const contextInfo: string[] = [];
+  if (extendedComponents.action) contextInfo.push(`Action: ${extendedComponents.action}`);
+  if (extendedComponents.topic) contextInfo.push(`Topic: ${extendedComponents.topic}`);
+  if (extendedComponents.format) contextInfo.push(`Format: ${extendedComponents.format}`);
+  if (extendedComponents.programmingLanguage) contextInfo.push(`Language: ${extendedComponents.programmingLanguage}`);
+  if (extendedComponents.framework) contextInfo.push(`Framework: ${extendedComponents.framework}`);
+  if (extendedComponents.platform) contextInfo.push(`Platform: ${extendedComponents.platform}`);
+  if (extendedComponents.persona) contextInfo.push(`Persona: ${extendedComponents.persona}`);
+  if (extendedComponents.audience) contextInfo.push(`Audience: ${extendedComponents.audience}`);
+  if (extendedComponents.tone) contextInfo.push(`Tone: ${extendedComponents.tone}`);
+  if (extendedComponents.goal) contextInfo.push(`Goal: ${extendedComponents.goal}`);
+
+  const contextString = contextInfo.length > 0 
+    ? `\n\nDetected context:\n${contextInfo.join('\n')}`
+    : '';
+
+  // If no API key, use template-based fallback
+  if (!LOVABLE_API_KEY) {
+    console.log("No LOVABLE_API_KEY, using template-based suggestion");
+    return generateTemplateBasedSuggestion(originalPrompt, failedRules);
+  }
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        max_tokens: 800,
+        messages: [
+          {
+            role: "system",
+            content: `You are a prompt engineering expert. Your task is to improve AI prompts by applying specific suggestions while keeping the original intent intact.
+
+Rules:
+1. Return ONLY the improved prompt text - no explanations, no markdown, no quotes around it
+2. Keep the core intent and topic of the original prompt
+3. Make it natural and readable (not robotic or formulaic)
+4. Don't add unnecessary verbosity or filler words
+5. Apply improvements naturally woven into the prompt
+6. If the prompt is already good for a category, don't force changes
+7. Maintain the same language/tone as the original unless tone is being improved`
+          },
+          {
+            role: "user",
+            content: `Improve this prompt by applying the following suggestions:
+
+Original prompt: "${originalPrompt}"${contextString}
+
+Improvements to apply:
+${improvementInstructions}
+
+Return ONLY the improved prompt, nothing else.`
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+      
+      // Check for rate limit or payment errors
+      if (response.status === 429 || response.status === 402) {
+        console.log("Rate limited or payment required, using template fallback");
+      }
+      
+      return generateTemplateBasedSuggestion(originalPrompt, failedRules);
+    }
+
+    const data = await response.json();
+    const suggestedPrompt = data.choices?.[0]?.message?.content?.trim();
+
+    if (!suggestedPrompt || suggestedPrompt === originalPrompt) {
+      return generateTemplateBasedSuggestion(originalPrompt, failedRules);
+    }
+
+    // Build improvements summary
+    const improvements: ImprovementApplied[] = failedRules.slice(0, 5).map(rule => ({
+      category: rule.categoryName || "General",
+      ruleName: rule.rule_name,
+      applied: true,
+      change: rule.improvement_template || `Applied ${rule.rule_name.toLowerCase()}`
+    }));
+
+    return { suggestedPrompt, improvements };
+  } catch (error) {
+    console.error("AI suggestion error:", error);
+    return generateTemplateBasedSuggestion(originalPrompt, failedRules);
+  }
+}
+
+// Template-based fallback for generating suggestions
+function generateTemplateBasedSuggestion(
+  originalPrompt: string,
+  failedRules: (FrameworkRule & { categoryName: string | null })[]
+): { suggestedPrompt: string | null; improvements: ImprovementApplied[] } {
+  if (failedRules.length === 0) {
+    return { suggestedPrompt: null, improvements: [] };
+  }
+
+  const missingCategories = new Set(failedRules.map(r => r.categoryName?.toLowerCase() || ""));
+  const improvements: ImprovementApplied[] = [];
+  
+  let prefix = "";
+  let suffix = "";
+  const suffixParts: string[] = [];
+
+  // Persona prefix
+  if (missingCategories.has("persona") || missingCategories.has("role")) {
+    prefix = "As an expert, ";
+    improvements.push({
+      category: "Persona",
+      ruleName: "Assign a role",
+      applied: true,
+      change: "Added 'As an expert' prefix"
+    });
+  }
+
+  // Format
+  if (missingCategories.has("format") || missingCategories.has("structure") || missingCategories.has("output format")) {
+    suffixParts.push("Provide a structured response with clear sections");
+    improvements.push({
+      category: "Format",
+      ruleName: "Specify output format",
+      applied: true,
+      change: "Added format specification"
+    });
+  }
+
+  // Constraints
+  if (missingCategories.has("constraints") || missingCategories.has("length") || missingCategories.has("scope")) {
+    suffixParts.push("Be concise and specific");
+    improvements.push({
+      category: "Constraints",
+      ruleName: "Set constraints",
+      applied: true,
+      change: "Added conciseness constraint"
+    });
+  }
+
+  // Context
+  if (missingCategories.has("context") || missingCategories.has("background")) {
+    suffixParts.push("Consider practical application");
+    improvements.push({
+      category: "Context",
+      ruleName: "Provide context",
+      applied: true,
+      change: "Added context consideration"
+    });
+  }
+
+  // Examples
+  if (missingCategories.has("examples") || missingCategories.has("sample")) {
+    suffixParts.push("Include relevant examples where helpful");
+    improvements.push({
+      category: "Examples",
+      ruleName: "Include examples",
+      applied: true,
+      change: "Added examples request"
+    });
+  }
+
+  // Step-by-step / Advanced
+  if (missingCategories.has("advanced") || missingCategories.has("reasoning") || missingCategories.has("chain of thought")) {
+    suffixParts.push("Think through this step-by-step");
+    improvements.push({
+      category: "Advanced",
+      ruleName: "Request reasoning",
+      applied: true,
+      change: "Added step-by-step request"
+    });
+  }
+
+  if (suffixParts.length > 0) {
+    suffix = ". " + suffixParts.join(". ") + ".";
+  }
+
+  const suggestedPrompt = prefix + originalPrompt.trim() + suffix;
+
+  return { 
+    suggestedPrompt: suggestedPrompt !== originalPrompt ? suggestedPrompt : null, 
+    improvements 
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -744,13 +920,11 @@ serve(async (req) => {
           if (!authError && user) {
             userId = user.id;
 
-            // Check rate limit for authenticated users (30 requests per minute)
             const rateLimitResult = await checkRateLimit(userId, "score-prompt", supabase);
             if (!rateLimitResult.allowed) {
               return rateLimitResponse(rateLimitResult, corsHeaders);
             }
 
-            // Get user tier for authenticated users
             const { data: profile } = await supabase
               .from("profiles")
               .select("tier")
@@ -760,13 +934,12 @@ serve(async (req) => {
             userTier = profile?.tier || "free";
           }
         } catch (authErr) {
-          // Auth failed, continue as anonymous
           console.log("Auth check failed, continuing as anonymous:", authErr);
         }
       }
     }
 
-    // Rate limit for anonymous users by IP (more restrictive: 10 requests per minute)
+    // Rate limit for anonymous users by IP
     if (!userId) {
       const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
                        req.headers.get("cf-connecting-ip") || 
@@ -793,7 +966,7 @@ serve(async (req) => {
       );
     }
 
-    // Determine allowed tiers based on user
+    // Determine allowed tiers
     const allowedTiers = ["free"];
     if (userTier === "pro" || userTier === "enterprise") {
       allowedTiers.push("pro");
@@ -802,7 +975,7 @@ serve(async (req) => {
       allowedTiers.push("enterprise");
     }
 
-    // Fetch all active rules
+    // Fetch ALL active rules from database
     const { data: rules, error: rulesError } = await supabase
       .from("framework_rules")
       .select(`
@@ -833,7 +1006,7 @@ serve(async (req) => {
       );
     }
 
-    // Extract prompt components for contextual suggestions (use extended version)
+    // Extract prompt components
     const extendedComponents = extractExtendedComponents(prompt);
     const promptComponents = extractPromptComponents(prompt);
 
@@ -845,6 +1018,7 @@ serve(async (req) => {
     const failedRulesData: (FrameworkRule & { categoryName: string | null })[] = [];
     let maxPossible = 0;
     let actualScore = 0;
+    let failedRulesWeight = 0;
 
     for (const rule of rules as FrameworkRule[]) {
       const ruleScore = checkRule(prompt, rule);
@@ -875,6 +1049,7 @@ serve(async (req) => {
       } else {
         failed.push(rule.id);
         failedRulesData.push({ ...rule, categoryName });
+        failedRulesWeight += weight;
       }
     }
 
@@ -882,25 +1057,58 @@ serve(async (req) => {
     const percentage = maxPossible > 0 ? Math.round((actualScore / maxPossible) * 100) : 0;
     const { grade, label } = getGrade(percentage);
 
-    // Generate contextual suggestions for top 5 failed rules (sorted by weight)
-    const topImprovements = failedRulesData
-      .sort((a, b) => b.weight - a.weight)
+    // Sort failed rules by weight for prioritization
+    const sortedFailedRules = failedRulesData.sort((a, b) => b.weight - a.weight);
+
+    // Generate contextual suggestions for backward compatibility
+    const topImprovements = sortedFailedRules
       .slice(0, 5)
       .map((rule) => generateContextualSuggestion(rule, promptComponents));
 
-    // Get top 3 strengths from passed rules
+    // Get strengths
     const strengths = breakdown
       .filter((b) => b.score === 1)
       .sort((a, b) => b.weight - a.weight)
       .slice(0, 3)
       .map((b) => b.ruleName);
 
+    // Get unique categories evaluated
+    const categoriesEvaluated = [...new Set(
+      breakdown
+        .map(b => b.category)
+        .filter((c): c is string => c !== null)
+    )];
+
+    // Generate combined AI-powered suggested prompt (only if score < 90)
+    let suggestedPrompt: string | null = null;
+    let scoreAfterSuggestion: number | null = null;
+    let improvements: ImprovementApplied[] = [];
+
+    if (percentage < 90 && sortedFailedRules.length > 0) {
+      const suggestionResult = await generateCombinedSuggestion(
+        prompt,
+        sortedFailedRules.slice(0, 5),
+        extendedComponents
+      );
+      
+      suggestedPrompt = suggestionResult.suggestedPrompt;
+      improvements = suggestionResult.improvements;
+      
+      if (suggestedPrompt) {
+        scoreAfterSuggestion = estimateImprovedScore(
+          percentage,
+          Math.min(sortedFailedRules.length, 5),
+          failedRulesWeight,
+          maxPossible
+        );
+      }
+    }
+
     const processingTimeMs = Date.now() - startTime;
     let analysisId: string | null = null;
 
-    // ========== OPTIONAL: Log to database if authenticated ==========
+    // Log to database if authenticated
     if (userId) {
-      // Update user_weak_rules for failed rules
       const failedRulePromises = failed.map((ruleId) =>
         supabase.rpc("increment_weak_rule", {
           p_user_id: userId,
@@ -939,7 +1147,7 @@ serve(async (req) => {
           grade: grade.replace("+", "") as "A" | "B" | "C" | "D" | "F",
           violations,
           analysis_method: "template",
-          improved_prompt: "",
+          improved_prompt: suggestedPrompt || "",
           processing_time_ms: processingTimeMs,
         })
         .select("id")
@@ -951,19 +1159,27 @@ serve(async (req) => {
 
       analysisId = logData?.id ?? null;
 
-      // Execute background operations (don't wait)
       Promise.all([
         ...failedRulePromises,
         ...effectivenessPromises,
       ]).catch((err) => console.error("Background operations failed:", err));
     }
 
-    // Build response with enhanced structure
+    // Build response with new fields
     const response: ScoreResponse = {
       analysisId: analysisId ?? crypto.randomUUID(),
       score: percentage,
       grade,
       gradeLabel: label,
+      // New fields
+      suggestedPrompt,
+      scoreAfterSuggestion,
+      improvements,
+      categoriesEvaluated,
+      rulesPassed: passed.length,
+      rulesFailed: failed.length,
+      rulesTotal: rules.length,
+      // Existing fields for backward compatibility
       breakdown,
       passed,
       partial,
@@ -975,7 +1191,6 @@ serve(async (req) => {
         detectedSubject: promptComponents.subject,
         detectedFormat: promptComponents.format,
         detectedTopic: promptComponents.topic,
-        // Extended analysis
         hasConditional: extendedComponents.hasConditional,
         hasComparison: extendedComponents.hasComparison,
         hasList: extendedComponents.hasList,
