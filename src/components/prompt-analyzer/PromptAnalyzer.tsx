@@ -200,7 +200,7 @@ export function PromptAnalyzer({
               <div className="rounded-lg border bg-card p-4 space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Rules Passed</span>
-                  <span className="font-medium text-green-600">{analysisResult.passed.length}</span>
+                  <span className="font-medium text-green-600">{analysisResult.rulesPassed}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Partial Match</span>
@@ -208,15 +208,76 @@ export function PromptAnalyzer({
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Rules Failed</span>
-                  <span className="font-medium text-red-600">{analysisResult.failed.length}</span>
+                  <span className="font-medium text-red-600">{analysisResult.rulesFailed}</span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Rules</span>
-                  <span className="font-medium">{analysisResult.breakdown.length}</span>
+                  <span className="font-medium">{analysisResult.rulesTotal}</span>
                 </div>
               </div>
             </div>
+
+            {/* AI Suggested Prompt - NEW */}
+            {analysisResult.suggestedPrompt && (
+              <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <h4 className="text-sm font-medium text-primary">Try This Instead</h4>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {analysisResult.scoreAfterSuggestion && (
+                      <Badge variant="outline" className="text-green-600 border-green-500/30">
+                        <TrendingUp className="mr-1 h-3 w-3" />
+                        {analysisResult.score} → {analysisResult.scoreAfterSuggestion}
+                      </Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2"
+                      onClick={() => handleCopy(analysisResult.suggestedPrompt!, "improved")}
+                    >
+                      {copied === "improved" ? (
+                        <Check className="h-3.5 w-3.5 text-green-600" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                <ScrollArea className="max-h-[150px]">
+                  <p className="text-sm whitespace-pre-wrap">{analysisResult.suggestedPrompt}</p>
+                </ScrollArea>
+                
+                {/* Improvements Applied */}
+                {analysisResult.improvements.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-primary/20">
+                    <p className="text-xs text-muted-foreground mb-2">Improvements applied:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {analysisResult.improvements.map((imp, i) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {imp.category}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Categories Evaluated - NEW */}
+            {analysisResult.categoriesEvaluated.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                <span className="text-xs text-muted-foreground mr-1">Categories:</span>
+                {analysisResult.categoriesEvaluated.map((cat) => (
+                  <Badge key={cat} variant="outline" className="text-xs">
+                    {cat}
+                  </Badge>
+                ))}
+              </div>
+            )}
 
             {/* Strengths */}
             {analysisResult.strengths.length > 0 && (
