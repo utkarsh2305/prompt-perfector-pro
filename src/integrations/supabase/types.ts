@@ -1060,6 +1060,7 @@ export type Database = {
         }
         Returns: Json
       }
+      check_and_expire_trial: { Args: { user_uuid: string }; Returns: Json }
       check_rate_limit: {
         Args: {
           p_endpoint: string
@@ -1129,6 +1130,7 @@ export type Database = {
           user_satisfaction_avg: number
         }[]
       }
+      get_trial_status: { Args: { user_uuid: string }; Returns: Json }
       get_user_subscription_info: {
         Args: { user_uuid: string }
         Returns: {
