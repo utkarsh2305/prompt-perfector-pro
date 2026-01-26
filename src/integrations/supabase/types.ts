@@ -134,6 +134,8 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          credits_remaining: number
+          credits_reset_at: string | null
           daily_usage_count: number
           email: string | null
           full_name: string | null
@@ -141,6 +143,7 @@ export type Database = {
           is_trial_active: boolean
           last_login_at: string | null
           last_usage_reset_date: string
+          plan_key: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_status: Database["public"]["Enums"]["subscription_status"]
@@ -151,6 +154,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          credits_remaining?: number
+          credits_reset_at?: string | null
           daily_usage_count?: number
           email?: string | null
           full_name?: string | null
@@ -158,6 +163,7 @@ export type Database = {
           is_trial_active?: boolean
           last_login_at?: string | null
           last_usage_reset_date?: string
+          plan_key?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
@@ -168,6 +174,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          credits_remaining?: number
+          credits_reset_at?: string | null
           daily_usage_count?: number
           email?: string | null
           full_name?: string | null
@@ -175,6 +183,7 @@ export type Database = {
           is_trial_active?: boolean
           last_login_at?: string | null
           last_usage_reset_date?: string
+          plan_key?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_status?: Database["public"]["Enums"]["subscription_status"]
@@ -1083,14 +1092,23 @@ export type Database = {
         }[]
       }
       cleanup_rate_limits: { Args: never; Returns: undefined }
-      consume_rewrite_credit: {
-        Args: { analysis_id?: string; user_uuid: string }
-        Returns: {
-          is_unlimited: boolean
-          new_balance: number
-          success: boolean
-        }[]
-      }
+      consume_rewrite_credit:
+        | {
+            Args: never
+            Returns: {
+              allowed: boolean
+              credits_remaining: number
+              tier: string
+            }[]
+          }
+        | {
+            Args: { analysis_id?: string; user_uuid: string }
+            Returns: {
+              is_unlimited: boolean
+              new_balance: number
+              success: boolean
+            }[]
+          }
       get_next_rule_number: { Args: never; Returns: number }
       get_or_create_user_preferences: {
         Args: { p_user_id: string }
