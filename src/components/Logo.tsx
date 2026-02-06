@@ -12,13 +12,14 @@ export function Logo({ className = "", showText = true, iconOnly = false }: Logo
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 188 188"
+        viewBox="0 0 180 180"
         className={cn("h-10 w-10", className)}
         aria-label="ZeroRetry Index"
       >
-        <circle cx="94" cy="94" r="70" fill="#5b3fd9" stroke="#5b3fd9" strokeWidth="4"/>
-        <path d="M75 65 L75 123 L115 94 Z" fill="white"/>
-        <line x1="45" y1="143" x2="143" y2="45" stroke="white" strokeWidth="8" strokeLinecap="round"/>
+        <circle cx="90" cy="90" r="70" fill="none" stroke="#6B3FD9" strokeWidth="16"/>
+        <circle cx="90" cy="90" r="45" fill="none" stroke="#6B3FD9" strokeWidth="12"/>
+        <path d="M 70 70 L 70 110 L 105 90 Z" fill="#6B3FD9"/>
+        <line x1="35" y1="145" x2="145" y2="35" stroke="#6B3FD9" strokeWidth="16" strokeLinecap="round"/>
       </svg>
     );
   }
