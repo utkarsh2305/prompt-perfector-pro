@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
-import { PricingSection } from "@/components/marketing/PricingSection";
 import { ChevronDown, ArrowDown } from "lucide-react";
 import {
   Accordion,
@@ -67,16 +66,10 @@ const Landing = () => {
             >
               How it works
             </button>
-            <button 
-              onClick={() => scrollToSection("pricing")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Pricing
-            </button>
           </nav>
 
           <div className="flex items-center gap-3">
-            {isLoggedIn ? (
+            {isLoggedIn && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -112,15 +105,6 @@ const Landing = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <>
-                <Button asChild variant="ghost" size="sm">
-                  <NavLink to="/login">Sign in</NavLink>
-                </Button>
-                <Button asChild variant="default" size="sm" className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
-                  <NavLink to="/signup">Get started</NavLink>
-                </Button>
-              </>
             )}
           </div>
         </div>
@@ -132,15 +116,15 @@ const Landing = () => {
           <div className="container py-16 sm:py-24 lg:py-32">
             <div className="mx-auto max-w-3xl text-center">
               <p className="mb-4 text-sm font-medium text-muted-foreground">
-                Works with ChatGPT, Claude & Gemini
+                Works with ChatGPT, Claude, Gemini, Grok, Perplexity & Copilot
               </p>
               
               <h1 className="font-heading zr-text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                Get it right the first time
+                Stop scrolling long AI chats
               </h1>
               
               <p className="mt-6 text-lg text-muted-foreground sm:text-xl">
-                ZeroRetry scores your prompts and shows you exactly what to fix—before you hit send.
+                Index questions, bookmark insights, and continue across AI tools instantly!
               </p>
 
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -163,54 +147,59 @@ const Landing = () => {
               </button>
 
               <p className="mt-4 text-xs text-muted-foreground">
-                Free forever • No account required to start
+                100% free • No account required • Privacy-first
               </p>
             </div>
           </div>
         </section>
 
-        {/* Before/After Example */}
+        {/* What It Is, What It's NOT */}
         <section className="py-16 sm:py-24">
           <div className="container">
-            <div className="mx-auto max-w-2xl">
-              <Card className="overflow-hidden rounded-2xl border shadow-lg">
-                <div className="border-b bg-muted/50 px-6 py-4">
-                  <p className="font-heading font-semibold">Before → After</p>
-                </div>
-                
-                <div className="p-6 space-y-6">
-                  {/* Before */}
-                  <div className="rounded-lg bg-muted/30 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Before</span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[hsl(var(--score-low))] px-2.5 py-1 text-xs font-medium text-white">
-                        4/10
-                      </span>
+            <div className="mx-auto max-w-4xl">
+              <div className="grid gap-8 md:grid-cols-2">
+                {/* What it's NOT */}
+                <Card className="overflow-hidden rounded-2xl border shadow-lg">
+                  <div className="border-b bg-muted/50 px-6 py-4">
+                    <p className="font-heading font-semibold text-lg">❌ What it's NOT</p>
+                  </div>
+                  <div className="p-6 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <span className="text-muted-foreground">❌</span>
+                      <p className="text-sm">A chatbot</p>
                     </div>
-                    <p className="text-sm text-foreground/80">
-                      "Write a marketing email for my product. Make it good."
-                    </p>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="flex justify-center">
-                    <ChevronDown className="h-6 w-6 text-muted-foreground" />
-                  </div>
-
-                  {/* After */}
-                  <div className="rounded-lg bg-muted/30 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">After</span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[hsl(var(--score-high))] px-2.5 py-1 text-xs font-medium text-white">
-                        9/10
-                      </span>
+                    <div className="flex items-start gap-3">
+                      <span className="text-muted-foreground">❌</span>
+                      <p className="text-sm">A summarizer</p>
                     </div>
-                    <p className="text-sm text-foreground/80">
-                      "Write a 120-word email announcing {"{product}"} to {"{audience}"}. Goal: {"{action}"}. Include 3 benefits and a clear subject line."
-                    </p>
+                    <div className="flex items-start gap-3">
+                      <span className="text-muted-foreground">❌</span>
+                      <p className="text-sm">A prompt generator</p>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+
+                {/* What it IS */}
+                <Card className="overflow-hidden rounded-2xl border shadow-lg bg-primary/5">
+                  <div className="border-b bg-primary/10 px-6 py-4">
+                    <p className="font-heading font-semibold text-lg">✅ What it IS</p>
+                  </div>
+                  <div className="p-6 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary">✅</span>
+                      <p className="text-sm">An index for long AI chats</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary">✅</span>
+                      <p className="text-sm">A lightweight memory surface</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-primary">✅</span>
+                      <p className="text-sm">A structured handoff tool between AI engines</p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </div>
           </div>
         </section>
@@ -218,50 +207,60 @@ const Landing = () => {
         {/* How It Works */}
         <section id="how-it-works" className="py-16 sm:py-24 bg-muted/30">
           <div className="container">
-            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl">
-              How it works
-            </h2>
+            <div className="text-center mb-12">
+              <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+                💡 Why it's useful
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                Long AI conversations break down because important questions get buried, 
+                context is hard to reuse later, and switching AI tools means re-explaining everything.
+              </p>
+              <p className="mt-2 text-lg font-medium">
+                ZeroRetry Index fixes this by giving your conversation memory and structure.
+              </p>
+            </div>
             
-            <div className="mt-12 grid gap-8 sm:grid-cols-3">
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
               {[
-                { step: "1", title: "Write", desc: "Type your prompt anywhere—ChatGPT, Claude, Gemini." },
-                { step: "2", title: "Score", desc: "See what's missing with instant feedback." },
-                { step: "3", title: "Fix", desc: "Apply suggestions or let AI rewrite it for you." },
-              ].map((item) => (
-                <div key={item.step} className="text-center">
-                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-lg font-bold text-white">
-                    {item.step}
-                  </div>
-                  <h3 className="font-heading text-lg font-semibold">{item.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
-                </div>
+                { icon: "📋", title: "Auto-index your questions", desc: "Every question you ask appears instantly in the sidebar." },
+                { icon: "🎯", title: "Jump to any moment", desc: "Click an index item → jump directly to that point in the conversation." },
+                { icon: "⭐", title: "Bookmark what matters", desc: "Star important questions or moments to save them for later." },
+                { icon: "🔄", title: "Build reusable context", desc: "Turn saved items into a structured handoff you can continue in any AI tool." },
+                { icon: "👁️", title: "Stay out of the way", desc: "Collapse the panel into a slim icon when you don't need it." },
+                { icon: "🔒", title: "Privacy-first by design", desc: "No data leaves your browser. No accounts. No cloud sync. No AI processing." },
+              ].map((item, i) => (
+                <Card key={i} className="p-6 text-center hover:shadow-lg transition-shadow">
+                  <div className="text-4xl mb-3">{item.icon}</div>
+                  <h3 className="font-heading text-lg font-semibold mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Social Proof - Numbers Only */}
+        {/* Perfect For */}
         <section className="py-16 sm:py-24">
           <div className="container">
-            <div className="grid gap-8 sm:grid-cols-3 text-center">
+            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12">
+              🎯 Perfect for
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-3xl mx-auto text-center">
               {[
-                { value: "2,400+", label: "users" },
-                { value: "38,000+", label: "prompts fixed" },
-                { value: "+35 pts", label: "avg. improvement" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <p className="font-heading text-4xl font-bold zr-gradient-text sm:text-5xl">{stat.value}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{stat.label}</p>
+                "Product managers",
+                "Developers",
+                "Consultants",
+                "Researchers",
+                "Writers",
+                "Anyone having long, complex AI conversations",
+              ].map((role, i) => (
+                <div key={i} className="rounded-lg bg-muted/30 px-4 py-3">
+                  <p className="text-sm font-medium">{role}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
-
-        {/* Pricing */}
-        <div id="pricing">
-          <PricingSection />
-        </div>
 
         {/* FAQ */}
         <section className="py-16 sm:py-24 bg-muted/30">
@@ -275,23 +274,11 @@ const Landing = () => {
                 {[
                   {
                     q: "How does it work?",
-                    a: "ZeroRetry runs as a browser extension. When you write a prompt in ChatGPT, Claude, or Gemini, it instantly analyzes your text against proven prompting principles and gives you a score with specific suggestions.",
+                    a: "ZeroRetry Index adds a smart sidebar to AI chat tools. It automatically indexes your questions as you have conversations, creating a clickable table of contents. You can bookmark important moments and export saved items to continue in other AI tools.",
                   },
                   {
                     q: "Which AI platforms are supported?",
-                    a: "ZeroRetry works with ChatGPT, Claude, Gemini, and Perplexity. We're constantly adding support for more platforms.",
-                  },
-                  {
-                    q: "Is my data private?",
-                    a: "Yes. Your prompts are analyzed locally in your browser. We never store or transmit your prompt content to our servers. Only aggregate, anonymized usage statistics are collected.",
-                  },
-                  {
-                    q: "What's the difference between Free and Pro?",
-                    a: "Free gives you unlimited prompt scoring and 10 AI rewrites per month. Pro unlocks 200+ AI rewrites monthly with rollover credits, plus priority support.",
-                  },
-                  {
-                    q: "Can I cancel anytime?",
-                    a: "Absolutely. You can cancel your subscription at any time with no questions asked. You'll retain access until the end of your billing period.",
+                    a: "ZeroRetry Index works with OpenAI ChatGPT, Anthropic Claude, Google Gemini, X Grok, Perplexity, and Microsoft Copilot. Support for more platforms is constantly being added.",
                   },
                 ].map((faq, i) => (
                   <AccordionItem key={i} value={`faq-${i}`}>
@@ -312,8 +299,11 @@ const Landing = () => {
         <section className="py-16 sm:py-24 bg-gradient-to-r from-primary to-accent">
           <div className="container text-center">
             <h2 className="font-heading text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to stop retrying?
+              Ready to stop scrolling?
             </h2>
+            <p className="mt-4 text-lg text-white/90">
+              Give your AI conversations the structure they deserve.
+            </p>
             <div className="mt-8">
               <Button 
                 asChild 
@@ -335,12 +325,9 @@ const Landing = () => {
             <div className="flex flex-col items-center gap-6 text-center">
               <Logo />
               <p className="text-sm text-muted-foreground">
-                Stop guessing. Start prompting.
+                Index your AI chats. Remember what matters.
               </p>
               <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-                <button onClick={() => scrollToSection("pricing")} className="hover:text-foreground transition-colors">
-                  Pricing
-                </button>
                 <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
                   Extension
                 </a>
@@ -352,7 +339,7 @@ const Landing = () => {
                 </Link>
               </nav>
               <p className="text-xs text-muted-foreground">
-                © {new Date().getFullYear()} ZeroRetry
+                © {new Date().getFullYear()} ZeroRetry Index
               </p>
             </div>
           </div>

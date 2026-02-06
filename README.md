@@ -1,8 +1,8 @@
-# ZeroRetry
+# ZeroRetry Index
 
-**Get it right the first time.** Score your AI prompts and fix them before you send.
+**Stop scrolling long AI chats.** Index questions, bookmark insights, and continue across AI tools instantly!
 
-Works with ChatGPT, Claude, Gemini, and more.
+Works with ChatGPT, Claude, Gemini, Grok, Perplexity, and Copilot.
 
 ---
 
@@ -26,21 +26,23 @@ Works with ChatGPT, Claude, Gemini, and more.
 
 ## Overview
 
-ZeroRetry is a SaaS application and browser extension that analyzes AI prompts using a rule-based scoring engine and provides actionable improvements. Users can score prompts for free and use AI-powered rewrites with a credit-based subscription model.
+ZeroRetry Index is a browser extension that adds a smart sidebar to AI chat tools. It automatically indexes your questions in long conversations, turning messy scrolls into a clear, clickable table of contents.
 
 ### Value Proposition
 
-- **Instant Scoring**: Get a 0-100 score with letter grade (A-F) based on prompt quality
-- **Contextual Suggestions**: See exactly what's missing with slot-filled recommendations
-- **AI Rewrites**: One-click prompt improvement using LLM models
-- **Multi-Platform**: Works with ChatGPT, Claude, Gemini, and Perplexity
+- **Auto-Index Questions**: Every question you ask appears instantly in the sidebar
+- **Jump to Any Moment**: Click an index item to jump directly to that point in the conversation
+- **Bookmark What Matters**: Star important questions or moments to save them for later
+- **Build Reusable Context**: Turn saved items into a structured handoff you can continue in other AI tools
+- **Privacy-First**: All processing happens locally in your browser - no data leaves your device
 
 ### Target Users
 
-- **Developers**: Writing prompts for code generation, debugging, documentation
-- **Marketers**: Crafting prompts for content creation, copywriting, campaigns
-- **Business Professionals**: Creating prompts for reports, analysis, communication
-- **Power Users**: Anyone using AI tools regularly who wants better results
+- **Product Managers**: Managing complex feature discussions across AI tools
+- **Developers**: Long debugging and architecture conversations
+- **Consultants**: Building reusable analysis frameworks
+- **Researchers**: Structuring deep research sessions
+- **Anyone**: Having long, complex AI conversations
 
 ---
 

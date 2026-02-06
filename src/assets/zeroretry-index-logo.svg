@@ -1,0 +1,13 @@
+<svg width="658" height="188" viewBox="0 0 658 188" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Logo content based on the attached image -->
+  <!-- Circle with play icon and slash -->
+  <circle cx="94" cy="94" r="70" fill="#5b3fd9" stroke="#5b3fd9" stroke-width="4"/>
+  <path d="M75 65 L75 123 L115 94 Z" fill="white"/>
+  <line x1="45" y1="143" x2="143" y2="45" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- ZeroRetry text -->
+  <text x="210" y="90" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="#1a1a1a">ZeroRetry</text>
+  
+  <!-- Index text -->
+  <text x="210" y="150" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="#5b3fd9">Index</text>
+</svg>

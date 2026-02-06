@@ -30,7 +30,7 @@ export function SiteFooter() {
             </Link>
           </nav>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} ZeroRetry
+            © {new Date().getFullYear()} ZeroRetry Index
           </p>
         </div>
       </div>

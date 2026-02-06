@@ -55,7 +55,7 @@ const Login = () => {
             <Card className="zr-surface rounded-xl border p-6">
               <h1 className="text-2xl font-semibold tracking-tight font-heading">Sign in</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Sign in to your ZeroRetry account.
+                Sign in to your ZeroRetry Index account.
               </p>
 
               <div className="mt-5 space-y-4">

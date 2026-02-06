@@ -55,7 +55,7 @@ const Signup = () => {
           <div className="mx-auto max-w-md">
             <Card className="zr-surface rounded-xl border p-6">
               <h1 className="text-2xl font-semibold tracking-tight font-heading">Create account</h1>
-              <p className="mt-2 text-sm text-muted-foreground">Create your ZeroRetry account.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Create your ZeroRetry Index account.</p>
 
               <div className="mt-5 space-y-4">
                 {error ? (

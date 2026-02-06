@@ -80,7 +80,7 @@ export function LandingHeader({ onCtaClick }: LandingHeaderProps) {
         <a
           href="#top"
           className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-          aria-label="ZeroRetry (back to top)"
+          aria-label="ZeroRetry Index (back to top)"
         >
           <Logo />
         </a>

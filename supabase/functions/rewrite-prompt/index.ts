@@ -8,13 +8,16 @@ const corsHeaders = {
 };
 
 // Model configurations with pricing
-const MODELS: Record<string, {
-  provider: string;
-  model: string;
-  gatewayModel?: string; // For Lovable AI Gateway
-  inputCostPer1M: number;
-  outputCostPer1M: number;
-}> = {
+const MODELS: Record<
+  string,
+  {
+    provider: string;
+    model: string;
+    gatewayModel?: string; // For Lovable AI Gateway
+    inputCostPer1M: number;
+    outputCostPer1M: number;
+  }
+> = {
   "gemini-flash": {
     provider: "lovable-gateway",
     model: "gemini-1.5-flash",
@@ -77,7 +80,9 @@ interface RewriteResponse {
 }
 
 // Build system prompt with failed rules
-function buildSystemPrompt(failedRules: Array<{ ruleName: string; suggestion: string | null }>): string {
+function buildSystemPrompt(
+  failedRules: Array<{ ruleName: string; suggestion: string | null }>
+): string {
   const rulesList = failedRules
     .filter((r) => r.suggestion)
     .map((r) => `- ${r.ruleName}: ${r.suggestion}`)
@@ -107,22 +112,25 @@ async function callLovableGateway(
     throw new Error("LOVABLE_API_KEY is not configured");
   }
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: modelConfig.gatewayModel,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      max_tokens: 2000,
-      temperature: 0.7,
-    }),
-  });
+  const response = await fetch(
+    "https://ai.gateway.lovable.dev/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: modelConfig.gatewayModel,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        max_tokens: 2000,
+        temperature: 0.7,
+      }),
+    }
+  );
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -143,7 +151,9 @@ async function callLovableGateway(
 
   return {
     content: content.trim(),
-    inputTokens: usage.prompt_tokens || Math.ceil(systemPrompt.length / 4) + Math.ceil(userPrompt.length / 4),
+    inputTokens:
+      usage.prompt_tokens ||
+      Math.ceil(systemPrompt.length / 4) + Math.ceil(userPrompt.length / 4),
     outputTokens: usage.completion_tokens || Math.ceil(content.length / 4),
   };
 }
@@ -267,29 +277,40 @@ serve(async (req) => {
     // Get auth token
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Missing authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify user
+    // Admin client (service role) for server-side DB writes/logging
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify user using admin client
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAdmin.auth.getUser(token);
 
     if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
+    // User-scoped client (so auth.uid() works in RPC)
+    const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    });
+
     // Check rate limit (10 requests per minute)
-    const rateLimitResult = await checkRateLimit(user.id, "rewrite-prompt", supabase);
+    const rateLimitResult = await checkRateLimit(user.id, "rewrite-prompt", supabaseAdmin);
     if (!rateLimitResult.allowed) {
       return rateLimitResponse(rateLimitResult, corsHeaders);
     }
@@ -298,10 +319,10 @@ serve(async (req) => {
     const { prompt, score_result, model = "gemini-flash" }: RewriteInput = await req.json();
 
     if (!prompt || typeof prompt !== "string") {
-      return new Response(
-        JSON.stringify({ error: "Missing or invalid 'prompt' field" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Missing or invalid 'prompt' field" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (!score_result) {
@@ -315,24 +336,37 @@ serve(async (req) => {
     const modelConfig = MODELS[model] || MODELS["gemini-flash"];
     const modelUsed = model in MODELS ? model : "gemini-flash";
 
-    // Check credits
-    const { data: creditCheck } = await supabase.rpc("check_rewrite_credits", {
-      user_uuid: user.id,
-    });
+    // === ENTITLEMENT GATE (single source of truth) ===
+    // This consumes 1 credit for free/pro users if they have any.
+    // Unlimited users are always allowed and are not decremented.
+    const { data: entitlement, error: entitlementError } = await supabaseUser.rpc(
+      "consume_rewrite_credit"
+    );
 
-    const canRewrite = creditCheck?.[0]?.can_rewrite ?? false;
-    const isUnlimited = creditCheck?.[0]?.is_unlimited ?? false;
-    let creditsRemaining = creditCheck?.[0]?.credits_remaining ?? 0;
+    if (entitlementError) {
+      console.error("consume_rewrite_credit error:", entitlementError);
+      return new Response(JSON.stringify({ error: "Entitlement check failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    if (!canRewrite && !isUnlimited) {
+    const allowed = entitlement?.[0]?.allowed ?? false;
+    const tier = entitlement?.[0]?.tier ?? "free";
+    const creditsRemaining = entitlement?.[0]?.credits_remaining ?? 0;
+
+    const isUnlimited = tier === "unlimited";
+
+    if (!allowed && !isUnlimited) {
       return new Response(
-        JSON.stringify({ error: "No rewrite credits remaining", credits_remaining: 0 }),
+        JSON.stringify({ error: "no_credits", credits_remaining: 0 }),
         { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    // === END ENTITLEMENT GATE ===
 
-    // Get user profile for tier info
-    const { data: profile } = await supabase
+    // Get user profile for tier info (use admin client)
+    const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("tier")
       .eq("id", user.id)
@@ -357,29 +391,15 @@ serve(async (req) => {
     // Calculate cost
     const costCents = calculateCost(inputTokens, outputTokens, modelConfig);
 
-    // Consume credit (if not unlimited)
-    if (!isUnlimited) {
-      const { data: consumeResult } = await supabase.rpc("consume_rewrite_credit", {
-        user_uuid: user.id,
-      });
-      creditsRemaining = consumeResult?.[0]?.new_balance ?? creditsRemaining - 1;
-    }
-
     // Re-score the rewritten prompt
-    const scoreAfter = await rescorePrompt(supabase, rewrittenPrompt, userTier);
+    const scoreAfter = await rescorePrompt(supabaseAdmin, rewrittenPrompt, userTier);
     const scoreBefore = score_result.score;
 
     // Calculate savings
-    const savings = calculateSavings(
-      prompt,
-      rewrittenPrompt,
-      scoreBefore,
-      scoreAfter,
-      "claude-sonnet" // Default platform for savings calculation
-    );
+    const savings = calculateSavings(prompt, rewrittenPrompt, scoreBefore, scoreAfter, "claude-sonnet");
 
     // Update the prompt_analysis_log with the rewrite
-    const { data: analysis } = await supabase
+    const { data: analysis } = await supabaseAdmin
       .from("prompt_analysis_log")
       .insert({
         user_id: user.id,
@@ -387,7 +407,7 @@ serve(async (req) => {
         prompt_length: prompt.length,
         score: scoreBefore,
         max_score: 100,
-        grade: score_result.grade?.replace("+", "") as "A" | "B" | "C" | "D" | "F" || "C",
+        grade: (score_result.grade?.replace("+", "") as "A" | "B" | "C" | "D" | "F") || "C",
         violations: score_result.breakdown
           .filter((b) => b.score < 1)
           .map((b) => ({
@@ -416,9 +436,9 @@ serve(async (req) => {
       .maybeSingle();
 
     // Update user savings stats (fire and forget)
-    supabase.functions.invoke("update-user-savings", {
-      body: { user_id: user.id },
-    }).catch((err) => console.error("Failed to update savings:", err));
+    supabaseAdmin.functions
+      .invoke("update-user-savings", { body: { user_id: user.id } })
+      .catch((err) => console.error("Failed to update savings:", err));
 
     // Build response
     const response: RewriteResponse = {
@@ -439,23 +459,22 @@ serve(async (req) => {
     console.error("rewrite-prompt error:", error);
     const message = error instanceof Error ? error.message : "Internal server error";
 
-    // Check for rate limit or payment errors
     if (message.includes("Rate limit")) {
-      return new Response(
-        JSON.stringify({ error: message }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: message }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
     if (message.includes("Payment required")) {
-      return new Response(
-        JSON.stringify({ error: message }),
-        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: message }), {
+        status: 402,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

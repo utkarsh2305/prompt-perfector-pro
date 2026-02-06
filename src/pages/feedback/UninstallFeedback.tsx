@@ -22,7 +22,7 @@ const UNINSTALL_REASONS = [
   { value: "other", label: "Other" },
 ] as const;
 
-const CHROME_STORE_URL = "https://chrome.google.com/webstore/detail/zeroretry";
+const CHROME_STORE_URL = "https://chrome.google.com/webstore/detail/zeroretry-index";
 
 export default function UninstallFeedback() {
   const [searchParams] = useSearchParams();
@@ -101,7 +101,7 @@ export default function UninstallFeedback() {
             We're sorry to see you go! 😢
           </h1>
           <p className="text-muted-foreground">
-            Your feedback helps us improve ZeroRetry
+            Your feedback helps us improve ZeroRetry Index
           </p>
         </div>
         
@@ -111,7 +111,7 @@ export default function UninstallFeedback() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <Label className="text-base font-medium">
-                  Why did you uninstall ZeroRetry?
+                  Why did you uninstall ZeroRetry Index?
                 </Label>
                 
                 <RadioGroup
@@ -197,7 +197,7 @@ function ThankYouState() {
             Thank you for your feedback! 🙏
           </h1>
           <p className="text-muted-foreground">
-            We're constantly improving ZeroRetry based on feedback like yours.
+            We're constantly improving ZeroRetry Index based on feedback like yours.
           </p>
         </div>
         
@@ -218,7 +218,7 @@ function ReinstallSection() {
         className="gap-2"
       >
         <a href={CHROME_STORE_URL} target="_blank" rel="noopener noreferrer">
-          Reinstall ZeroRetry
+          Reinstall ZeroRetry Index
           <ExternalLink className="h-4 w-4" />
         </a>
       </Button>

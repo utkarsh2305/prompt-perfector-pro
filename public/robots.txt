@@ -1,4 +1,4 @@
-# ZeroRetry robots.txt
+# ZeroRetry Index robots.txt
 # https://zeroretry.com/
 
 # Allow all crawlers

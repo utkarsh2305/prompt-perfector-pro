@@ -20,7 +20,7 @@ const Index = () => {
                 Get it right the first time
               </h1>
               <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-                ZeroRetry scores your prompts and shows you exactly what to fix—before you hit send.
+                Stop scrolling long AI chats. Index questions, bookmark insights, and continue across AI tools instantly!
               </p>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
