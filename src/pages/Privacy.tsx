@@ -14,8 +14,8 @@ export default function PrivacyPolicy() {
           <div className="prose prose-sm mt-8 max-w-none text-foreground">
             <h2 className="text-xl font-semibold">Scope</h2>
             <p>
-              This Privacy Policy applies exclusively to the ZeroRetry Index Chrome Extension. 
-              It does not apply to any other ZeroRetry products or services.
+              This Privacy Policy applies exclusively to ZeroRetry Index as distributed through the Chrome Web Store. 
+              It does not apply to any other ZeroRetry products, services, or applications.
             </p>
 
             <h2 className="mt-6 text-xl font-semibold">Local Processing</h2>

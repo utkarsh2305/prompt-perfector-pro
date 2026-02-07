@@ -14,7 +14,7 @@ export default function TermsOfService() {
           <div className="prose prose-sm mt-8 max-w-none text-foreground">
             <h2 className="text-xl font-semibold">Scope</h2>
             <p>
-              These Terms of Use apply exclusively to the ZeroRetry Index Chrome Extension 
+              These Terms of Use apply exclusively to ZeroRetry Index as distributed through the Chrome Web Store 
               and do not govern any other ZeroRetry products or services.
             </p>
 
