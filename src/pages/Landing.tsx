@@ -337,6 +337,9 @@ const Landing = () => {
                 <Link to="/terms" className="hover:text-foreground transition-colors">
                   Terms
                 </Link>
+                <Link to="/support" className="hover:text-foreground transition-colors">
+                  Support
+                </Link>
               </nav>
               <p className="text-xs text-muted-foreground">
                 © {new Date().getFullYear()} ZeroRetry Index
