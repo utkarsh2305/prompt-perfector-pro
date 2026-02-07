@@ -2,8 +2,8 @@
   <!-- Outer purple circle -->
   <circle cx="90" cy="90" r="70" fill="none" stroke="#6B3FD9" stroke-width="16"/>
   
-  <!-- Inner circle -->
-  <circle cx="90" cy="90" r="45" fill="none" stroke="#6B3FD9" stroke-width="12"/>
+  <!-- Inner arc (right side half circle) -->
+  <path d="M 90 45 A 45 45 0 0 1 90 135" fill="none" stroke="#6B3FD9" stroke-width="8" stroke-linecap="round"/>
   
   <!-- Play/Forward arrow -->
   <path d="M 70 70 L 70 110 L 105 90 Z" fill="#6B3FD9"/>

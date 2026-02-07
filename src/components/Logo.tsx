@@ -17,7 +17,7 @@ export function Logo({ className = "", showText = true, iconOnly = false }: Logo
         aria-label="ZeroRetry Index"
       >
         <circle cx="90" cy="90" r="70" fill="none" stroke="#6B3FD9" strokeWidth="16"/>
-        <circle cx="90" cy="90" r="45" fill="none" stroke="#6B3FD9" strokeWidth="12"/>
+        <path d="M 90 45 A 45 45 0 0 1 90 135" fill="none" stroke="#6B3FD9" strokeWidth="8" strokeLinecap="round"/>
         <path d="M 70 70 L 70 110 L 105 90 Z" fill="#6B3FD9"/>
         <line x1="35" y1="145" x2="145" y2="35" stroke="#6B3FD9" strokeWidth="16" strokeLinecap="round"/>
       </svg>
