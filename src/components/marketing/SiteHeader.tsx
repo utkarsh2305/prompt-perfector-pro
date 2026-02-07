@@ -50,9 +50,6 @@ export function SiteHeader() {
           <a className="text-sm text-muted-foreground hover:text-foreground" href="#features">
             Features
           </a>
-          <a className="text-sm text-muted-foreground hover:text-foreground" href="#pricing">
-            Pricing
-          </a>
         </nav>
 
         <div className="flex items-center gap-3">
