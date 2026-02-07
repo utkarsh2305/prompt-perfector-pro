@@ -11,9 +11,6 @@ export function SiteFooter() {
             Stop guessing. Start prompting.
           </p>
           <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-            <Link to="/pricing" className="hover:text-foreground transition-colors">
-              Pricing
-            </Link>
             <a 
               href="https://chrome.google.com/webstore" 
               target="_blank" 
@@ -27,6 +24,9 @@ export function SiteFooter() {
             </Link>
             <Link to="/terms" className="hover:text-foreground transition-colors">
               Terms
+            </Link>
+            <Link to="/support" className="hover:text-foreground transition-colors">
+              Support
             </Link>
           </nav>
           <p className="text-xs text-muted-foreground">

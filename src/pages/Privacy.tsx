@@ -58,8 +58,8 @@ export default function PrivacyPolicy() {
             <h2 className="mt-6 text-xl font-semibold">Contact</h2>
             <p>
               For questions about this Privacy Policy, contact us at:{" "}
-              <a href="mailto:privacy@zeroretry.com" className="text-primary underline">
-                privacy@zeroretry.com
+              <a href="mailto:mairh.utkarsh@gmail.com" className="text-primary underline">
+                mairh.utkarsh@gmail.com
               </a>
             </p>
           </div>
