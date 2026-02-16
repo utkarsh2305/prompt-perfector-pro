@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,9 +8,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/Logo";
+import { extensions } from "@/data/extensions";
 
 function getInitials(name: string | null | undefined, email: string | null | undefined): string {
   if (name) {
@@ -47,9 +56,41 @@ export function SiteHeader() {
         </NavLink>
 
         <nav className="hidden items-center gap-6 md:flex">
-          <a className="text-sm text-muted-foreground hover:text-foreground" href="#features">
-            Features
-          </a>
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-sm text-muted-foreground bg-transparent hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
+                  Extensions
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
+                    {extensions.map((ext) => (
+                      <li key={ext.slug}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to={ext.path}
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="flex items-center gap-2">
+                              {ext.icon ? (
+                                <img src={ext.icon} alt="" className="h-5 w-5" />
+                              ) : (
+                                <span className="text-lg">🧩</span>
+                              )}
+                              <div className="text-sm font-medium leading-none">{ext.name}</div>
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground mt-1">
+                              {ext.tagline}
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </nav>
 
         <div className="flex items-center gap-3">

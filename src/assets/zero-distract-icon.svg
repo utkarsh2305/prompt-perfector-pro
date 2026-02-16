@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="zdGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C3AED"/>
+      <stop offset="100%" style="stop-color:#4F46E5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Purple circle background -->
+  <circle cx="24" cy="24" r="22" fill="url(#zdGradient)"/>
+
+  <!-- White Z letter -->
+  <path d="M15 14 L33 14 L15 34 L33 34" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- White diagonal slash -->
+  <line x1="10" y1="38" x2="38" y2="10" stroke="white" stroke-width="3" stroke-linecap="round"/>
+</svg>

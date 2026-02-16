@@ -1,52 +1,42 @@
-# ZeroRetry Index
+# ZeroRetry
 
-**Stop scrolling long AI chats.** Index questions, bookmark insights, and continue across AI tools instantly!
+**Privacy-first Chrome extensions that help you work smarter and stay focused.**
 
-Works with ChatGPT, Claude, Gemini, Grok, Perplexity, and Copilot.
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Features](#features)
-- [Pricing & Subscription](#pricing--subscription)
-- [User Flows](#user-flows)
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Database Schema](#database-schema)
-- [Edge Functions](#edge-functions)
-- [Security](#security)
-- [Deployment](#deployment)
-- [Limitations](#limitations)
+ZeroRetry is a suite of browser extensions — each one solves a specific problem while keeping all your data local. No accounts required, no cloud sync, no tracking.
 
 ---
 
-## Overview
+## Extensions
 
-ZeroRetry Index is a browser extension that adds a smart sidebar to AI chat tools. It automatically indexes your questions in long conversations, turning messy scrolls into a clear, clickable table of contents.
+### ZeroRetry Index
 
-### Value Proposition
+**Stop scrolling long AI chats.** Index questions, bookmark insights, and continue across AI tools instantly.
 
-- **Auto-Index Questions**: Every question you ask appears instantly in the sidebar
-- **Jump to Any Moment**: Click an index item to jump directly to that point in the conversation
-- **Bookmark What Matters**: Star important questions or moments to save them for later
-- **Build Reusable Context**: Turn saved items into a structured handoff you can continue in other AI tools
-- **Privacy-First**: All processing happens locally in your browser - no data leaves your device
+| | |
+|---|---|
+| **Platforms** | ChatGPT, Claude, Gemini, Grok, Perplexity, Copilot |
+| **Key Features** | Conversation Index, Search & Filter, Bookmarks, Cross-AI Handoff, Projects, Tags, Milestones, Dark Mode |
+| **Privacy** | 100% local. No data collection, no analytics, no tracking. |
+| **Chrome Web Store** | [Install ZeroRetry Index](https://chrome.google.com/webstore) |
 
-### Target Users
+### Zero Distract
 
-- **Product Managers**: Managing complex feature discussions across AI tools
-- **Developers**: Long debugging and architecture conversations
-- **Consultants**: Building reusable analysis frameworks
-- **Researchers**: Structuring deep research sessions
-- **Anyone**: Having long, complex AI conversations
+**Reclaim your focus with intelligent nudges.** Track distraction patterns, get smart nudges, and replace social media feeds with your priorities.
+
+| | |
+|---|---|
+| **Sites** | YouTube, Reddit, Twitter/X, Instagram, Facebook, TikTok (configurable) |
+| **Key Features** | Focus Mode, Time Tracking, Smart Nudges, Feed Replacement, Analytics Dashboard, Pattern Detection |
+| **Privacy** | Local only. Tracks domain names and time spent. No identity or content tracked. |
+| **Chrome Web Store** | [Install Zero Distract](https://chrome.google.com/webstore) |
 
 ---
 
-## Tech Stack
+## Website
+
+This repository contains the ZeroRetry marketing website — a React SPA that serves as the landing page, extension showcase, and admin dashboard.
+
+### Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -57,289 +47,20 @@ ZeroRetry Index is a browser extension that adds a smart sidebar to AI chat tool
 | **Backend** | Supabase (PostgreSQL, Auth, Edge Functions) |
 | **Payments** | Stripe (Checkout, Billing Portal, Webhooks) |
 | **Analytics** | PostHog |
-| **AI Gateway** | Lovable AI Gateway (multi-model: Gemini, GPT, Claude) |
-| **Browser Extension** | Chrome Extension (content scripts) |
 
-### Key Dependencies
+### Pages
 
-```json
-{
-  "react": "^18.3.1",
-  "react-router-dom": "^6.30.1",
-  "@tanstack/react-query": "^5.83.0",
-  "@supabase/supabase-js": "^2.91.0",
-  "tailwindcss": "^3.x",
-  "recharts": "^2.15.4",
-  "lucide-react": "^0.462.0",
-  "zod": "^3.25.76"
-}
-```
-
----
-
-## Architecture
-
-### High-Level Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        CLIENT (React SPA)                        │
-├─────────────────────────────────────────────────────────────────┤
-│  Landing Page │ Dashboard │ Admin Panel │ Auth Pages            │
-│       ↓              ↓           ↓            ↓                 │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │              React Query + Custom Hooks                  │   │
-│  │  useAnalyzePrompt │ useSubscription │ useAuth │ etc.    │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    SUPABASE EDGE FUNCTIONS                       │
-├─────────────────────────────────────────────────────────────────┤
-│  score-prompt    │ Scores prompts against framework rules       │
-│  rewrite-prompt  │ AI-powered prompt improvement                │
-│  stripe-webhook  │ Handles payment events                       │
-│  admin-*         │ Admin panel operations                       │
-│  create-checkout │ Stripe checkout session creation             │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    SUPABASE (PostgreSQL)                         │
-├─────────────────────────────────────────────────────────────────┤
-│  profiles          │ User data and tier info                    │
-│  framework_rules   │ Scoring rules with weights                 │
-│  prompt_analysis_log │ Analysis history                         │
-│  user_subscriptions │ Stripe subscription mapping               │
-│  rewrite_credits   │ Credit balances                            │
-│  rewrite_transactions │ Credit usage history                    │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Scoring Engine Flow
-
-```
-User Input → score-prompt Edge Function
-                    │
-                    ▼
-           ┌───────────────────┐
-           │  Fetch All Active │
-           │  Framework Rules  │
-           │  from Database    │
-           └───────────────────┘
-                    │
-                    ▼
-           ┌───────────────────┐
-           │  Evaluate Each    │
-           │  Rule Against     │
-           │  Prompt (regex +  │
-           │  keyword match)   │
-           └───────────────────┘
-                    │
-                    ▼
-           ┌───────────────────┐
-           │  Calculate Score  │
-           │  (weighted sum)   │
-           │  → Grade (A-F)    │
-           └───────────────────┘
-                    │
-                    ▼
-           ┌───────────────────┐
-           │  Generate AI      │
-           │  Suggested Prompt │
-           │  (Lovable Gateway)│
-           └───────────────────┘
-                    │
-                    ▼
-           Log to DB + Return Response
-```
-
-### Rewrite Engine Flow
-
-```
-Score Result → rewrite-prompt Edge Function
-                    │
-                    ▼
-           ┌───────────────────┐
-           │  Validate Credits │
-           │  (check_rewrite_  │
-           │   credits RPC)    │
-           └───────────────────┘
-                    │
-                    ▼
-           ┌───────────────────┐
-           │  Build System     │
-           │  Prompt from      │
-           │  Failed Rules     │
-           └───────────────────┘
-                    │
-                    ▼
-           ┌───────────────────┐
-           │  Call Lovable     │
-           │  AI Gateway       │
-           │  (Gemini/GPT/     │
-           │   Claude)         │
-           └───────────────────┘
-                    │
-                    ▼
-           ┌───────────────────┐
-           │  Re-score New     │
-           │  Prompt           │
-           └───────────────────┘
-                    │
-                    ▼
-           Consume Credit + Log + Return
-```
-
----
-
-## Features
-
-### Core Features
-
-| Feature | Free Tier | Pro Tier | Unlimited |
-|---------|-----------|----------|-----------|
-| Prompt Scoring | ✅ Unlimited | ✅ Unlimited | ✅ Unlimited |
-| AI Rewrites | 10/month | 200+/month | Unlimited |
-| Credit Rollover | ❌ | ✅ (up to 200) | N/A |
-| All Platforms | ✅ | ✅ | ✅ |
-| Priority Support | ❌ | ❌ | ✅ |
-
-### Grading Scale
-
-| Grade | Score Range | Label |
-|-------|-------------|-------|
-| A | 90-100 | Excellent |
-| B+ | 80-89 | Very Good |
-| B | 70-79 | Good |
-| C | 60-69 | Fair |
-| D | 50-59 | Needs Work |
-| F | 0-49 | Poor |
-
-### Admin Panel
-
-- **User Management**: Search, filter, view user details, change tiers
-- **Framework Rules**: CRUD operations, CSV/Excel import
-- **Analytics**: Users, engagement, quality, revenue, technical metrics
-- **Analysis Logs**: View all prompt analyses with filters
-- **Uninstall Feedback**: Track why users uninstall (pie charts, comments, filters)
-
----
-
-## Pricing & Subscription
-
-### Tier Structure
-
-| Tier | Monthly Price | Annual Price | Credits |
-|------|---------------|--------------|---------|
-| **Free** | $0 | $0 | 10/month |
-| **Pro** | $3-15/mo | ~17% savings | 200-1000/month |
-| **Unlimited** | $19/mo | ~17% savings | Unlimited |
-
-### 7-Day Free Trial
-
-All new users receive a **7-day Pro trial** with:
-- 200 AI rewrite credits (capped at 200)
-- Full Pro features access
-- No credit card required
-
-**Trial Rules:**
-- Automatically expires after 7 days
-- User downgrades to Free tier (10 credits/month)
-- Can upgrade to paid Pro/Unlimited during trial
-- Upgrading ends trial immediately and starts paid subscription
-
-### Credit Packages (Pro Tier)
-
-| Package | Monthly | Annual | Cost/Rewrite |
-|---------|---------|--------|--------------|
-| 200 credits | $3/mo | $30/yr | $0.015 |
-| 500 credits | $6/mo | $60/yr | $0.012 |
-| 1000 credits | $10/mo | $100/yr | $0.010 |
-
-### Credit Rollover
-
-- Pro users can roll over up to **200 unused credits** to next month
-- Rollover credits are used before new credits
-- No rollover for Free or Unlimited tiers
-
----
-
-## User Flows
-
-### 1. New User Journey
-
-```
-Landing Page → Sign Up → Email Confirmation → Dashboard (Trial Active)
-     │                                              │
-     └── View Pricing → Start Trial ──────────────┘
-```
-
-### 2. Prompt Analysis Flow
-
-```
-User enters prompt in analyzer
-         │
-         ▼
-┌─────────────────────┐
-│ Click "Analyze"     │
-│ (score-prompt API)  │
-└─────────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│ View Score + Grade  │
-│ + Suggested Prompt  │
-│ + Improvements List │
-└─────────────────────┘
-         │
-         ├── Copy suggested prompt
-         │
-         └── Click "Rewrite" (if credits available)
-                     │
-                     ▼
-             ┌─────────────────────┐
-             │ AI generates new    │
-             │ prompt, re-scores   │
-             └─────────────────────┘
-```
-
-### 3. Subscription Upgrade Flow
-
-```
-Dashboard → Settings/Pricing → Select Tier
-         │
-         ├── Pro: Select credit package → Stripe Checkout
-         │
-         └── Unlimited: Stripe Checkout
-                     │
-                     ▼
-             ┌─────────────────────┐
-             │ Stripe Webhook      │
-             │ Updates DB          │
-             └─────────────────────┘
-                     │
-                     ▼
-             Credits allocated, tier active
-```
-
-### 4. Admin User Management
-
-```
-Admin Dashboard → Users → Search/Filter
-         │
-         └── Click User Row → User Detail Modal
-                     │
-                     ├── View user info
-                     │
-                     └── Change Tier (dropdown)
-                              │
-                              ├── Select tier
-                              ├── Select package (if Pro)
-                              ├── Optional reason
-                              └── Confirm → Tier changed
-```
+| Route | Description |
+|-------|-------------|
+| `/` | Brand landing page with extension cards |
+| `/extensions/zeroretry-index` | ZeroRetry Index detail page |
+| `/extensions/zero-distract` | Zero Distract detail page |
+| `/pricing` | Subscription tiers (Free / Pro / Unlimited) |
+| `/privacy` | Privacy Policy (covers both extensions) |
+| `/terms` | Terms of Use (covers both extensions) |
+| `/support` | Contact and support info |
+| `/dashboard/*` | User dashboard (protected) |
+| `/admin/*` | Admin panel (protected, admin role required) |
 
 ---
 
@@ -348,25 +69,15 @@ Admin Dashboard → Users → Search/Filter
 ### Prerequisites
 
 - Node.js 18+
-- npm or bun
+- npm
 - Supabase project
 
 ### Installation
 
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd zeroretry
-
-# Install dependencies
 npm install
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your Supabase credentials
-
-# Start development server
-npm run dev
 ```
 
 ### Environment Variables
@@ -378,367 +89,148 @@ VITE_POSTHOG_KEY=your_posthog_key (optional)
 VITE_POSTHOG_HOST=https://app.posthog.com (optional)
 ```
 
-### Edge Function Secrets
+### Development
 
-Configure these in Supabase Dashboard → Settings → Edge Functions:
-
-| Secret | Purpose |
-|--------|---------|
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_ANON_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key for admin ops |
-| `STRIPE_SECRET_KEY` | Stripe API key |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
-| `LOVABLE_API_KEY` | Lovable AI Gateway key |
-| `ADMIN_EMAILS` | Comma-separated admin emails |
+```bash
+npm run dev          # Start dev server
+npm run build        # Production build
+npm run preview      # Preview production build
+npm run lint         # ESLint check
+```
 
 ---
 
 ## Project Structure
 
 ```
-zeroretry/
-├── public/                    # Static assets
-│   ├── favicon.svg
-│   ├── robots.txt
-│   └── sitemap.xml
-├── src/
-│   ├── assets/               # Images, SVGs
-│   ├── components/           # React components
-│   │   ├── ui/               # shadcn/ui base components
-│   │   ├── marketing/        # Landing page components
-│   │   ├── prompt-analyzer/  # Core analyzer UI
-│   │   ├── subscription/     # Billing & credits UI
-│   │   └── admin/            # Admin panel components
-│   ├── contexts/             # React contexts
-│   │   ├── AuthContext.tsx   # Authentication state
-│   │   └── AnalyticsContext.tsx
-│   ├── hooks/                # Custom hooks
-│   │   ├── useAnalyzePrompt.ts
-│   │   ├── use-subscription.ts
-│   │   ├── use-trial.ts
-│   │   └── useAuth.ts
-│   ├── pages/                # Route pages
-│   │   ├── dashboard/        # User dashboard routes
-│   │   └── admin/            # Admin panel routes
-│   ├── lib/                  # Utilities
-│   └── types/                # TypeScript types
-├── supabase/
-│   ├── functions/            # Edge Functions
-│   │   ├── _shared/          # Shared utilities
-│   │   ├── score-prompt/
-│   │   ├── rewrite-prompt/
-│   │   ├── stripe-webhook/
-│   │   ├── admin-*/
-│   │   └── admin-change-tier/
-│   └── migrations/           # Database migrations
-└── docs/                     # Documentation
+src/
+├── assets/                    # SVGs, images
+├── data/
+│   └── extensions.ts          # Extension metadata registry
+├── components/
+│   ├── ui/                    # shadcn/ui base components
+│   ├── marketing/             # SiteHeader, SiteFooter
+│   ├── prompt-analyzer/       # Core analyzer UI
+│   ├── subscription/          # Billing & credits UI
+│   └── admin/                 # Admin panel components
+├── contexts/                  # AuthContext, AnalyticsContext
+├── hooks/                     # Custom React hooks
+├── pages/
+│   ├── extensions/            # Extension detail pages
+│   │   ├── ExtensionPage.tsx  # Shared extension page layout
+│   │   ├── ZeroRetryIndexPage.tsx
+│   │   └── ZeroDistractPage.tsx
+│   ├── dashboard/             # User dashboard routes
+│   ├── admin/                 # Admin panel routes
+│   ├── Landing.tsx            # Brand landing page
+│   ├── Privacy.tsx            # Privacy Policy
+│   ├── Terms.tsx              # Terms of Use
+│   └── Support.tsx            # Support page
+├── lib/                       # Utilities
+├── types/                     # TypeScript types
+└── App.tsx                    # Router setup
 ```
 
 ---
 
-## Database Schema
+## Architecture
 
-### Core Tables
+### High-Level
 
-```sql
--- User profiles (extends auth.users)
-profiles (
-  id UUID PRIMARY KEY,          -- References auth.users
-  email TEXT,
-  full_name TEXT,
-  tier app_tier,                -- 'free' | 'pro' | 'enterprise'
-  subscription_status TEXT,     -- 'active' | 'trialing' | 'canceled' | etc.
-  stripe_customer_id TEXT,
-  is_trial_active BOOLEAN,
-  trial_ends_at TIMESTAMPTZ,
-  total_analyses_count INTEGER,
-  daily_usage_count INTEGER,
-  created_at TIMESTAMPTZ
-)
-
--- Framework scoring rules
-framework_rules (
-  id UUID PRIMARY KEY,
-  rule_number INTEGER,
-  rule_name TEXT,
-  rule_description TEXT,
-  category_id UUID,             -- References rule_categories
-  weight NUMERIC,               -- Rule importance (default 1)
-  tier_required TEXT,           -- 'free' | 'pro'
-  detection_keywords TEXT[],
-  detection_patterns TEXT[],    -- Regex patterns
-  improvement_template TEXT,
-  positive_examples TEXT[],
-  negative_examples TEXT[],
-  is_active BOOLEAN
-)
-
--- Rule categories
-rule_categories (
-  id UUID PRIMARY KEY,
-  name TEXT,                    -- 'Clarity', 'Persona', 'Format', etc.
-  description TEXT,
-  sort_order INTEGER,
-  color TEXT,
-  icon TEXT
-)
-
--- Analysis history
-prompt_analysis_log (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  original_prompt TEXT,
-  improved_prompt TEXT,
-  score NUMERIC,
-  grade letter_grade,           -- 'A' | 'B' | 'C' | 'D' | 'F'
-  analysis_method TEXT,         -- 'template' | 'llm'
-  ai_platform TEXT,             -- 'chatgpt' | 'claude' | 'gemini'
-  llm_cost_cents INTEGER,
-  processing_time_ms INTEGER,
-  violations JSONB,
-  created_at TIMESTAMPTZ
-)
-
--- Subscription tracking
-user_subscriptions (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  tier_name TEXT,               -- 'free' | 'pro' | 'unlimited'
-  status TEXT,                  -- 'active' | 'trialing' | 'canceled'
-  billing_cycle TEXT,           -- 'monthly' | 'yearly'
-  credit_package_id UUID,
-  stripe_subscription_id TEXT,
-  current_period_start TIMESTAMPTZ,
-  current_period_end TIMESTAMPTZ
-)
-
--- Credit management
-rewrite_credits (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  credits_remaining INTEGER,
-  credits_used_this_period INTEGER,
-  rollover_credits INTEGER,
-  last_reset_at TIMESTAMPTZ
-)
-
--- Credit transactions (audit log)
-rewrite_transactions (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  transaction_type TEXT,        -- 'usage' | 'tier_change' | 'rollover' | 'reset'
-  credits_amount INTEGER,
-  balance_after INTEGER,
-  metadata JSONB,
-  created_at TIMESTAMPTZ
-)
-
--- Credit packages (Pro tier options)
-credit_packages (
-  id UUID PRIMARY KEY,
-  credits_amount INTEGER,
-  monthly_price NUMERIC,
-  yearly_price NUMERIC,
-  cost_per_rewrite NUMERIC,
-  is_default BOOLEAN,
-  is_active BOOLEAN,
-  sort_order INTEGER
-)
-
--- User roles (separate from profiles for security)
-user_roles (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  role app_role                 -- 'admin' | 'moderator' | 'user'
-)
-
--- Uninstall feedback
-uninstall_feedback (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  reason TEXT,
-  additional_comments TEXT,
-  user_tier TEXT,
-  days_used INTEGER,
-  browser TEXT,
-  created_at TIMESTAMPTZ
-)
+```
+┌──────────────────────────────────────────────────────────┐
+│                    CLIENT (React SPA)                      │
+├──────────────────────────────────────────────────────────┤
+│  Landing │ Extension Pages │ Dashboard │ Admin │ Auth     │
+│                          ↕                                │
+│            React Query + Custom Hooks                     │
+└──────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────┐
+│                 SUPABASE EDGE FUNCTIONS                    │
+├──────────────────────────────────────────────────────────┤
+│  score-prompt  │ rewrite-prompt │ stripe-webhook │ admin-*│
+└──────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────┐
+│                  SUPABASE (PostgreSQL)                     │
+├──────────────────────────────────────────────────────────┤
+│  profiles │ framework_rules │ prompt_analysis_log         │
+│  user_subscriptions │ rewrite_credits │ credit_packages   │
+└──────────────────────────────────────────────────────────┘
 ```
 
-### Key RPC Functions
+### Extension Data Model
 
-| Function | Purpose |
-|----------|---------|
-| `check_rewrite_credits` | Validates user has credits before rewrite |
-| `consume_rewrite_credit` | Atomically decrements credit balance |
-| `get_user_subscription_info` | Returns tier, credits, subscription status |
-| `get_trial_status` | Returns trial state and days remaining |
-| `check_and_expire_trial` | Expires trial and downgrades to free tier |
-| `change_user_tier` | Handles tier upgrades/downgrades (admin) |
-| `check_rate_limit` | Enforces per-user rate limits |
-| `has_role` | Security definer function for role checks |
+Both extensions use `src/data/extensions.ts` as a centralized registry. Adding a new extension requires:
+1. Add entry to `extensions` array in `src/data/extensions.ts`
+2. Create a page in `src/pages/extensions/`
+3. Add route in `src/App.tsx`
+4. Update Privacy and Terms pages if data handling differs
 
 ---
 
-## Edge Functions
+## Pricing & Subscription
 
-### Public Functions
+| Tier | Monthly | Credits |
+|------|---------|---------|
+| **Free** | $0 | 10/month |
+| **Pro** | $3-15/mo | 200-1000/month |
+| **Unlimited** | $19/mo | Unlimited |
 
-| Function | Method | Rate Limit | Description |
-|----------|--------|------------|-------------|
-| `score-prompt` | POST | 30/min | Scores prompt against all active rules |
-| `rewrite-prompt` | POST | 10/min | AI-powered prompt rewrite |
-| `create-checkout-session` | POST | 5/min | Creates Stripe checkout |
-| `create-billing-portal` | POST | 5/min | Stripe billing portal |
-| `get-extension-data` | POST | 30/min | Browser extension data fetch |
+New users receive a **7-day Pro trial** with 200 credits (no credit card required).
 
-### Admin Functions
+---
 
-| Function | Method | Rate Limit | Description |
-|----------|--------|------------|-------------|
-| `admin-check` | POST | 20/min | Validates admin access (role + allowlist) |
-| `admin-users` | POST | 20/min | User management with search/filter |
-| `admin-change-tier` | POST | 20/min | Change user tier (admin only) |
-| `admin-analyses` | POST | 20/min | Analysis logs with filters |
-| `admin-analytics` | POST | 20/min | Dashboard analytics |
-| `admin-framework` | POST | 20/min | Rule management |
-| `admin-overview` | POST | 20/min | Dashboard overview stats |
+## Admin Panel
 
-### Webhook Functions
-
-| Function | Description |
-|----------|-------------|
-| `stripe-webhook` | Handles Stripe events (checkout.session.completed, customer.subscription.updated) |
+- **User Management**: Search, filter, view details, change tiers
+- **Framework Rules**: CRUD operations, CSV/Excel import
+- **Analytics**: Users, engagement, quality, revenue, technical metrics
+- **Analysis Logs**: View all prompt analyses with filters
+- **Uninstall Feedback**: Track extension uninstalls (charts, comments, filters)
 
 ---
 
 ## Security
 
-### Authentication
+- **Authentication**: Supabase Auth with email/password
+- **Authorization**: Row Level Security (RLS) on all tables; admin requires role + email allowlist
+- **Rate Limiting**: Database-backed per-user limits (scoring: 30/min, rewrites: 10/min, admin: 20/min)
+- **Data Protection**: Parameterized queries, input sanitization, HTTPS enforced, secrets in env vars
 
-- Supabase Auth with email/password
-- Session-based authentication with auto-refresh
-- Protected routes with automatic redirects
-- Password reset flow with email verification
+---
 
-### Authorization
+## Edge Functions
 
-- **Row Level Security (RLS)** on all tables
-- Users can only access their own data
-- Admin access requires BOTH:
-  - `admin` role in `user_roles` table
-  - Email in `ADMIN_EMAILS` environment secret
+| Function | Description |
+|----------|-------------|
+| `score-prompt` | Scores prompts against framework rules |
+| `rewrite-prompt` | AI-powered prompt improvement |
+| `create-checkout-session` | Stripe checkout |
+| `create-billing-portal` | Stripe billing portal |
+| `stripe-webhook` | Handles Stripe payment events |
+| `admin-*` | Admin operations (users, analytics, rules, tier changes) |
 
-### Rate Limiting
+---
 
-Database-backed rate limiting per endpoint:
+## Database Schema
 
-| Endpoint | Limit |
-|----------|-------|
-| Auth | 5/min |
-| Scoring | 30/min |
-| Rewrites | 10/min |
-| Admin | 20/min |
+Core tables: `profiles`, `framework_rules`, `rule_categories`, `prompt_analysis_log`, `user_subscriptions`, `rewrite_credits`, `rewrite_transactions`, `credit_packages`, `user_roles`, `uninstall_feedback`.
 
-### Data Protection
-
-- SQL injection prevention via parameterized queries
-- Input sanitization with `sanitizeSearchInput()` for ILIKE queries
-- HTTPS enforced
-- Secrets stored in environment variables (never in code)
-- No sensitive data exposed in client-side code
+Key RPC functions: `check_rewrite_credits`, `consume_rewrite_credit`, `get_user_subscription_info`, `get_trial_status`, `check_and_expire_trial`, `change_user_tier`, `check_rate_limit`, `has_role`.
 
 ---
 
 ## Deployment
 
-### Frontend (Lovable/Vercel/Netlify)
+**Frontend**: Connect repository to Vercel/Netlify, set environment variables, deploy.
 
-1. Connect repository
-2. Set environment variables
-3. Deploy
+**Edge Functions**: Auto-deployed via Lovable, or manually with `npx supabase functions deploy`.
 
-### Supabase Edge Functions
-
-Edge functions are automatically deployed when code changes in Lovable.
-
-Manual deployment:
-```bash
-npx supabase functions deploy
-```
-
-### Database Migrations
-
-Migrations are managed through Supabase Dashboard or Lovable migration tool.
-
----
-
-## Development
-
-### Commands
-
-```bash
-# Development
-npm run dev          # Start dev server
-npm run build        # Production build
-npm run preview      # Preview production build
-
-# Testing
-npm test             # Run tests
-npm run test:coverage # Run with coverage
-
-# Linting
-npm run lint         # ESLint check
-```
-
-### Code Style
-
-- TypeScript strict mode
-- ESLint + Prettier
-- Tailwind CSS with semantic tokens (from index.css)
-- shadcn/ui component library
-- Mobile-first responsive design
-
----
-
-## Limitations
-
-### Technical Limitations
-
-1. **No Server-Side Rendering**: React SPA only (no Next.js/SSR)
-2. **No Native Mobile**: Web and browser extension only
-3. **Edge Function Timeout**: 30 second limit per request
-4. **File Size Limit**: Prompts capped at 5000 characters
-5. **Rate Limits**: Enforced per user (see Security section)
-
-### Feature Limitations
-
-1. **Scoring**: Rule-based only; AI scoring available but not primary
-2. **Platforms**: ChatGPT, Claude, Gemini, Perplexity only
-3. **Rollover Cap**: Maximum 200 credits can roll over (Pro tier)
-4. **Trial Credits**: Capped at 200 during 7-day trial
-5. **Admin**: No bulk operations (planned)
-
-### Browser Extension
-
-1. **Chrome Only**: Currently Chrome/Chromium-based browsers
-2. **Injection Limits**: May not work on certain secured pages
-3. **No Offline Mode**: Requires internet connection
-
----
-
-## Roadmap
-
-### Planned Features
-
-- [ ] Bulk admin tier changes
-- [ ] Email notifications for trial expiration
-- [ ] Firefox extension
-- [ ] Team/Organization plans
-- [ ] API access for developers
-- [ ] Custom rule creation (user-defined)
-- [ ] Integration with more AI platforms
+**Database Migrations**: Managed through Supabase Dashboard.
 
 ---
 
@@ -750,6 +242,5 @@ Proprietary. All rights reserved.
 
 ## Support
 
-- **Documentation**: This README and `/docs` folder
-- **Issues**: GitHub Issues or in-app feedback
-- **Email**: support@zeroretry.com (planned)
+- **Email**: mairh.utkarsh@gmail.com
+- **Issues**: GitHub Issues

@@ -28,6 +28,8 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Support = lazy(() => import("./pages/Support"));
 const UninstallFeedback = lazy(() => import("./pages/feedback/UninstallFeedback"));
+const ZeroRetryIndexPage = lazy(() => import("./pages/extensions/ZeroRetryIndexPage"));
+const ZeroDistractPage = lazy(() => import("./pages/extensions/ZeroDistractPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,6 +73,8 @@ function AppRoutes() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/support" element={<Support />} />
+        <Route path="/extensions/zeroretry-index" element={<ZeroRetryIndexPage />} />
+        <Route path="/extensions/zero-distract" element={<ZeroDistractPage />} />
         <Route path="/feedback/uninstall" element={<UninstallFeedback />} />
         
         {/* Auth pages - redirect if already logged in */}

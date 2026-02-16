@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import { extensions } from "@/data/extensions";
 
 export function SiteFooter() {
   return (
@@ -8,17 +9,18 @@ export function SiteFooter() {
         <div className="flex flex-col items-center gap-6 text-center">
           <Logo />
           <p className="text-sm text-muted-foreground">
-            Stop guessing. Start prompting.
+            Browser extensions that respect your time and privacy.
           </p>
           <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-            <a 
-              href="https://chrome.google.com/webstore" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors"
-            >
-              Extension
-            </a>
+            {extensions.map((ext) => (
+              <Link
+                key={ext.slug}
+                to={ext.path}
+                className="hover:text-foreground transition-colors"
+              >
+                {ext.name}
+              </Link>
+            ))}
             <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacy
             </Link>
@@ -30,7 +32,7 @@ export function SiteFooter() {
             </Link>
           </nav>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} ZeroRetry Index
+            © {new Date().getFullYear()} ZeroRetry
           </p>
         </div>
       </div>

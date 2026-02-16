@@ -3,13 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
-import { ChevronDown, ArrowDown } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import { useAuth } from "@/hooks/useAuth";
 import {
   DropdownMenu,
@@ -21,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
+import { extensions } from "@/data/extensions";
 
 function getInitials(name: string | null | undefined, email: string | null | undefined): string {
   if (name) {
@@ -35,7 +44,7 @@ function getInitials(name: string | null | undefined, email: string | null | und
 const Landing = () => {
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
-  
+
   const isLoggedIn = !!user;
   const fullName = profile?.full_name || null;
   const email = user?.email || null;
@@ -58,14 +67,43 @@ const Landing = () => {
           <Link to="/" className="inline-flex items-center gap-2">
             <Logo />
           </Link>
-          
+
           <nav className="hidden items-center gap-6 md:flex">
-            <button 
-              onClick={() => scrollToSection("how-it-works")}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              How it works
-            </button>
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="text-sm text-muted-foreground bg-transparent hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
+                    Extensions
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
+                      {extensions.map((ext) => (
+                        <li key={ext.slug}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              to={ext.path}
+                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            >
+                              <div className="flex items-center gap-2">
+                                {ext.icon ? (
+                                  <img src={ext.icon} alt="" className="h-5 w-5" />
+                                ) : (
+                                  <span className="text-lg">🧩</span>
+                                )}
+                                <div className="text-sm font-medium leading-none">{ext.name}</div>
+                              </div>
+                              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground mt-1">
+                                {ext.tagline}
+                              </p>
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -116,34 +154,34 @@ const Landing = () => {
           <div className="container py-16 sm:py-24 lg:py-32">
             <div className="mx-auto max-w-3xl text-center">
               <p className="mb-4 text-sm font-medium text-muted-foreground">
-                Works with ChatGPT, Claude, Gemini, Grok, Perplexity & Copilot
+                Privacy-first Chrome extensions
               </p>
-              
+
               <h1 className="font-heading zr-text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                Stop scrolling long AI chats
+                Your browser, supercharged
               </h1>
-              
+
               <p className="mt-6 text-lg text-muted-foreground sm:text-xl">
-                Index questions, bookmark insights, and continue across AI tools instantly!
+                Chrome extensions that help you work smarter, stay focused, and keep your data local.
               </p>
 
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Button 
-                  asChild 
-                  size="lg" 
+                <Button
+                  asChild
+                  size="lg"
                   className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg hover:shadow-xl transition-shadow sm:w-auto"
                 >
-                  <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer">
-                    Add to Chrome — it's free
-                  </a>
+                  <button onClick={() => scrollToSection("extensions")}>
+                    Explore Extensions
+                  </button>
                 </Button>
               </div>
 
-              <button 
-                onClick={() => scrollToSection("how-it-works")}
+              <button
+                onClick={() => scrollToSection("extensions")}
                 className="mt-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                See how it works <ArrowDown className="h-4 w-4" />
+                See our extensions <ArrowDown className="h-4 w-4" />
               </button>
 
               <p className="mt-4 text-xs text-muted-foreground">
@@ -153,132 +191,89 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* What It Is, What It's NOT */}
-        <section className="py-16 sm:py-24">
-          <div className="container">
-            <div className="mx-auto max-w-4xl">
-              <div className="grid gap-8 md:grid-cols-2">
-                {/* What it's NOT */}
-                <Card className="overflow-hidden rounded-2xl border shadow-lg">
-                  <div className="border-b bg-muted/50 px-6 py-4">
-                    <p className="font-heading font-semibold text-lg">❌ What it's NOT</p>
-                  </div>
-                  <div className="p-6 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <span className="text-muted-foreground">❌</span>
-                      <p className="text-sm">A chatbot</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="text-muted-foreground">❌</span>
-                      <p className="text-sm">A summarizer</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="text-muted-foreground">❌</span>
-                      <p className="text-sm">A prompt generator</p>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* What it IS */}
-                <Card className="overflow-hidden rounded-2xl border shadow-lg bg-primary/5">
-                  <div className="border-b bg-primary/10 px-6 py-4">
-                    <p className="font-heading font-semibold text-lg">✅ What it IS</p>
-                  </div>
-                  <div className="p-6 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <span className="text-primary">✅</span>
-                      <p className="text-sm">An index for long AI chats</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="text-primary">✅</span>
-                      <p className="text-sm">A lightweight memory surface</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <span className="text-primary">✅</span>
-                      <p className="text-sm">A structured handoff tool between AI engines</p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works */}
-        <section id="how-it-works" className="py-16 sm:py-24 bg-muted/30">
-          <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-                💡 Why it's useful
-              </h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Long AI conversations break down because important questions get buried, 
-                context is hard to reuse later, and switching AI tools means re-explaining everything.
-              </p>
-              <p className="mt-2 text-lg font-medium">
-                ZeroRetry Index fixes this by giving your conversation memory and structure.
-              </p>
-            </div>
-            
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-              {[
-                { icon: "📋", title: "Auto-index your questions", desc: "Every question you ask appears instantly in the sidebar." },
-                { icon: "🎯", title: "Jump to any moment", desc: "Click an index item → jump directly to that point in the conversation." },
-                { icon: "⭐", title: "Bookmark what matters", desc: "Star important questions or moments to save them for later." },
-                { icon: "🔄", title: "Build reusable context", desc: "Turn saved items into a structured handoff you can continue in any AI tool." },
-                { icon: "👁️", title: "Stay out of the way", desc: "Collapse the panel into a slim icon when you don't need it." },
-                { icon: "🔒", title: "Privacy-first by design", desc: "No data leaves your browser. No accounts. No cloud sync. No AI processing." },
-              ].map((item, i) => (
-                <Card key={i} className="p-6 text-center hover:shadow-lg transition-shadow">
-                  <div className="text-4xl mb-3">{item.icon}</div>
-                  <h3 className="font-heading text-lg font-semibold mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.desc}</p>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Perfect For */}
-        <section className="py-16 sm:py-24">
+        {/* Extension Cards */}
+        <section id="extensions" className="py-16 sm:py-24">
           <div className="container">
             <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12">
-              🎯 Perfect for
+              Our Extensions
             </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-3xl mx-auto text-center">
-              {[
-                "Product managers",
-                "Developers",
-                "Consultants",
-                "Researchers",
-                "Writers",
-                "Anyone having long, complex AI conversations",
-              ].map((role, i) => (
-                <div key={i} className="rounded-lg bg-muted/30 px-4 py-3">
-                  <p className="text-sm font-medium">{role}</p>
-                </div>
+            <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
+              {extensions.map((ext) => (
+                <Card key={ext.slug} className="overflow-hidden rounded-2xl border shadow-lg p-6 hover:shadow-xl transition-shadow">
+                  {ext.icon ? (
+                    <img src={ext.icon} alt="" className="h-12 w-12" />
+                  ) : (
+                    <span className="text-4xl">🧩</span>
+                  )}
+                  <h3 className="mt-4 font-heading text-2xl font-bold">{ext.name}</h3>
+                  <p className="mt-2 text-muted-foreground">{ext.tagline}</p>
+                  <ul className="mt-4 space-y-1">
+                    {ext.features.slice(0, 4).map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-sm">
+                        <span className="text-primary">✓</span> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-6 flex gap-3">
+                    <Button asChild variant="default" size="sm">
+                      <Link to={ext.path}>Learn more</Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                      <a href={ext.chromeStoreUrl} target="_blank" rel="noopener noreferrer">
+                        Add to Chrome
+                      </a>
+                    </Button>
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">{ext.privacySummary}</p>
+                </Card>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Privacy Promise */}
+        <section className="py-16 sm:py-24 bg-muted/30">
+          <div className="container text-center max-w-2xl mx-auto">
+            <span className="text-4xl">🔒</span>
+            <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+              Privacy-first, always
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Every ZeroRetry extension keeps your data local. No accounts required. No cloud sync.
+              No analytics. No tracking. Your browser, your data.
+            </p>
           </div>
         </section>
 
         {/* FAQ */}
-        <section className="py-16 sm:py-24 bg-muted/30">
+        <section className="py-16 sm:py-24">
           <div className="container">
             <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12">
               Frequently asked questions
             </h2>
-            
+
             <div className="mx-auto max-w-2xl">
               <Accordion type="single" collapsible className="w-full">
                 {[
                   {
-                    q: "How does it work?",
-                    a: "ZeroRetry Index adds a smart sidebar to AI chat tools. It automatically indexes your questions as you have conversations, creating a clickable table of contents. You can bookmark important moments and export saved items to continue in other AI tools.",
+                    q: "What is ZeroRetry?",
+                    a: "ZeroRetry is a suite of privacy-first Chrome extensions designed to enhance your browsing experience. Each extension solves a specific problem while keeping all your data local.",
                   },
                   {
-                    q: "Which AI platforms are supported?",
-                    a: "ZeroRetry Index works with OpenAI ChatGPT, Anthropic Claude, Google Gemini, X Grok, Perplexity, and Microsoft Copilot. Support for more platforms is constantly being added.",
+                    q: "Are the extensions really free?",
+                    a: "Yes. All ZeroRetry extensions are completely free to install and use from the Chrome Web Store. No accounts, subscriptions, or hidden fees.",
+                  },
+                  {
+                    q: "What does ZeroRetry Index do?",
+                    a: "ZeroRetry Index adds a smart sidebar to AI chat tools (ChatGPT, Claude, Gemini, Grok, Perplexity, and Copilot) that automatically indexes your questions, lets you bookmark insights, and export context to continue in other AI tools.",
+                  },
+                  {
+                    q: "What does Zero Distract do?",
+                    a: "Zero Distract helps you stay focused by tracking time on distracting sites, providing smart contextual nudges, and replacing infinite scroll feeds with your priority checklist.",
+                  },
+                  {
+                    q: "Is my data safe?",
+                    a: "Absolutely. All ZeroRetry extensions store data locally in your browser using Chrome's built-in storage. Nothing is ever sent to external servers. No analytics, no tracking, no accounts.",
                   },
                 ].map((faq, i) => (
                   <AccordionItem key={i} value={`faq-${i}`}>
@@ -299,22 +294,25 @@ const Landing = () => {
         <section className="py-16 sm:py-24 bg-gradient-to-r from-primary to-accent">
           <div className="container text-center">
             <h2 className="font-heading text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to stop scrolling?
+              Ready to supercharge your browser?
             </h2>
             <p className="mt-4 text-lg text-white/90">
-              Give your AI conversations the structure they deserve.
+              Choose the extension that fits your workflow.
             </p>
-            <div className="mt-8">
-              <Button 
-                asChild 
-                size="lg" 
-                variant="secondary"
-                className="bg-white text-primary hover:bg-white/90"
-              >
-                <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer">
-                  Add to Chrome — it's free
-                </a>
-              </Button>
+            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              {extensions.map((ext) => (
+                <Button
+                  key={ext.slug}
+                  asChild
+                  size="lg"
+                  variant="secondary"
+                  className="bg-white text-primary hover:bg-white/90"
+                >
+                  <Link to={ext.path}>
+                    {ext.name}
+                  </Link>
+                </Button>
+              ))}
             </div>
           </div>
         </section>
@@ -325,12 +323,14 @@ const Landing = () => {
             <div className="flex flex-col items-center gap-6 text-center">
               <Logo />
               <p className="text-sm text-muted-foreground">
-                Index your AI chats. Remember what matters.
+                Browser extensions that respect your time and privacy.
               </p>
               <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-                <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                  Extension
-                </a>
+                {extensions.map((ext) => (
+                  <Link key={ext.slug} to={ext.path} className="hover:text-foreground transition-colors">
+                    {ext.name}
+                  </Link>
+                ))}
                 <Link to="/privacy" className="hover:text-foreground transition-colors">
                   Privacy
                 </Link>
@@ -342,7 +342,7 @@ const Landing = () => {
                 </Link>
               </nav>
               <p className="text-xs text-muted-foreground">
-                © {new Date().getFullYear()} ZeroRetry Index
+                © {new Date().getFullYear()} ZeroRetry
               </p>
             </div>
           </div>

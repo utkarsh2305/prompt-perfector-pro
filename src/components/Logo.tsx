@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import logoSvg from "@/assets/zeroretry-index-logo.svg";
+import logoSvg from "@/assets/zeroretry-logo.svg";
 
 interface LogoProps {
   className?: string;
@@ -14,7 +14,7 @@ export function Logo({ className = "", showText = true, iconOnly = false }: Logo
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 180 180"
         className={cn("h-10 w-10", className)}
-        aria-label="ZeroRetry Index"
+        aria-label="ZeroRetry"
       >
         <circle cx="90" cy="90" r="70" fill="none" stroke="#6B3FD9" strokeWidth="16"/>
         <path d="M 90 45 A 45 45 0 0 1 90 135" fill="none" stroke="#6B3FD9" strokeWidth="8" strokeLinecap="round"/>
@@ -28,7 +28,7 @@ export function Logo({ className = "", showText = true, iconOnly = false }: Logo
     <div className={cn("inline-flex items-center gap-2", className)}>
       <img 
         src={logoSvg} 
-        alt="ZeroRetry Index logo" 
+        alt="ZeroRetry logo" 
         className="h-12 w-auto"
       />
     </div>

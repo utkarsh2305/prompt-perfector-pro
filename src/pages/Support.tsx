@@ -15,7 +15,7 @@ export default function Support() {
           <div className="prose prose-sm mt-8 max-w-none text-foreground">
             <h2 className="text-xl font-semibold">Get in Touch</h2>
             <p>
-              We value your feedback and are committed to providing the best experience with ZeroRetry Index. 
+              We value your feedback and are committed to providing the best experience with ZeroRetry extensions. 
               Whether you need technical support, have questions about features, or want to share suggestions 
               for improvement, we'd love to hear from you.
             </p>
@@ -54,7 +54,7 @@ export default function Support() {
             <p>
               We actively incorporate user feedback into our development roadmap. If you have ideas for 
               new features or improvements, we encourage you to share them. Your input helps shape the 
-              future of ZeroRetry Index.
+              future of ZeroRetry.
             </p>
           </div>
         </Card>
