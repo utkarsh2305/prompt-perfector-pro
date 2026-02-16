@@ -2,14 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ZeroRetry Index Design System
+/* ZeroRetry Design System
    All colors MUST be HSL format.
    Brand: Deep Indigo (#4F46E5) + Electric Violet (#7C3AED)
 */
 
 @layer base {
   :root {
-    /* ZeroRetry Index theme (light) */
+    /* ZeroRetry theme (light) */
     --background: 0 0% 100%;
     --foreground: 222 47% 11%;
 
@@ -76,7 +76,7 @@
   }
 
   .dark {
-    /* ZeroRetry Index theme (dark) */
+    /* ZeroRetry theme (dark) */
     --background: 222 47% 6%;
     --foreground: 210 40% 98%;
 
