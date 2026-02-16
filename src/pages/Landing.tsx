@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, BrainCircuit, Focus, Repeat, Lock, Eye, Layers } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -153,16 +153,20 @@ const Landing = () => {
         <section className="relative overflow-hidden zr-hero-bg">
           <div className="container py-16 sm:py-24 lg:py-32">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="mb-4 text-sm font-medium text-muted-foreground">
-                Privacy-first Chrome extensions
+              <p className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium text-muted-foreground">
+                The Micro-Automation Company
               </p>
 
               <h1 className="font-heading zr-text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                Your browser, supercharged
+                Zero friction. Zero wasted effort.{" "}
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Zero retry.
+                </span>
               </h1>
 
               <p className="mt-6 text-lg text-muted-foreground sm:text-xl">
-                Chrome extensions that help you work smarter, stay focused, and keep your data local.
+                We build intelligent micro-automation layers that remove friction from your digital
+                work — one small, invisible improvement at a time.
               </p>
 
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -172,31 +176,91 @@ const Landing = () => {
                   className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg hover:shadow-xl transition-shadow sm:w-auto"
                 >
                   <button onClick={() => scrollToSection("extensions")}>
-                    Explore Extensions
+                    Explore Our Extensions
                   </button>
                 </Button>
               </div>
 
               <button
-                onClick={() => scrollToSection("extensions")}
+                onClick={() => scrollToSection("problem")}
                 className="mt-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                See our extensions <ArrowDown className="h-4 w-4" />
+                Learn more <ArrowDown className="h-4 w-4" />
               </button>
 
               <p className="mt-4 text-xs text-muted-foreground">
-                100% free • No account required • Privacy-first
+                Privacy-first · 100% free · No account required
               </p>
             </div>
           </div>
         </section>
 
-        {/* Extension Cards */}
-        <section id="extensions" className="py-16 sm:py-24">
+        {/* The Problem */}
+        <section id="problem" className="py-16 sm:py-24 bg-muted/30">
           <div className="container">
-            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12">
-              Our Extensions
+            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+              The digital world is broken
             </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Every day, small frictions compound into hours of lost productivity.
+            </p>
+            <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+              {[
+                {
+                  icon: BrainCircuit,
+                  title: "Cognitive Overload",
+                  desc: "You juggle dozens of AI conversations, browser tabs, and tools daily. Context gets lost. Insights disappear. You keep re-asking questions you've already solved.",
+                },
+                {
+                  icon: Focus,
+                  title: "Attention Fragmentation",
+                  desc: "Social platforms are engineered to hijack your focus. Infinite scroll, autoplay, and algorithmic feeds erode your ability to do deep work.",
+                },
+                {
+                  icon: Repeat,
+                  title: "Workflow Inefficiency",
+                  desc: "You copy-paste between tools, manually track what matters, and rebuild context every time you switch platforms. Small frictions compound into hours lost.",
+                },
+              ].map((item) => (
+                <Card key={item.title} className="p-6 text-center">
+                  <item.icon className="h-10 w-10 mx-auto text-primary" />
+                  <h3 className="mt-4 font-heading text-xl font-bold">{item.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* The Vision */}
+        <section className="py-16 sm:py-24">
+          <div className="container text-center max-w-2xl mx-auto">
+            <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+              What if your tools worked <span className="italic">for</span> you?
+            </h2>
+            <p className="mt-6 text-lg text-muted-foreground">
+              ZeroRetry builds intelligent behavioral infrastructure that removes friction from
+              digital work. We don't replace your tools — we make them smarter.
+            </p>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Each ZeroRetry product adds a thin, invisible automation layer that handles the
+              repetitive overhead so you can focus on what actually matters.
+            </p>
+            <p className="mt-8 inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
+              Micro-automations, not disruptions.
+            </p>
+          </div>
+        </section>
+
+        {/* Extension Cards */}
+        <section id="extensions" className="py-16 sm:py-24 bg-muted/30">
+          <div className="container">
+            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+              What we're building
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Each extension tackles one specific friction — and does it exceptionally well.
+            </p>
             <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
               {extensions.map((ext) => (
                 <Card key={ext.slug} className="overflow-hidden rounded-2xl border shadow-lg p-6 hover:shadow-xl transition-shadow">
@@ -231,16 +295,58 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Privacy Promise */}
+        {/* The ZeroRetry Difference */}
+        <section className="py-16 sm:py-24">
+          <div className="container">
+            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12">
+              The ZeroRetry difference
+            </h2>
+            <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+              {[
+                {
+                  icon: Lock,
+                  title: "Privacy-first, always",
+                  desc: "Every ZeroRetry product keeps your data local. No accounts, no cloud sync, no analytics, no tracking. Your browser, your data.",
+                },
+                {
+                  icon: Eye,
+                  title: "Invisible by design",
+                  desc: "Our tools work in the background. No setup wizards, no learning curves. Install and go — the best tools are the ones you barely notice.",
+                },
+                {
+                  icon: Layers,
+                  title: "Built to compound",
+                  desc: "Each product removes one specific friction. Together, they create a performance layer across your entire digital workflow.",
+                },
+              ].map((item) => (
+                <Card key={item.title} className="p-6 text-center">
+                  <item.icon className="h-10 w-10 mx-auto text-primary" />
+                  <h3 className="mt-4 font-heading text-xl font-bold">{item.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Where We're Going */}
         <section className="py-16 sm:py-24 bg-muted/30">
           <div className="container text-center max-w-2xl mx-auto">
-            <span className="text-4xl">🔒</span>
-            <h2 className="mt-4 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-              Privacy-first, always
+            <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl mb-8">
+              Where we're going
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Every ZeroRetry extension keeps your data local. No accounts required. No cloud sync.
-              No analytics. No tracking. Your browser, your data.
+            <div className="space-y-4 text-lg text-muted-foreground">
+              <p>
+                <span className="font-semibold text-foreground">Today:</span> Chrome extensions that
+                protect your focus and organize your AI conversations.
+              </p>
+              <p>
+                <span className="font-semibold text-foreground">Tomorrow:</span> A distributed
+                performance layer across browsers, AI tools, and SaaS platforms.
+              </p>
+            </div>
+            <p className="mt-8 text-sm font-medium text-primary">
+              We're just getting started.
             </p>
           </div>
         </section>
@@ -257,7 +363,7 @@ const Landing = () => {
                 {[
                   {
                     q: "What is ZeroRetry?",
-                    a: "ZeroRetry is a suite of privacy-first Chrome extensions designed to enhance your browsing experience. Each extension solves a specific problem while keeping all your data local.",
+                    a: "ZeroRetry is a micro-automation company building intelligent layers that remove friction from digital work. We create privacy-first Chrome extensions — each one solves a specific productivity problem while keeping all your data local.",
                   },
                   {
                     q: "Are the extensions really free?",
@@ -274,6 +380,10 @@ const Landing = () => {
                   {
                     q: "Is my data safe?",
                     a: "Absolutely. All ZeroRetry extensions store data locally in your browser using Chrome's built-in storage. Nothing is ever sent to external servers. No analytics, no tracking, no accounts.",
+                  },
+                  {
+                    q: "Will there be more extensions?",
+                    a: "Yes. We're actively building new micro-automation layers for common digital frictions. Each new extension will follow the same principles: solve one problem well, keep data local, and work invisibly in the background.",
                   },
                 ].map((faq, i) => (
                   <AccordionItem key={i} value={`faq-${i}`}>
@@ -294,7 +404,7 @@ const Landing = () => {
         <section className="py-16 sm:py-24 bg-gradient-to-r from-primary to-accent">
           <div className="container text-center">
             <h2 className="font-heading text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to supercharge your browser?
+              Ready to remove the friction?
             </h2>
             <p className="mt-4 text-lg text-white/90">
               Choose the extension that fits your workflow.
