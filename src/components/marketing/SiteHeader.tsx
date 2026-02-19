@@ -73,7 +73,7 @@ export function SiteHeader() {
                           >
                             <div className="flex items-center gap-2">
                               {ext.icon ? (
-                                <img src={ext.icon} alt="" className="h-5 w-5" />
+                                <img src={ext.icon} alt="" className="h-5 w-5 rounded-full object-cover" />
                               ) : (
                                 <span className="text-lg">🧩</span>
                               )}

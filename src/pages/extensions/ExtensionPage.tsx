@@ -20,7 +20,7 @@ export function ExtensionPage({ extension, children }: ExtensionPageProps) {
           <div className="container py-16 sm:py-24 lg:py-32">
             <div className="mx-auto max-w-3xl text-center">
               {extension.icon ? (
-                <img src={extension.icon} alt="" className="mx-auto h-16 w-16" />
+                <img src={extension.icon} alt="" className="mx-auto h-16 w-16 rounded-full object-cover" />
               ) : (
                 <span className="text-5xl">🧩</span>
               )}

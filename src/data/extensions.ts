@@ -87,7 +87,6 @@ export const extensions: ExtensionInfo[] = [
       "Drag-and-Drop",
       "Export / Import",
     ],
-    platforms: ["ChatGPT", "Claude", "Gemini", "Copilot", "Poe", "Perplexity"],
     privacySummary:
       "100% local. Bookmarks stored in your browser only. No cloud sync, no tracking.",
   },

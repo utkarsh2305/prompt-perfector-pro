@@ -86,7 +86,7 @@ const Landing = () => {
                             >
                               <div className="flex items-center gap-2">
                                 {ext.icon ? (
-                                  <img src={ext.icon} alt="" className="h-5 w-5" />
+                                  <img src={ext.icon} alt="" className="h-5 w-5 rounded-full object-cover" />
                                 ) : (
                                   <span className="text-lg">🧩</span>
                                 )}
@@ -265,7 +265,7 @@ const Landing = () => {
               {extensions.map((ext) => (
                 <Card key={ext.slug} className="overflow-hidden rounded-2xl border shadow-lg p-6 hover:shadow-xl transition-shadow">
                   {ext.icon ? (
-                    <img src={ext.icon} alt="" className="h-12 w-12" />
+                    <img src={ext.icon} alt="" className="h-12 w-12 rounded-full object-cover" />
                   ) : (
                     <span className="text-4xl">🧩</span>
                   )}
