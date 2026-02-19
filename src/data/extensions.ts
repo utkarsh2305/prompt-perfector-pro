@@ -1,5 +1,6 @@
 import zeroretryIndexIcon from "@/assets/zeroretry-icon.svg";
 import zeroDistractIcon from "@/assets/zero-distract-icon.svg";
+import zeroPinIcon from "@/assets/zeropin-icon.png";
 
 export interface ExtensionInfo {
   slug: string;
@@ -66,6 +67,29 @@ export const extensions: ExtensionInfo[] = [
     ],
     privacySummary:
       "Local only. Tracks domain names and time spent. No identity or content tracked.",
+  },
+  {
+    slug: "zeropin",
+    name: "ZeroPin",
+    tagline: "Save and organize web and AI bookmarks locally",
+    description:
+      "Capture full pages or text snippets, organize them in folders, and highlight saved passages when you revisit. Supports AI chat detection across ChatGPT, Claude, Gemini, Copilot, Poe, and Perplexity.",
+    chromeStoreUrl: "https://chrome.google.com/webstore",
+    icon: zeroPinIcon,
+    path: "/extensions/zeropin",
+    features: [
+      "Save Pages",
+      "Snippet Capture",
+      "Passage Highlighting",
+      "AI Chat Detection",
+      "Folder Library",
+      "Search & Filter",
+      "Drag-and-Drop",
+      "Export / Import",
+    ],
+    platforms: ["ChatGPT", "Claude", "Gemini", "Copilot", "Poe", "Perplexity"],
+    privacySummary:
+      "100% local. Bookmarks stored in your browser only. No cloud sync, no tracking.",
   },
 ];
 
