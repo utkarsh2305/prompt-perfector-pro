@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
             <h2 className="text-xl font-semibold">Scope</h2>
             <p>
               This Privacy Policy applies to ZeroRetry extensions distributed through the Chrome Web Store,
-              including ZeroRetry Index and Zero Distract. It does not apply to any other ZeroRetry products,
+              including ZeroRetry Index, Zero Distract, and ZeroPin. It does not apply to any other ZeroRetry products,
               services, or applications.
             </p>
 
@@ -62,6 +62,27 @@ export default function PrivacyPolicy() {
               <li>Any data to external servers</li>
             </ul>
 
+            <h3 className="mt-4 text-lg font-semibold">ZeroPin</h3>
+            <p>
+              The ZeroPin extension stores the following data locally in your browser
+              using <code className="text-sm">chrome.storage.local</code>:
+            </p>
+            <ul className="ml-4 mt-2 list-disc space-y-1">
+              <li>Saved bookmark entries, including page URL, title, and optional notes</li>
+              <li>Text snippets selected and saved by the user</li>
+              <li>Folder structure and organisation preferences</li>
+              <li>Theme preference (dark / light / system)</li>
+            </ul>
+            <p className="mt-2">
+              ZeroPin does <strong>not</strong> collect, store, or transmit:
+            </p>
+            <ul className="ml-4 mt-2 list-disc space-y-1">
+              <li>Full page content beyond explicitly saved snippets</li>
+              <li>User identity or account information</li>
+              <li>Browsing history beyond pages the user actively pins</li>
+              <li>Any data to external servers</li>
+            </ul>
+
             <h2 className="mt-6 text-xl font-semibold">Permissions</h2>
             <p>
               <strong>ZeroRetry Index:</strong> Permissions requested by the extension are used solely
@@ -76,6 +97,19 @@ export default function PrivacyPolicy() {
               <li><strong>storage</strong> — persist settings and time tracking data locally</li>
               <li><strong>alarms</strong> — schedule lightweight time tracking intervals and nudge timing</li>
               <li><strong>tabs</strong> — detect the active tab's domain for time tracking (domain name only)</li>
+            </ul>
+            <p className="mt-2">
+              No user data is collected or shared as a result of these permissions.
+            </p>
+            <p className="mt-2">
+              <strong>ZeroPin:</strong> The extension requests the following permissions, all
+              used exclusively for local functionality:
+            </p>
+            <ul className="ml-4 mt-2 list-disc space-y-1">
+              <li><strong>contextMenus</strong> — add the right-click "Save to ZeroPin" option on pages and selections</li>
+              <li><strong>storage</strong> — persist pins, folders, and preferences locally in Chrome</li>
+              <li><strong>tabs</strong> — read the current page URL and title when saving a pin (no page content accessed)</li>
+              <li><strong>scripting</strong> — inject snippet highlighting when revisiting a page with saved selections</li>
             </ul>
             <p className="mt-2">
               No user data is collected or shared as a result of these permissions.
