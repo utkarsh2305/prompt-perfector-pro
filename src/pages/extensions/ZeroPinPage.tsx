@@ -69,33 +69,33 @@ export default function ZeroPinPage() {
             {[
               {
                 icon: "📌",
-                title: "Save with a right-click or shortcut",
-                desc: "Right-click any page or selected text and choose \"Save to ZeroPin\", or press Ctrl+Shift+P (Cmd+Shift+P on Mac).",
+                title: "Save pages or snippets in one right-click",
+                desc: "Right-click any selected text or page and save it instantly. No copy-paste needed — ZeroPin remembers the text and exactly where it was.",
               },
               {
-                icon: "🗂️",
-                title: "Organize in folders",
-                desc: "Build a folder hierarchy with drag-and-drop reordering. Move pins in bulk to keep your library clean.",
-              },
-              {
-                icon: "🔍",
-                title: "Search everything",
-                desc: "Search across page names, URLs, domains, snippet text, and notes in one instant query.",
-              },
-              {
-                icon: "💡",
-                title: "Highlights resurface on revisit",
-                desc: "When you return to a saved page, your saved text snippets are automatically highlighted in the page.",
+                icon: "🖍️",
+                title: "Snippets auto-highlight on revisit",
+                desc: "Return to a saved page and your saved text is highlighted in yellow automatically — even if the page has changed slightly.",
               },
               {
                 icon: "🤖",
-                title: "Capture AI context",
-                desc: "Detects ChatGPT, Claude, Gemini, and other AI chats — captures platform, role, and conversation metadata.",
+                title: "Built for AI chats",
+                desc: "Captures prompts and answers from ChatGPT, Claude, Gemini, and more. Your AI research lives alongside your web bookmarks, fully searchable.",
               },
               {
-                icon: "🔒",
-                title: "Private by default",
-                desc: "Everything stays in your browser. No accounts, no cloud sync, no tracking.",
+                icon: "📚",
+                title: "A proper library, not a popup",
+                desc: "Open your Library in a full browser tab with a two-panel layout: folder tree on the left, bookmarks on the right. Searchable, sortable, manageable.",
+              },
+              {
+                icon: "🔍",
+                title: "Search everything, offline",
+                desc: "Search across titles, URLs, domains, notes, and snippet text. Filter by source, date range, or folder. Works 100% offline.",
+              },
+              {
+                icon: "⏰",
+                title: "Reminders",
+                desc: "Set a reminder on any bookmark — Tomorrow, In 3 days, In 1 week, or a custom date. Due reminders surface at the top of your Library automatically.",
               },
             ].map((item, i) => (
               <Card key={i} className="p-6 text-center hover:shadow-lg transition-shadow">
@@ -108,43 +108,7 @@ export default function ZeroPinPage() {
         </div>
       </section>
 
-      {/* Permissions Explained */}
-      <section className="py-16 sm:py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl">
-            <h2 className="font-heading text-2xl font-bold mb-8 text-center">
-              Permissions Explained
-            </h2>
-            <div className="space-y-4">
-              {[
-                {
-                  perm: "contextMenus",
-                  why: "Adds the right-click \"Save to ZeroPin\" option on any page or selected text.",
-                },
-                {
-                  perm: "storage",
-                  why: "Saves your pins, folders, and preferences locally in Chrome. Nothing leaves your device.",
-                },
-                {
-                  perm: "tabs",
-                  why: "Reads the current page URL and title when you save a pin. Page content is never accessed.",
-                },
-                {
-                  perm: "scripting",
-                  why: "Injects snippet highlighting when you revisit a page where you saved a text selection.",
-                },
-              ].map((p) => (
-                <div key={p.perm} className="flex gap-4 rounded-lg border p-4">
-                  <code className="text-sm font-mono text-primary whitespace-nowrap mt-0.5">
-                    {p.perm}
-                  </code>
-                  <p className="text-sm text-muted-foreground">{p.why}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+
     </ExtensionPage>
   );
 }

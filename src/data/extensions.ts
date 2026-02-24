@@ -71,20 +71,20 @@ export const extensions: ExtensionInfo[] = [
   {
     slug: "zeropin",
     name: "ZeroPin",
-    tagline: "Save and organize web and AI bookmarks locally",
+    tagline: "Save what matters. Find it again instantly.",
     description:
-      "Capture full pages or text snippets, organize them in folders, and highlight saved passages when you revisit. Supports AI chat detection across ChatGPT, Claude, Gemini, Copilot, Poe, and Perplexity.",
+      "Save full pages or selected text snippets — and when you return, ZeroPin highlights exactly what you saved. Captures AI chat prompts and answers from ChatGPT, Claude, Gemini, and more. Organise in folders, search offline, set reminders. No account, no cloud, no tracking.",
     chromeStoreUrl: "https://chrome.google.com/webstore",
     icon: zeroPinIcon,
     path: "/extensions/zeropin",
     features: [
-      "Save Pages",
-      "Snippet Capture",
-      "Passage Highlighting",
-      "AI Chat Detection",
-      "Folder Library",
+      "Snippet Highlighting",
+      "AI Chat Capture",
+      "Full-Screen Library",
+      "Folders & Tags",
       "Search & Filter",
-      "Drag-and-Drop",
+      "Reminders",
+      "Notes",
       "Export / Import",
     ],
     privacySummary:
