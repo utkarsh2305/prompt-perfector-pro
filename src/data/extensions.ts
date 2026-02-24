@@ -22,7 +22,7 @@ export const extensions: ExtensionInfo[] = [
     tagline: "Index and navigate long AI conversations",
     description:
       "Index questions, bookmark insights, and continue across AI tools instantly. Works with ChatGPT, Claude, Gemini, Grok, Perplexity & Copilot.",
-    chromeStoreUrl: "https://chrome.google.com/webstore",
+    chromeStoreUrl: "https://chromewebstore.google.com/detail/zeroretry-index/ljjdfdgabaibpfakidgjpgkjackokoie",
     icon: zeroretryIndexIcon,
     path: "/extensions/zeroretry-index",
     features: [
@@ -44,7 +44,7 @@ export const extensions: ExtensionInfo[] = [
     tagline: "Reclaim your focus with intelligent nudges",
     description:
       "Stay focused with smart nudges, time tracking, and feed replacement. Understand your habits and make intentional choices about your attention.",
-    chromeStoreUrl: "https://chrome.google.com/webstore",
+    chromeStoreUrl: "https://chromewebstore.google.com/detail/zero-distract/nflogeakdkcgfcajhihoogefdbcbhohp",
     icon: zeroDistractIcon,
     path: "/extensions/zero-distract",
     features: [
@@ -74,7 +74,7 @@ export const extensions: ExtensionInfo[] = [
     tagline: "Save what matters. Find it again instantly.",
     description:
       "Save full pages or selected text snippets — and when you return, ZeroPin highlights exactly what you saved. Captures AI chat prompts and answers from ChatGPT, Claude, Gemini, and more. Organise in folders, search offline, set reminders. No account, no cloud, no tracking.",
-    chromeStoreUrl: "https://chrome.google.com/webstore",
+    chromeStoreUrl: "https://chromewebstore.google.com/detail/zeropin/glpajeninbafoeegcomfmpeldfpmcddc",
     icon: zeroPinIcon,
     path: "/extensions/zeropin",
     features: [
