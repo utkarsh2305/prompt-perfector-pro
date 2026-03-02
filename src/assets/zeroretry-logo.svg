@@ -20,7 +20,8 @@
   </g>
   
   <!-- Wordmark -->
-  <text x="52" y="32" font-family="Plus Jakarta Sans, Inter, system-ui, sans-serif" font-size="24" fill="#0F172A">
+  <text x="52" y="32" font-family="Plus Jakarta Sans, Inter, system-ui, sans-serif" font-size="24" fill="#ECE9FF">
     <tspan font-weight="400">Zero</tspan><tspan font-weight="700">Retry</tspan>
   </text>
 </svg>
+
