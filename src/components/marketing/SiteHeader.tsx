@@ -65,8 +65,8 @@ export function SiteHeader() {
                 <NavigationMenuTrigger className="bg-transparent text-sm text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
                   Extensions
                 </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[820px] grid-cols-3 gap-3 p-4">
+                <NavigationMenuContent className="md:left-1/2 md:-translate-x-1/2">
+                  <ul className="mx-auto grid w-[820px] grid-cols-3 gap-3 p-4">
                     {extensions.map((ext) => (
                       <li key={ext.slug}>
                         <NavigationMenuLink asChild>
@@ -138,7 +138,7 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
+            <div className="hidden" aria-hidden="true">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button asChild variant="ghost" size="sm" className="border border-border/70 bg-card/40">
                   <NavLink to="/login">Sign in</NavLink>
@@ -149,7 +149,7 @@ export function SiteHeader() {
                   <NavLink to="/signup">Try it now</NavLink>
                 </Button>
               </motion.div>
-            </>
+            </div>
           )}
         </div>
       </div>
