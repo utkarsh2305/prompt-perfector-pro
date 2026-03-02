@@ -53,20 +53,22 @@ export function SiteHeader() {
 
   return (
     <header className="zr-site-header">
-      <div className="zr-content flex h-16 items-center justify-between">
-        <NavLink to="/" className="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-semibold">
-          <Logo />
-        </NavLink>
+      <div className="zr-content relative flex h-16 items-center">
+        <div className="flex w-48 items-center justify-start">
+          <NavLink to="/" className="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-semibold">
+            <Logo />
+          </NavLink>
+        </div>
 
-        <nav className="hidden items-center gap-6 md:flex">
-          <NavigationMenu>
+        <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center md:flex">
+          <NavigationMenu className="[&>div.absolute]:left-1/2 [&>div.absolute]:-translate-x-1/2">
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent text-sm text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
                   Extensions
                 </NavigationMenuTrigger>
-                <NavigationMenuContent className="md:left-1/2 md:-translate-x-1/2">
-                  <ul className="mx-auto grid w-[820px] grid-cols-3 gap-3 p-4">
+                <NavigationMenuContent>
+                  <ul className="mx-auto grid w-[860px] max-w-[calc(100vw-2.5rem)] grid-cols-3 gap-3 p-4">
                     {extensions.map((ext) => (
                       <li key={ext.slug}>
                         <NavigationMenuLink asChild>
@@ -96,7 +98,7 @@ export function SiteHeader() {
           </NavigationMenu>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="ml-auto flex w-48 items-center justify-end gap-3">
           {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -138,7 +140,7 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden" aria-hidden="true">
+            <div className="invisible pointer-events-none flex items-center gap-3" aria-hidden="true">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button asChild variant="ghost" size="sm" className="border border-border/70 bg-card/40">
                   <NavLink to="/login">Sign in</NavLink>
