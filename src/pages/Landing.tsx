@@ -177,7 +177,7 @@ export default function Landing() {
               <h2 className="font-heading text-3xl font-bold leading-[0.95] tracking-tight sm:text-5xl">What we're building</h2>
               <p className="mt-4 text-muted-foreground">Each extension tackles one specific friction and does it exceptionally well.</p>
             </Reveal>
-            <div className="mx-auto mt-14 grid max-w-5xl gap-8 md:grid-cols-2">
+            <div className="mx-auto mt-14 grid max-w-6xl gap-8 lg:grid-cols-3">
               {extensions.map((ext, index) => (
                 <Reveal key={ext.slug} delay={index * 0.08}>
                   <motion.div whileHover={revealHover}>

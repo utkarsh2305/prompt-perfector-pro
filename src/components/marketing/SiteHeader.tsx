@@ -66,7 +66,7 @@ export function SiteHeader() {
                   Extensions
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[420px] gap-3 p-4 md:w-[520px] md:grid-cols-2">
+                  <ul className="grid w-[820px] grid-cols-3 gap-3 p-4">
                     {extensions.map((ext) => (
                       <li key={ext.slug}>
                         <NavigationMenuLink asChild>
