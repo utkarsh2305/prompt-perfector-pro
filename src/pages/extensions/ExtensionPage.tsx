@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { SiteHeader } from "@/components/marketing/SiteHeader";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { ExtensionInfo } from "@/data/extensions";
+import { useZrPageEffects } from "@/hooks/use-zr-page-effects";
 
 interface ExtensionPageProps {
   extension: ExtensionInfo;
@@ -14,87 +15,7 @@ interface ExtensionPageProps {
 
 export function ExtensionPage({ extension, children }: ExtensionPageProps) {
   const pageRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const root = pageRef.current;
-    if (!root || typeof window === "undefined") return;
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const canHover = window.matchMedia("(hover: hover)").matches;
-
-    const revealElements = Array.from(root.querySelectorAll<HTMLElement>("[data-zr-reveal]"));
-    let revealObserver: IntersectionObserver | null = null;
-
-    if (!prefersReducedMotion && "IntersectionObserver" in window) {
-      revealObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("is-visible");
-              revealObserver?.unobserve(entry.target);
-            }
-          });
-        },
-        {
-          threshold: 0.12,
-          rootMargin: "0px 0px -48px 0px",
-        },
-      );
-      revealElements.forEach((element) => revealObserver?.observe(element));
-    } else {
-      revealElements.forEach((element) => element.classList.add("is-visible"));
-    }
-
-    const onPointerMove = (event: PointerEvent) => {
-      const xPercent = (event.clientX / window.innerWidth) * 100;
-      const yPercent = (event.clientY / window.innerHeight) * 100;
-      root.style.setProperty("--spotlight-x", `${xPercent.toFixed(2)}%`);
-      root.style.setProperty("--spotlight-y", `${yPercent.toFixed(2)}%`);
-    };
-
-    if (!prefersReducedMotion && canHover) {
-      window.addEventListener("pointermove", onPointerMove, { passive: true });
-    }
-
-    const tiltCleanup: Array<() => void> = [];
-    if (!prefersReducedMotion && canHover) {
-      const tiltElements = Array.from(root.querySelectorAll<HTMLElement>("[data-zr-tilt]"));
-      tiltElements.forEach((element) => {
-        const onMouseMove = (event: MouseEvent) => {
-          const bounds = element.getBoundingClientRect();
-          const x = (event.clientX - bounds.left) / bounds.width;
-          const y = (event.clientY - bounds.top) / bounds.height;
-          const rotateY = (x - 0.5) * 7;
-          const rotateX = (0.5 - y) * 6;
-
-          element.style.transform = `perspective(900px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-3px)`;
-          element.style.setProperty("--zr-glow-x", `${Math.round(x * 100)}%`);
-          element.style.setProperty("--zr-glow-y", `${Math.round(y * 100)}%`);
-          element.style.setProperty("--zr-glow-opacity", "1");
-        };
-
-        const onMouseLeave = () => {
-          element.style.transform = "";
-          element.style.setProperty("--zr-glow-opacity", "0");
-        };
-
-        element.addEventListener("mousemove", onMouseMove);
-        element.addEventListener("mouseleave", onMouseLeave);
-
-        tiltCleanup.push(() => {
-          element.removeEventListener("mousemove", onMouseMove);
-          element.removeEventListener("mouseleave", onMouseLeave);
-          onMouseLeave();
-        });
-      });
-    }
-
-    return () => {
-      revealObserver?.disconnect();
-      window.removeEventListener("pointermove", onPointerMove);
-      tiltCleanup.forEach((cleanup) => cleanup());
-    };
-  }, []);
+  useZrPageEffects(pageRef);
 
   return (
     <div ref={pageRef} className="zr-extension-page zr-reduce-motion min-h-screen">

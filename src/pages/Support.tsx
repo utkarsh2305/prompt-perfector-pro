@@ -1,14 +1,19 @@
+import { useRef } from "react";
 import { SiteHeader } from "@/components/marketing/SiteHeader";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { Card } from "@/components/ui/card";
 import { Mail } from "lucide-react";
+import { useZrPageEffects } from "@/hooks/use-zr-page-effects";
 
 export default function Support() {
+  const pageRef = useRef<HTMLDivElement>(null);
+  useZrPageEffects(pageRef);
+
   return (
-    <div className="min-h-screen">
+    <div ref={pageRef} className="zr-page-shell zr-reduce-motion min-h-screen">
       <SiteHeader />
       <main className="container py-10 sm:py-14">
-        <Card className="mx-auto max-w-3xl p-6 sm:p-10">
+        <Card className="zr-panel mx-auto max-w-3xl p-6 sm:p-10" data-zr-reveal data-zr-tilt>
           <h1 className="text-3xl font-bold tracking-tight font-heading">Support</h1>
           <p className="mt-2 text-sm text-muted-foreground">We're here to help</p>
 

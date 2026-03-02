@@ -30,6 +30,16 @@ ZeroRetry is a suite of browser extensions — each one solves a specific proble
 | **Privacy** | Local only. Tracks domain names and time spent. No identity or content tracked. |
 | **Chrome Web Store** | [Install Zero Distract](https://chrome.google.com/webstore) |
 
+### ZeroPin
+
+**Save what matters. Find it instantly.** Save pages and snippets locally, resurface highlights on revisit, and organize bookmarks for AI and web research.
+
+| | |
+|---|---|
+| **Key Features** | Snippet Highlighting, AI Chat Capture, Full-Screen Library, Folders & Tags, Search & Filter, Reminders |
+| **Privacy** | 100% local. No cloud sync, no tracking, no analytics. |
+| **Chrome Web Store** | [Install ZeroPin](https://chrome.google.com/webstore) |
+
 ---
 
 ## Website
@@ -55,12 +65,34 @@ This repository contains the ZeroRetry marketing website — a React SPA that se
 | `/` | Brand landing page with extension cards |
 | `/extensions/zeroretry-index` | ZeroRetry Index detail page |
 | `/extensions/zero-distract` | Zero Distract detail page |
+| `/extensions/zeropin` | ZeroPin detail page |
 | `/pricing` | Subscription tiers (Free / Pro / Unlimited) |
 | `/privacy` | Privacy Policy (covers both extensions) |
 | `/terms` | Terms of Use (covers both extensions) |
 | `/support` | Contact and support info |
 | `/dashboard/*` | User dashboard (protected) |
 | `/admin/*` | Admin panel (protected, admin role required) |
+
+---
+
+## Design and Performance Updates
+
+Recent UI updates introduce a glassmorphism + gradient visual layer with subtle 3D interactions while preserving existing page content and information hierarchy.
+
+- Updated page surfaces now use shared glass panels, atmospheric gradients, reveal animations, and hover tilt/glow effects.
+- Applied to:
+  - `/`
+  - `/privacy`
+  - `/terms`
+  - `/support`
+  - `/extensions/zeroretry-index`
+  - `/extensions/zero-distract`
+  - `/extensions/zeropin`
+
+Navigation performance was also improved without changing the visual style:
+
+- Unified page-effects hook with `requestAnimationFrame`-throttled spotlight and delegated tilt handling (lower event/listener overhead).
+- Idle-time route chunk prefetching for primary marketing and extension pages to reduce route transition wait.
 
 ---
 

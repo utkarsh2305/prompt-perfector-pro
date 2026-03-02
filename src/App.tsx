@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,18 +19,31 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 
 // Lazy loaded pages (code splitting)
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const Pricing = lazy(() => import("./pages/Pricing"));
-const DashboardLayout = lazy(() => import("./pages/dashboard/DashboardLayout"));
-const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
-const Privacy = lazy(() => import("./pages/Privacy"));
-const Terms = lazy(() => import("./pages/Terms"));
-const Support = lazy(() => import("./pages/Support"));
-const UninstallFeedback = lazy(() => import("./pages/feedback/UninstallFeedback"));
-const ZeroRetryIndexPage = lazy(() => import("./pages/extensions/ZeroRetryIndexPage"));
-const ZeroDistractPage = lazy(() => import("./pages/extensions/ZeroDistractPage"));
-const ZeroPinPage = lazy(() => import("./pages/extensions/ZeroPinPage"));
+const loadForgotPassword = () => import("./pages/ForgotPassword");
+const loadResetPassword = () => import("./pages/ResetPassword");
+const loadPricing = () => import("./pages/Pricing");
+const loadDashboardLayout = () => import("./pages/dashboard/DashboardLayout");
+const loadAdminLayout = () => import("./pages/admin/AdminLayout");
+const loadPrivacy = () => import("./pages/Privacy");
+const loadTerms = () => import("./pages/Terms");
+const loadSupport = () => import("./pages/Support");
+const loadUninstallFeedback = () => import("./pages/feedback/UninstallFeedback");
+const loadZeroRetryIndexPage = () => import("./pages/extensions/ZeroRetryIndexPage");
+const loadZeroDistractPage = () => import("./pages/extensions/ZeroDistractPage");
+const loadZeroPinPage = () => import("./pages/extensions/ZeroPinPage");
+
+const ForgotPassword = lazy(loadForgotPassword);
+const ResetPassword = lazy(loadResetPassword);
+const Pricing = lazy(loadPricing);
+const DashboardLayout = lazy(loadDashboardLayout);
+const AdminLayout = lazy(loadAdminLayout);
+const Privacy = lazy(loadPrivacy);
+const Terms = lazy(loadTerms);
+const Support = lazy(loadSupport);
+const UninstallFeedback = lazy(loadUninstallFeedback);
+const ZeroRetryIndexPage = lazy(loadZeroRetryIndexPage);
+const ZeroDistractPage = lazy(loadZeroDistractPage);
+const ZeroPinPage = lazy(loadZeroPinPage);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,9 +77,48 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function RouteChunkPrefetcher() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const prefetch = () => {
+      void loadPrivacy();
+      void loadTerms();
+      void loadSupport();
+      void loadPricing();
+      void loadZeroRetryIndexPage();
+      void loadZeroDistractPage();
+      void loadZeroPinPage();
+    };
+
+    let timeoutId: number | undefined;
+    let idleId: number | undefined;
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (idleWindow.requestIdleCallback) {
+      idleId = idleWindow.requestIdleCallback(() => prefetch(), { timeout: 1500 });
+    } else {
+      timeoutId = window.setTimeout(prefetch, 900);
+    }
+
+    return () => {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      if (idleId !== undefined && idleWindow.cancelIdleCallback) {
+        idleWindow.cancelIdleCallback(idleId);
+      }
+    };
+  }, []);
+
+  return null;
+}
+
 function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
+      <RouteChunkPrefetcher />
       <Routes>
         {/* Public pages */}
         <Route path="/" element={<Landing />} />

@@ -171,6 +171,7 @@
     background-image: var(--gradient-hero);
   }
 
+  .zr-page-shell,
   .zr-extension-page {
     position: relative;
     overflow: clip;
@@ -180,6 +181,7 @@
       linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
   }
 
+  .zr-page-shell::before,
   .zr-extension-page::before {
     content: "";
     position: fixed;
@@ -191,6 +193,7 @@
       radial-gradient(circle at 78% 18%, hsl(var(--accent-glow) / 0.09), transparent 35%);
   }
 
+  .zr-page-shell::after,
   .zr-extension-page::after {
     content: "";
     position: fixed;
@@ -205,6 +208,9 @@
     mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
   }
 
+  .zr-page-shell > header,
+  .zr-page-shell > main,
+  .zr-page-shell > footer,
   .zr-extension-page > header,
   .zr-extension-page > main,
   .zr-extension-page > footer {
@@ -212,11 +218,13 @@
     z-index: 1;
   }
 
+  .zr-page-shell > header,
   .zr-extension-page > header {
     border-bottom-color: hsl(var(--border) / 0.55);
     background: hsl(var(--background) / 0.65);
   }
 
+  .zr-page-shell > footer,
   .zr-extension-page > footer {
     border-top-color: hsl(var(--border) / 0.55);
     background: linear-gradient(180deg, transparent, hsl(var(--background) / 0.85));
@@ -237,8 +245,6 @@
       box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1),
       border-color 260ms ease,
       background-color 260ms ease;
-    transform-style: preserve-3d;
-    transform: perspective(900px) translateZ(0);
   }
 
   .zr-panel::before {

@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -30,6 +31,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { extensions } from "@/data/extensions";
+import { useZrPageEffects } from "@/hooks/use-zr-page-effects";
 
 function getInitials(name: string | null | undefined, email: string | null | undefined): string {
   if (name) {
@@ -42,6 +44,9 @@ function getInitials(name: string | null | undefined, email: string | null | und
 }
 
 const Landing = () => {
+  const pageRef = useRef<HTMLDivElement>(null);
+  useZrPageEffects(pageRef);
+
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -60,7 +65,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen zr-reduce-motion">
+    <div ref={pageRef} className="zr-page-shell zr-reduce-motion min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="container flex h-16 items-center justify-between">
@@ -152,7 +157,11 @@ const Landing = () => {
         {/* Hero Section */}
         <section className="relative overflow-hidden zr-hero-bg">
           <div className="container py-16 sm:py-24 lg:py-32">
-            <div className="mx-auto max-w-3xl text-center">
+            <div
+              className="zr-panel mx-auto max-w-4xl px-6 py-10 text-center sm:px-10 sm:py-12 lg:px-16"
+              data-zr-reveal
+              data-zr-tilt
+            >
               <p className="mb-4 inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium text-muted-foreground">
                 The Micro-Automation Company
               </p>
@@ -173,7 +182,7 @@ const Landing = () => {
                 <Button
                   asChild
                   size="lg"
-                  className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg hover:shadow-xl transition-shadow sm:w-auto"
+                  className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl sm:w-auto"
                 >
                   <button onClick={() => scrollToSection("extensions")}>
                     Explore Our Extensions
@@ -198,10 +207,10 @@ const Landing = () => {
         {/* The Problem */}
         <section id="problem" className="py-16 sm:py-24 bg-muted/30">
           <div className="container">
-            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-4" data-zr-reveal>
               The digital world is broken
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto" data-zr-reveal>
               Every day, small frictions compound into hours of lost productivity.
             </p>
             <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
@@ -222,7 +231,7 @@ const Landing = () => {
                   desc: "You copy-paste between tools, manually track what matters, and rebuild context every time you switch platforms. Small frictions compound into hours lost.",
                 },
               ].map((item) => (
-                <Card key={item.title} className="p-6 text-center">
+                <Card key={item.title} className="zr-panel p-6 text-center" data-zr-reveal data-zr-tilt>
                   <item.icon className="h-10 w-10 mx-auto text-primary" />
                   <h3 className="mt-4 font-heading text-xl font-bold">{item.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
@@ -234,7 +243,7 @@ const Landing = () => {
 
         {/* The Vision */}
         <section className="py-16 sm:py-24">
-          <div className="container text-center max-w-2xl mx-auto">
+          <div className="zr-panel container text-center max-w-2xl mx-auto px-6 py-10 sm:px-10 sm:py-12" data-zr-reveal data-zr-tilt>
             <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
               What if your tools worked <span className="italic">for</span> you?
             </h2>
@@ -255,15 +264,15 @@ const Landing = () => {
         {/* Extension Cards */}
         <section id="extensions" className="py-16 sm:py-24 bg-muted/30">
           <div className="container">
-            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-4" data-zr-reveal>
               What we're building
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto" data-zr-reveal>
               Each extension tackles one specific friction — and does it exceptionally well.
             </p>
             <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
               {extensions.map((ext) => (
-                <Card key={ext.slug} className="overflow-hidden rounded-2xl border shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <Card key={ext.slug} className="zr-panel overflow-hidden rounded-2xl p-6" data-zr-reveal data-zr-tilt>
                   {ext.icon ? (
                     <img src={ext.icon} alt="" className="h-12 w-12 rounded-full object-cover" />
                   ) : (
@@ -298,7 +307,7 @@ const Landing = () => {
         {/* The ZeroRetry Difference */}
         <section className="py-16 sm:py-24">
           <div className="container">
-            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12">
+            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12" data-zr-reveal>
               The ZeroRetry difference
             </h2>
             <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
@@ -319,7 +328,7 @@ const Landing = () => {
                   desc: "Each product removes one specific friction. Together, they create a performance layer across your entire digital workflow.",
                 },
               ].map((item) => (
-                <Card key={item.title} className="p-6 text-center">
+                <Card key={item.title} className="zr-panel p-6 text-center" data-zr-reveal data-zr-tilt>
                   <item.icon className="h-10 w-10 mx-auto text-primary" />
                   <h3 className="mt-4 font-heading text-xl font-bold">{item.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
@@ -331,7 +340,7 @@ const Landing = () => {
 
         {/* Where We're Going */}
         <section className="py-16 sm:py-24 bg-muted/30">
-          <div className="container text-center max-w-2xl mx-auto">
+          <div className="zr-panel container text-center max-w-2xl mx-auto px-6 py-10 sm:px-10 sm:py-12" data-zr-reveal data-zr-tilt>
             <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl mb-8">
               Where we're going
             </h2>
@@ -354,11 +363,11 @@ const Landing = () => {
         {/* FAQ */}
         <section className="py-16 sm:py-24">
           <div className="container">
-            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12">
+            <h2 className="font-heading text-center text-3xl font-bold tracking-tight sm:text-4xl mb-12" data-zr-reveal>
               Frequently asked questions
             </h2>
 
-            <div className="mx-auto max-w-2xl">
+            <div className="zr-panel mx-auto max-w-2xl px-4 py-2 sm:px-6 sm:py-4" data-zr-reveal>
               <Accordion type="single" collapsible className="w-full">
                 {[
                   {
@@ -401,34 +410,36 @@ const Landing = () => {
         </section>
 
         {/* Footer CTA */}
-        <section className="py-16 sm:py-24 bg-gradient-to-r from-primary to-accent">
+        <section className="py-16 sm:py-24">
           <div className="container text-center">
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to remove the friction?
-            </h2>
-            <p className="mt-4 text-lg text-white/90">
-              Choose the extension that fits your workflow.
-            </p>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              {extensions.map((ext) => (
-                <Button
-                  key={ext.slug}
-                  asChild
-                  size="lg"
-                  variant="secondary"
-                  className="bg-white text-primary hover:bg-white/90"
-                >
-                  <Link to={ext.path}>
-                    {ext.name}
-                  </Link>
-                </Button>
-              ))}
+            <div className="zr-panel mx-auto max-w-5xl bg-gradient-to-r from-primary/95 to-accent/95 px-6 py-10 text-white sm:px-10 sm:py-12" data-zr-reveal data-zr-tilt>
+              <h2 className="font-heading text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Ready to remove the friction?
+              </h2>
+              <p className="mt-4 text-lg text-white/90">
+                Choose the extension that fits your workflow.
+              </p>
+              <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+                {extensions.map((ext) => (
+                  <Button
+                    key={ext.slug}
+                    asChild
+                    size="lg"
+                    variant="secondary"
+                    className="bg-white text-primary shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/90"
+                  >
+                    <Link to={ext.path}>
+                      {ext.name}
+                    </Link>
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="border-t py-12">
+        <footer className="border-t border-border/55 bg-background/65 py-12 backdrop-blur-sm">
           <div className="container">
             <div className="flex flex-col items-center gap-6 text-center">
               <Logo />
