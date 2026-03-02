@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { SiteHeader } from "@/components/marketing/SiteHeader";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
+import { FloatingOrbs, Reveal } from "@/components/marketing/motion";
 import { Card } from "@/components/ui/card";
 import { useZrPageEffects } from "@/hooks/use-zr-page-effects";
 
@@ -11,12 +12,16 @@ export default function TermsOfService() {
   return (
     <div ref={pageRef} className="zr-page-shell zr-reduce-motion min-h-screen">
       <SiteHeader />
-      <main className="container py-10 sm:py-14">
-        <Card className="zr-panel mx-auto max-w-3xl p-6 sm:p-10" data-zr-reveal data-zr-tilt>
+      <main className="relative pt-20">
+        <section className="zr-section relative overflow-hidden">
+          <FloatingOrbs />
+          <div className="zr-content">
+            <Reveal>
+              <Card className="zr-panel mx-auto max-w-4xl p-6 sm:p-10" data-zr-tilt>
           <h1 className="text-3xl font-bold tracking-tight font-heading">Terms of Use</h1>
           <p className="mt-2 text-sm text-muted-foreground">Effective Date: February 16, 2026</p>
 
-          <div className="prose prose-sm mt-8 max-w-none text-foreground">
+          <div className="zr-legal-content prose prose-sm mt-8 max-w-none text-foreground">
             <h2 className="text-xl font-semibold">Scope</h2>
             <p>
               These Terms of Use apply to ZeroRetry extensions distributed through the Chrome Web Store,
@@ -67,7 +72,10 @@ export default function TermsOfService() {
               </a>
             </p>
           </div>
-        </Card>
+              </Card>
+            </Reveal>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </div>

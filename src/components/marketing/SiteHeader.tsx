@@ -1,4 +1,5 @@
 import { NavLink, useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,7 +24,12 @@ import { extensions } from "@/data/extensions";
 
 function getInitials(name: string | null | undefined, email: string | null | undefined): string {
   if (name) {
-    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   }
   if (email) {
     return email[0].toUpperCase();
@@ -46,12 +52,9 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="container flex h-16 items-center justify-between">
-        <NavLink
-          to="/"
-          className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-semibold"
-        >
+    <header className="zr-site-header">
+      <div className="zr-content flex h-16 items-center justify-between">
+        <NavLink to="/" className="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-semibold">
           <Logo />
         </NavLink>
 
@@ -59,17 +62,17 @@ export function SiteHeader() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm text-muted-foreground bg-transparent hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
+                <NavigationMenuTrigger className="bg-transparent text-sm text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
                   Extensions
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2">
+                  <ul className="grid w-[420px] gap-3 p-4 md:w-[520px] md:grid-cols-2">
                     {extensions.map((ext) => (
                       <li key={ext.slug}>
                         <NavigationMenuLink asChild>
                           <Link
                             to={ext.path}
-                            className="group block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-muted focus:bg-muted"
+                            className="zr-panel group block select-none rounded-lg p-3 leading-none no-underline outline-none"
                           >
                             <div className="flex items-center gap-2">
                               {ext.icon ? (
@@ -79,7 +82,7 @@ export function SiteHeader() {
                               )}
                               <div className="text-sm font-medium leading-none">{ext.name}</div>
                             </div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground group-hover:text-foreground/70 mt-1">
+                            <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground group-hover:text-foreground/75">
                               {ext.tagline}
                             </p>
                           </Link>
@@ -97,15 +100,13 @@ export function SiteHeader() {
           {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full border border-border/70 bg-card/50">
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                      {initials}
-                    </AvatarFallback>
+                    <AvatarFallback className="bg-primary text-sm text-primary-foreground">{initials}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuContent className="w-56 border-border/80 bg-card/80 backdrop-blur-xl" align="end">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">{fullName || "User"}</p>
@@ -114,14 +115,20 @@ export function SiteHeader() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <NavLink to="/dashboard" className="w-full cursor-pointer">Dashboard</NavLink>
+                  <NavLink to="/dashboard" className="w-full cursor-pointer">
+                    Dashboard
+                  </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <NavLink to="/dashboard/settings" className="w-full cursor-pointer">Settings</NavLink>
+                  <NavLink to="/dashboard/settings" className="w-full cursor-pointer">
+                    Settings
+                  </NavLink>
                 </DropdownMenuItem>
                 {isAdmin && (
                   <DropdownMenuItem asChild>
-                    <NavLink to="/admin" className="w-full cursor-pointer">Admin Panel</NavLink>
+                    <NavLink to="/admin" className="w-full cursor-pointer">
+                      Admin Panel
+                    </NavLink>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
@@ -132,12 +139,16 @@ export function SiteHeader() {
             </DropdownMenu>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm">
-                <NavLink to="/login">Sign in</NavLink>
-              </Button>
-              <Button asChild variant="default" size="sm" className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
-                <NavLink to="/signup">Try it now</NavLink>
-              </Button>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button asChild variant="ghost" size="sm" className="border border-border/70 bg-card/40">
+                  <NavLink to="/login">Sign in</NavLink>
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.98 }}>
+                <Button asChild size="sm" className="bg-[image:var(--gradient-brand)] text-primary-foreground shadow-[var(--shadow-elev)]">
+                  <NavLink to="/signup">Try it now</NavLink>
+                </Button>
+              </motion.div>
             </>
           )}
         </div>

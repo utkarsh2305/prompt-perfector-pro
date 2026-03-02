@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { SiteHeader } from "@/components/marketing/SiteHeader";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
+import { FloatingOrbs, Reveal } from "@/components/marketing/motion";
 import { Card } from "@/components/ui/card";
 import { Mail } from "lucide-react";
 import { useZrPageEffects } from "@/hooks/use-zr-page-effects";
@@ -12,12 +13,16 @@ export default function Support() {
   return (
     <div ref={pageRef} className="zr-page-shell zr-reduce-motion min-h-screen">
       <SiteHeader />
-      <main className="container py-10 sm:py-14">
-        <Card className="zr-panel mx-auto max-w-3xl p-6 sm:p-10" data-zr-reveal data-zr-tilt>
+      <main className="relative pt-20">
+        <section className="zr-section relative overflow-hidden">
+          <FloatingOrbs />
+          <div className="zr-content">
+            <Reveal>
+              <Card className="zr-panel mx-auto max-w-4xl p-6 sm:p-10" data-zr-tilt>
           <h1 className="text-3xl font-bold tracking-tight font-heading">Support</h1>
           <p className="mt-2 text-sm text-muted-foreground">We're here to help</p>
 
-          <div className="prose prose-sm mt-8 max-w-none text-foreground">
+          <div className="zr-legal-content prose prose-sm mt-8 max-w-none text-foreground">
             <h2 className="text-xl font-semibold">Get in Touch</h2>
             <p>
               We value your feedback and are committed to providing the best experience with ZeroRetry extensions. 
@@ -33,7 +38,7 @@ export default function Support() {
             <div className="mt-4 not-prose">
               <a 
                 href="mailto:mairh.utkarsh@gmail.com"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-3 text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-[image:var(--gradient-brand)] px-4 py-3 text-primary-foreground shadow-[var(--shadow-elev)] transition-all hover:scale-[1.02]"
               >
                 <Mail className="h-5 w-5" />
                 <span className="font-medium">mairh.utkarsh@gmail.com</span>
@@ -62,7 +67,10 @@ export default function Support() {
               future of ZeroRetry.
             </p>
           </div>
-        </Card>
+              </Card>
+            </Reveal>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </div>

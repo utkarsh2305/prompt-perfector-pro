@@ -2,132 +2,102 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ZeroRetry Design System
-   All colors MUST be HSL format.
-   Brand: Deep Indigo (#4F46E5) + Electric Violet (#7C3AED)
-*/
-
 @layer base {
   :root {
-    /* ZeroRetry theme (light) */
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --background: 240 20% 3%;
+    --foreground: 240 10% 92%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card: 240 15% 8%;
+    --card-foreground: 240 10% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 240 15% 6%;
+    --popover-foreground: 240 10% 92%;
 
-    /* Brand: Deep Indigo (#4F46E5) - HSL: 243 76% 59% */
-    --primary: 243 76% 59%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 243 76% 69%;
+    --primary: 258 80% 60%;
+    --primary-foreground: 240 10% 98%;
+    --primary-glow: 258 80% 60%;
 
-    /* Brand Accent: Electric Violet (#7C3AED) - HSL: 263 82% 58% */
-    --accent: 263 82% 58%;
-    --accent-foreground: 0 0% 100%;
-    --accent-glow: 263 82% 68%;
+    --accent: 270 90% 65%;
+    --accent-foreground: 240 10% 98%;
+    --accent-glow: 280 90% 55%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 240 12% 14%;
+    --secondary-foreground: 240 10% 92%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 240 12% 14%;
+    --muted-foreground: 240 8% 55%;
 
-    /* UI-only neutral accent */
-    --surface-accent: 210 40% 96%;
-    --surface-accent-foreground: 222 47% 11%;
+    --surface-accent: 240 12% 14%;
+    --surface-accent-foreground: 240 10% 92%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 80% 58%;
+    --destructive-foreground: 240 10% 98%;
 
-    /* Score colors */
-    --score-high: 160 84% 39%;
-    --score-medium: 38 92% 50%;
-    --score-low: 0 84% 60%;
+    --score-high: 154 72% 45%;
+    --score-medium: 43 89% 54%;
+    --score-low: 0 80% 58%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 243 76% 59%;
+    --border: 258 30% 18%;
+    --input: 258 30% 18%;
+    --ring: 258 80% 60%;
 
-    --radius: 0.75rem;
+    --radius: 0.95rem;
 
-    /* Signature styling tokens */
-    --shadow-elev: 0 20px 60px -20px hsl(var(--primary) / 0.25);
-    --shadow-soft: 0 8px 32px -12px hsl(222 47% 11% / 0.12);
-    --gradient-brand: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-    --gradient-cta: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-    --gradient-hero: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(var(--primary-glow) / 0.15), transparent);
+    --shadow-elev:
+      0 0 60px -10px hsl(258 80% 60% / 0.25),
+      0 0 120px -20px hsl(280 90% 55% / 0.15);
+    --shadow-soft: 0 24px 80px -48px hsl(0 0% 0% / 0.72);
 
-    /* Spotlight position (updated by JS) */
+    --gradient-brand: linear-gradient(
+      135deg,
+      hsl(258 80% 65%),
+      hsl(280 90% 60%),
+      hsl(300 80% 65%)
+    );
+    --gradient-cta: var(--gradient-brand);
+    --gradient-hero: radial-gradient(
+      ellipse 60% 40% at 50% 0%,
+      hsl(258 80% 50% / 0.15),
+      transparent
+    );
+
     --spotlight-x: 50%;
     --spotlight-y: 28%;
 
-    /* Sidebar tokens (kept for compatibility) */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 243 76% 59%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 243 76% 59%;
+    --sidebar-background: 240 15% 6%;
+    --sidebar-foreground: 240 10% 92%;
+    --sidebar-primary: 258 80% 60%;
+    --sidebar-primary-foreground: 240 10% 98%;
+    --sidebar-accent: 240 12% 14%;
+    --sidebar-accent-foreground: 240 10% 92%;
+    --sidebar-border: 258 30% 18%;
+    --sidebar-ring: 258 80% 60%;
   }
 
   .dark {
-    /* ZeroRetry theme (dark) */
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-
-    --card: 222 44% 8%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222 44% 8%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 243 76% 64%;
-    --primary-foreground: 222 47% 6%;
-    --primary-glow: 243 76% 72%;
-
-    --accent: 263 82% 65%;
-    --accent-foreground: 222 47% 6%;
-    --accent-glow: 263 82% 72%;
-
-    --secondary: 222 30% 14%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 222 30% 14%;
-    --muted-foreground: 215 20% 65%;
-
-    --surface-accent: 222 30% 14%;
-    --surface-accent-foreground: 210 40% 98%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --score-high: 160 84% 45%;
-    --score-medium: 38 92% 55%;
-    --score-low: 0 72% 55%;
-
-    --border: 222 20% 18%;
-    --input: 222 20% 18%;
-    --ring: 243 76% 64%;
-
-    --shadow-elev: 0 24px 70px -30px hsl(var(--primary) / 0.35);
-    --shadow-soft: 0 12px 40px -18px hsl(0 0% 0% / 0.45);
-    --gradient-brand: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-    --gradient-cta: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-    --gradient-hero: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(var(--primary-glow) / 0.12), transparent);
-
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 243 76% 59%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 243 76% 59%;
+    --background: 240 20% 3%;
+    --foreground: 240 10% 92%;
+    --card: 240 15% 8%;
+    --card-foreground: 240 10% 92%;
+    --popover: 240 15% 6%;
+    --popover-foreground: 240 10% 92%;
+    --primary: 258 80% 60%;
+    --primary-foreground: 240 10% 98%;
+    --primary-glow: 258 80% 60%;
+    --accent: 270 90% 65%;
+    --accent-foreground: 240 10% 98%;
+    --accent-glow: 280 90% 55%;
+    --secondary: 240 12% 14%;
+    --secondary-foreground: 240 10% 92%;
+    --muted: 240 12% 14%;
+    --muted-foreground: 240 8% 55%;
+    --surface-accent: 240 12% 14%;
+    --surface-accent-foreground: 240 10% 92%;
+    --destructive: 0 80% 58%;
+    --destructive-foreground: 240 10% 98%;
+    --border: 258 30% 18%;
+    --input: 258 30% 18%;
+    --ring: 258 80% 60%;
   }
 }
 
@@ -138,26 +108,37 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 14% 8%, hsl(var(--primary) / 0.16), transparent 30%),
+      radial-gradient(circle at 87% 4%, hsl(var(--accent) / 0.14), transparent 24%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
   }
 }
 
 @layer utilities {
   .font-heading {
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: "Space Grotesk", system-ui, sans-serif;
   }
 
   .font-sans {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "Inter", system-ui, sans-serif;
   }
 
   .zr-text-balance {
     text-wrap: balance;
   }
 
-  .zr-surface {
-    background: hsl(var(--card) / 0.85);
-    box-shadow: var(--shadow-soft);
-    backdrop-filter: blur(8px);
+  .zr-content {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .zr-section {
+    padding-block: clamp(5.5rem, 8vw, 8rem);
+    padding-inline: 1.5rem;
   }
 
   .zr-gradient-text {
@@ -174,10 +155,10 @@
   .zr-page-shell,
   .zr-extension-page {
     position: relative;
-    overflow: clip;
+    overflow-x: clip;
     background:
-      radial-gradient(120% 80% at 20% 0%, hsl(var(--primary) / 0.2), transparent 65%),
-      radial-gradient(100% 70% at 90% 10%, hsl(var(--accent) / 0.18), transparent 60%),
+      radial-gradient(120% 70% at 20% 0%, hsl(var(--primary) / 0.17), transparent 62%),
+      radial-gradient(110% 72% at 90% 5%, hsl(var(--accent) / 0.16), transparent 58%),
       linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
   }
 
@@ -186,11 +167,11 @@
     content: "";
     position: fixed;
     inset: 0;
-    z-index: 0;
     pointer-events: none;
+    z-index: 0;
     background:
-      radial-gradient(circle at var(--spotlight-x) var(--spotlight-y), hsl(var(--primary-glow) / 0.14), transparent 40%),
-      radial-gradient(circle at 78% 18%, hsl(var(--accent-glow) / 0.09), transparent 35%);
+      radial-gradient(circle at var(--spotlight-x) var(--spotlight-y), hsl(var(--primary-glow) / 0.17), transparent 38%),
+      radial-gradient(circle at 78% 18%, hsl(var(--accent-glow) / 0.14), transparent 35%);
   }
 
   .zr-page-shell::after,
@@ -198,14 +179,12 @@
     content: "";
     position: fixed;
     inset: 0;
-    z-index: 0;
     pointer-events: none;
-    opacity: 0.25;
-    background-image:
-      linear-gradient(hsl(var(--foreground) / 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--foreground) / 0.02) 1px, transparent 1px);
-    background-size: 26px 26px;
-    mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
+    z-index: 0;
+    opacity: 0.45;
+    background-image: radial-gradient(hsl(258 30% 25% / 0.3) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(circle at center, black 0%, transparent 74%);
   }
 
   .zr-page-shell > header,
@@ -218,68 +197,120 @@
     z-index: 1;
   }
 
-  .zr-page-shell > header,
-  .zr-extension-page > header {
-    border-bottom-color: hsl(var(--border) / 0.55);
-    background: hsl(var(--background) / 0.65);
+  .zr-site-header {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid hsl(var(--border) / 0.75);
+    background: hsl(var(--background) / 0.6);
+    backdrop-filter: blur(24px) saturate(1.25);
+    -webkit-backdrop-filter: blur(24px) saturate(1.25);
   }
 
-  .zr-page-shell > footer,
-  .zr-extension-page > footer {
-    border-top-color: hsl(var(--border) / 0.55);
-    background: linear-gradient(180deg, transparent, hsl(var(--background) / 0.85));
+  .zr-site-footer {
+    border-top: 1px solid hsl(var(--border) / 0.6);
+    background: linear-gradient(180deg, transparent, hsl(var(--background) / 0.92));
   }
 
   .zr-panel {
     position: relative;
-    border-radius: 1rem;
-    border: 1px solid hsl(var(--border) / 0.55);
-    background: hsl(var(--card) / 0.62);
+    border-radius: 1.15rem;
+    border: 1px solid hsl(var(--border) / 0.7);
+    background: linear-gradient(
+      150deg,
+      hsl(var(--card) / 0.78),
+      hsl(var(--popover) / 0.72)
+    );
     box-shadow:
-      0 26px 60px -42px hsl(var(--primary) / 0.48),
-      inset 0 1px 0 hsl(0 0% 100% / 0.16);
-    backdrop-filter: blur(14px) saturate(1.2);
-    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+      0 35px 90px -55px hsl(0 0% 0% / 0.85),
+      inset 0 1px 0 hsl(0 0% 100% / 0.13);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
     transition:
-      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 260ms ease,
-      background-color 260ms ease;
+      transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 220ms ease;
   }
 
   .zr-panel::before {
     content: "";
     position: absolute;
     inset: 0;
+    padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(130deg, hsl(0 0% 100% / 0.12), transparent 42%);
     pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary) / 0.84),
+      hsl(var(--accent) / 0.38),
+      hsl(var(--primary) / 0.84)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
   }
 
   .zr-panel::after {
     content: "";
     position: absolute;
-    inset: -1px;
-    border-radius: inherit;
+    inset: 1px;
+    border-radius: calc(1.15rem - 1px);
     pointer-events: none;
-    opacity: var(--zr-glow-opacity, 0);
-    transition: opacity 180ms linear;
-    background: radial-gradient(circle at var(--zr-glow-x, 50%) var(--zr-glow-y, 50%), hsl(var(--accent-glow) / 0.34), transparent 52%);
+    background: linear-gradient(170deg, hsl(0 0% 100% / 0.14), transparent 35%);
+    opacity: 0.7;
   }
 
   .zr-panel:hover {
-    border-color: hsl(var(--accent) / 0.46);
+    transform: translateY(-4px);
+    border-color: hsl(var(--accent) / 0.78);
     box-shadow:
-      0 30px 72px -38px hsl(var(--accent) / 0.44),
-      inset 0 1px 0 hsl(0 0% 100% / 0.2);
+      0 0 60px -10px hsl(var(--primary) / 0.22),
+      0 0 120px -20px hsl(var(--accent) / 0.15),
+      0 34px 100px -52px hsl(0 0% 0% / 0.86);
+  }
+
+  .zr-link {
+    color: hsl(var(--foreground) / 0.86);
+    transition: color 160ms ease;
+  }
+
+  .zr-link:hover {
+    color: hsl(var(--foreground));
+  }
+
+  .zr-status-dot {
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 9999px;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 20px -4px hsl(var(--primary) / 0.8);
+  }
+
+  .zr-legal-content.prose {
+    --tw-prose-headings: hsl(var(--foreground));
+    --tw-prose-body: hsl(var(--foreground) / 0.9);
+    --tw-prose-bullets: hsl(var(--accent) / 0.8);
+    --tw-prose-links: hsl(var(--primary));
+    --tw-prose-bold: hsl(var(--foreground));
+    --tw-prose-counters: hsl(var(--muted-foreground));
+    --tw-prose-hr: hsl(var(--border));
+    --tw-prose-code: hsl(var(--foreground));
+    --tw-prose-pre-bg: hsl(var(--muted) / 0.5);
   }
 
   [data-zr-reveal] {
     opacity: 0;
-    transform: translateY(28px) scale(0.985);
+    transform: translateY(18px) scale(0.99);
     transition:
-      opacity 620ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 520ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 620ms cubic-bezier(0.2, 0.8, 0.2, 1);
     transition-delay: var(--zr-delay, 0ms);
   }
 
