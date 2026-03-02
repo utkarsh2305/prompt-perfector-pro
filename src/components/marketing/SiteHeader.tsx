@@ -53,22 +53,22 @@ export function SiteHeader() {
 
   return (
     <header className="zr-site-header">
-      <div className="zr-content relative flex h-16 items-center">
-        <div className="flex w-48 items-center justify-start">
+      <div className="zr-content grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
+        <div className="flex items-center justify-self-start">
           <NavLink to="/" className="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-semibold">
             <Logo />
           </NavLink>
         </div>
 
-        <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center md:flex">
+        <nav className="hidden items-center justify-self-center md:flex">
           <NavigationMenu className="[&>div.absolute]:left-1/2 [&>div.absolute]:-translate-x-1/2">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent text-sm text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
+                <NavigationMenuTrigger className="bg-transparent text-sm text-foreground/85 hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
                   Extensions
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="mx-auto grid w-[860px] max-w-[calc(100vw-2.5rem)] grid-cols-3 gap-3 p-4">
+                  <ul className="mx-auto grid w-[860px] max-w-[min(860px,calc(100vw-3rem))] grid-cols-3 gap-3 p-4">
                     {extensions.map((ext) => (
                       <li key={ext.slug}>
                         <NavigationMenuLink asChild>
@@ -80,7 +80,7 @@ export function SiteHeader() {
                               {ext.icon ? (
                                 <img src={ext.icon} alt="" className="h-5 w-5 rounded-full object-cover" />
                               ) : (
-                                <span className="text-lg">🧩</span>
+                                <span className="text-lg">?</span>
                               )}
                               <div className="text-sm font-medium leading-none">{ext.name}</div>
                             </div>
@@ -98,7 +98,7 @@ export function SiteHeader() {
           </NavigationMenu>
         </nav>
 
-        <div className="ml-auto flex w-48 items-center justify-end gap-3">
+        <div className="flex items-center justify-self-end gap-3">
           {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -140,7 +140,7 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="invisible pointer-events-none flex items-center gap-3" aria-hidden="true">
+            <div className="invisible pointer-events-none flex items-center gap-3 whitespace-nowrap" aria-hidden="true">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button asChild variant="ghost" size="sm" className="border border-border/70 bg-card/40">
                   <NavLink to="/login">Sign in</NavLink>
@@ -158,3 +158,4 @@ export function SiteHeader() {
     </header>
   );
 }
+
