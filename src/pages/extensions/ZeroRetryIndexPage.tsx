@@ -1,6 +1,7 @@
 import { getExtension } from "@/data/extensions";
 import { ExtensionPage } from "./ExtensionPage";
 import { Card } from "@/components/ui/card";
+import type { CSSProperties } from "react";
 
 export default function ZeroRetryIndexPage() {
   const ext = getExtension("zeroretry-index")!;
@@ -12,7 +13,7 @@ export default function ZeroRetryIndexPage() {
         <div className="container">
           <div className="mx-auto max-w-4xl">
             <div className="grid gap-8 md:grid-cols-2">
-              <Card className="overflow-hidden rounded-2xl border shadow-lg">
+              <Card className="zr-panel overflow-hidden rounded-2xl" data-zr-reveal data-zr-tilt>
                 <div className="border-b bg-muted/50 px-6 py-4">
                   <p className="font-heading font-semibold text-lg">What it's NOT</p>
                 </div>
@@ -26,7 +27,12 @@ export default function ZeroRetryIndexPage() {
                 </div>
               </Card>
 
-              <Card className="overflow-hidden rounded-2xl border shadow-lg bg-primary/5">
+              <Card
+                className="zr-panel overflow-hidden rounded-2xl bg-primary/5"
+                style={{ "--zr-delay": "90ms" } as CSSProperties}
+                data-zr-reveal
+                data-zr-tilt
+              >
                 <div className="border-b bg-primary/10 px-6 py-4">
                   <p className="font-heading font-semibold text-lg">What it IS</p>
                 </div>
@@ -51,7 +57,7 @@ export default function ZeroRetryIndexPage() {
       {/* How It Works */}
       <section className="py-16 sm:py-24 bg-muted/30">
         <div className="container">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12" data-zr-reveal>
             <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
               Why it's useful
             </h2>
@@ -73,7 +79,13 @@ export default function ZeroRetryIndexPage() {
               { icon: "👁️", title: "Stay out of the way", desc: "Collapse the panel into a slim icon when you don't need it." },
               { icon: "🔒", title: "Privacy-first by design", desc: "No data leaves your browser. No accounts. No cloud sync. No AI processing." },
             ].map((item, i) => (
-              <Card key={i} className="p-6 text-center hover:shadow-lg transition-shadow">
+              <Card
+                key={i}
+                className="zr-panel p-6 text-center"
+                style={{ "--zr-delay": `${i * 50}ms` } as CSSProperties}
+                data-zr-reveal
+                data-zr-tilt
+              >
                 <div className="text-4xl mb-3">{item.icon}</div>
                 <h3 className="font-heading text-lg font-semibold mb-2">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.desc}</p>

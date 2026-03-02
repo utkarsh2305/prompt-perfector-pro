@@ -1,6 +1,7 @@
 import { getExtension } from "@/data/extensions";
 import { ExtensionPage } from "./ExtensionPage";
 import { Card } from "@/components/ui/card";
+import type { CSSProperties } from "react";
 
 export default function ZeroDistractPage() {
   const ext = getExtension("zero-distract")!;
@@ -10,7 +11,7 @@ export default function ZeroDistractPage() {
       {/* How It Works */}
       <section className="py-16 sm:py-24">
         <div className="container">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12" data-zr-reveal>
             <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
               How it works
             </h2>
@@ -29,7 +30,13 @@ export default function ZeroDistractPage() {
               { icon: "🔄", title: "Replace Feeds", desc: "Swap infinite scroll feeds on YouTube, Reddit, and Twitter/X with your priority checklist." },
               { icon: "🔒", title: "Privacy-First", desc: "All data stays in your browser. No accounts, no cloud sync, no tracking." },
             ].map((item, i) => (
-              <Card key={i} className="p-6 text-center hover:shadow-lg transition-shadow">
+              <Card
+                key={i}
+                className="zr-panel p-6 text-center"
+                style={{ "--zr-delay": `${i * 50}ms` } as CSSProperties}
+                data-zr-reveal
+                data-zr-tilt
+              >
                 <div className="text-4xl mb-3">{item.icon}</div>
                 <h3 className="font-heading text-lg font-semibold mb-2">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.desc}</p>
@@ -43,7 +50,7 @@ export default function ZeroDistractPage() {
       <section className="py-16 sm:py-24 bg-muted/30">
         <div className="container">
           <div className="mx-auto max-w-2xl">
-            <h2 className="font-heading text-2xl font-bold mb-8 text-center">
+            <h2 className="font-heading text-2xl font-bold mb-8 text-center" data-zr-reveal>
               Permissions Explained
             </h2>
             <div className="space-y-4">
@@ -60,8 +67,14 @@ export default function ZeroDistractPage() {
                   perm: "tabs",
                   why: "Detect which site you're visiting to track time — domain name only, never page content.",
                 },
-              ].map((p) => (
-                <div key={p.perm} className="flex gap-4 rounded-lg border p-4">
+              ].map((p, i) => (
+                <div
+                  key={p.perm}
+                  className="zr-panel flex gap-4 rounded-lg p-4"
+                  style={{ "--zr-delay": `${i * 70}ms` } as CSSProperties}
+                  data-zr-reveal
+                  data-zr-tilt
+                >
                   <code className="text-sm font-mono text-primary whitespace-nowrap mt-0.5">
                     {p.perm}
                   </code>
