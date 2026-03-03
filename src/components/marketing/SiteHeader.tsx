@@ -52,7 +52,7 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="zr-site-header">
+    <header className="zr-site-header fixed inset-x-0 top-0 z-[999]">
       <div className="zr-content grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
         <div className="flex items-center justify-self-start">
           <NavLink to="/" className="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-semibold">
@@ -61,7 +61,7 @@ export function SiteHeader() {
         </div>
 
         <nav className="hidden items-center justify-self-center md:flex">
-          <NavigationMenu className="[&>div.absolute]:left-1/2 [&>div.absolute]:-translate-x-1/2">
+          <NavigationMenu className="flex-none w-auto [&>div.absolute]:left-1/2 [&>div.absolute]:-translate-x-1/2">
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent text-sm text-foreground/85 hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
