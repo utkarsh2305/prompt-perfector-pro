@@ -1,4 +1,5 @@
-import { NavLink, useNavigate, Link } from "react-router-dom";
+import type { MouseEvent } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,18 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "@/components/Logo";
-import { extensions } from "@/data/extensions";
 
 function getInitials(name: string | null | undefined, email: string | null | undefined): string {
   if (name) {
@@ -39,6 +31,7 @@ function getInitials(name: string | null | undefined, email: string | null | und
 
 export function SiteHeader() {
   const { user, profile, isAdmin, signOut } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const isLoggedIn = !!user;
@@ -51,6 +44,16 @@ export function SiteHeader() {
     navigate("/login");
   };
 
+  const handleExtensionsClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (location.pathname === "/") {
+      event.preventDefault();
+      document.getElementById("extensions")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (window.location.hash !== "#extensions") {
+        window.history.replaceState(null, "", "#extensions");
+      }
+    }
+  };
+
   return (
     <header className="zr-site-header fixed inset-x-0 top-0 z-[999]">
       <div className="zr-content grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
@@ -61,41 +64,16 @@ export function SiteHeader() {
         </div>
 
         <nav className="hidden items-center justify-self-center md:flex">
-          <NavigationMenu className="flex-none w-auto [&>div.absolute]:left-1/2 [&>div.absolute]:-translate-x-1/2">
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent text-sm text-foreground/85 hover:bg-transparent hover:text-foreground data-[state=open]:bg-transparent">
-                  Extensions
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="mx-auto grid w-[860px] max-w-[min(860px,calc(100vw-3rem))] grid-cols-3 gap-3 p-4">
-                    {extensions.map((ext) => (
-                      <li key={ext.slug}>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to={ext.path}
-                            className="zr-panel group block select-none rounded-lg p-3 leading-none no-underline outline-none"
-                          >
-                            <div className="flex items-center gap-2">
-                              {ext.icon ? (
-                                <img src={ext.icon} alt="" className="h-5 w-5 rounded-full object-cover" />
-                              ) : (
-                                <span className="text-lg">?</span>
-                              )}
-                              <div className="text-sm font-medium leading-none">{ext.name}</div>
-                            </div>
-                            <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground group-hover:text-foreground/75">
-                              {ext.tagline}
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="border border-border/70 bg-card/35 px-4 text-foreground/90 backdrop-blur-md hover:bg-card/55 hover:text-foreground"
+          >
+            <Link to="/#extensions" onClick={handleExtensionsClick}>
+              Extensions
+            </Link>
+          </Button>
         </nav>
 
         <div className="flex items-center justify-self-end gap-3">

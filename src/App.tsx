@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -115,9 +115,31 @@ function RouteChunkPrefetcher() {
   return null;
 }
 
+function HashScrollHandler() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const targetId = decodeURIComponent(location.hash.replace("#", ""));
+    if (!targetId) return;
+
+    const timer = window.setTimeout(() => {
+      const element = document.getElementById(targetId);
+      if (!element) return;
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      element.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [location.pathname, location.hash]);
+
+  return null;
+}
+
 function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
+      <HashScrollHandler />
       <RouteChunkPrefetcher />
       <Routes>
         {/* Public pages */}
