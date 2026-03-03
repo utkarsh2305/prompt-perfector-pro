@@ -55,7 +55,7 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="zr-site-header fixed inset-x-0 top-0 z-[999]">
+    <header className="zr-site-header fixed inset-x-0 top-0 z-[999] border-b border-border/80 bg-background/55 backdrop-blur-2xl">
       <div className="zr-content grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
         <div className="flex items-center justify-self-start">
           <NavLink to="/" className="inline-flex items-center gap-2 rounded-md px-1 py-1 text-sm font-semibold">
